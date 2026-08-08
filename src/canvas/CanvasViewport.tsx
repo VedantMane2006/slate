@@ -10,6 +10,7 @@ import {
 import { usePointerEvents } from '../hooks/usePointerEvents.ts';
 import { StrokeBuilder, type Stroke } from '../objects/stroke.ts';
 import { renderStrokes } from './renderer.ts';
+import { pointInBox, distance } from '../utils/geometry.ts';
 
 interface PointerRecord {
   x: number;
@@ -26,8 +27,10 @@ export function CanvasViewport() {
   const [cursorStyle, setCursorStyle] = useState('default');
   const [strokes, setStrokes] = useState<Stroke[]>([]);
   const [activeStroke, setActiveStroke] = useState<Stroke | null>(null);
+  const [isEraserMode, setIsEraserMode] = useState(false);
 
   const activeStrokeBuilder = useRef<StrokeBuilder | null>(null);
+  const isInteracting = useRef(false);
 
   const spaceHeld = useRef(false);
   const isPanning = useRef(false);
@@ -40,6 +43,10 @@ export function CanvasViewport() {
         e.preventDefault();
         spaceHeld.current = true;
         setCursorStyle('grab');
+      } else if (e.code === 'KeyE' && !e.repeat) {
+        setIsEraserMode(true);
+      } else if (e.code === 'KeyD' && !e.repeat) {
+        setIsEraserMode(false);
       }
     };
     const onKeyUp = (e: KeyboardEvent) => {
@@ -82,7 +89,38 @@ export function CanvasViewport() {
     onPointerMove: samplePointerMove,
     onPointerUp: samplePointerUp,
   } = usePointerEvents(viewport, (sample) => {
-    if (activeStrokeBuilder.current) {
+    if (isEraserMode) {
+      const ERASER_TOLERANCE = 10 / viewport.zoom;
+      setStrokes((prevStrokes) => {
+        let strokesToRemove = new Set<string>();
+
+        for (let i = prevStrokes.length - 1; i >= 0; i--) {
+          const stroke = prevStrokes[i];
+          const expandedBox = {
+            minX: stroke.bounds.minX - ERASER_TOLERANCE - stroke.width,
+            minY: stroke.bounds.minY - ERASER_TOLERANCE - stroke.width,
+            maxX: stroke.bounds.maxX + ERASER_TOLERANCE + stroke.width,
+            maxY: stroke.bounds.maxY + ERASER_TOLERANCE + stroke.width,
+          };
+          
+          if (!pointInBox(sample, expandedBox)) continue;
+          
+          for (const pt of stroke.points) {
+            if (distance(sample, pt) <= ERASER_TOLERANCE + stroke.width) {
+              // DECIDED: Whole-stroke erase design choice.
+              // In this phase, we remove the entire stroke from the array instead of
+              // splitting it into segments. This keeps the object model purely stroke-based for now.
+              strokesToRemove.add(stroke.id);
+              break;
+            }
+          }
+        }
+        if (strokesToRemove.size > 0) {
+          return prevStrokes.filter((s) => !strokesToRemove.has(s.id));
+        }
+        return prevStrokes;
+      });
+    } else if (activeStrokeBuilder.current) {
       activeStrokeBuilder.current.addPoint(sample);
       try {
         setActiveStroke(activeStrokeBuilder.current.build());
@@ -105,18 +143,21 @@ export function CanvasViewport() {
           setCursorStyle('grabbing');
         }
       } else {
-        // Start a new stroke
-        activeStrokeBuilder.current = new StrokeBuilder(
-          // simple unique ID fallback since crypto.randomUUID isn't guaranteed in all JS environments
-          Date.now().toString(36) + Math.random().toString(36).substring(2),
-          4,
-          '#000000',
-          Date.now()
-        );
+        isInteracting.current = true;
+        if (!isEraserMode) {
+          // Start a new stroke
+          activeStrokeBuilder.current = new StrokeBuilder(
+            // simple unique ID fallback since crypto.randomUUID isn't guaranteed in all JS environments
+            Date.now().toString(36) + Math.random().toString(36).substring(2),
+            4,
+            '#000000',
+            Date.now()
+          );
+        }
         samplePointerDown(e);
       }
     },
-    [samplePointerDown],
+    [samplePointerDown, isEraserMode],
   );
 
   const handlePointerMove = useCallback(
@@ -158,7 +199,7 @@ export function CanvasViewport() {
           offsetX: vp.offsetX + dx,
           offsetY: vp.offsetY + dy,
         }));
-      } else if (activeStrokeBuilder.current) {
+      } else if (isInteracting.current) {
         samplePointerMove(e);
       }
     },
@@ -176,16 +217,19 @@ export function CanvasViewport() {
         setCursorStyle(spaceHeld.current ? 'grab' : 'default');
       }
 
-      if (activeStrokeBuilder.current) {
+      if (isInteracting.current) {
         samplePointerUp(e);
-        try {
-          const finalStroke = activeStrokeBuilder.current.build();
-          setStrokes((prev) => [...prev, finalStroke]);
-        } catch {
-          // Ignored
+        if (activeStrokeBuilder.current) {
+          try {
+            const finalStroke = activeStrokeBuilder.current.build();
+            setStrokes((prev) => [...prev, finalStroke]);
+          } catch {
+            // Ignored
+          }
+          activeStrokeBuilder.current = null;
+          setActiveStroke(null);
         }
-        activeStrokeBuilder.current = null;
-        setActiveStroke(null);
+        isInteracting.current = false;
       }
     },
     [samplePointerUp],
