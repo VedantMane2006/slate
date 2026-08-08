@@ -16,6 +16,7 @@ import {
   AddObjectCommand,
   RemoveObjectCommand,
   CompositeCommand,
+  UpdateObjectCommand,
   type ObjectStore,
 } from '../history/command.ts';
 
@@ -38,6 +39,7 @@ export function CanvasViewport() {
   const [isSelectMode, setIsSelectMode] = useState(false);
   const [selection, setSelection] = useState<{ ids: string[] }>({ ids: [] });
   const [selectionBox, setSelectionBox] = useState<BoundingBox | null>(null);
+  const [dragOffset, setDragOffset] = useState<{ dx: number; dy: number } | null>(null);
 
   const strokesRef = useRef<Stroke[]>(strokes);
   strokesRef.current = strokes;
@@ -66,6 +68,8 @@ export function CanvasViewport() {
   const activeStrokeBuilder = useRef<StrokeBuilder | null>(null);
   const isInteracting = useRef(false);
   const selectionStart = useRef<{ x: number; y: number } | null>(null);
+  const isDraggingSelection = useRef(false);
+  const dragStart = useRef<{ x: number; y: number } | null>(null);
 
   const spaceHeld = useRef(false);
   const isPanning = useRef(false);
@@ -190,9 +194,37 @@ export function CanvasViewport() {
         if (isSelectMode) {
           const rect = e.currentTarget.getBoundingClientRect();
           const screenPoint = { x: e.clientX - rect.left, y: e.clientY - rect.top };
-          selectionStart.current = screenToWorld(screenPoint, viewport);
-          setSelectionBox(null);
-          setSelection({ ids: [] });
+          const worldPoint = screenToWorld(screenPoint, viewport);
+          
+          let clickedOnSelection = false;
+          if (selection.ids.length > 0) {
+            const allStrokes = store.getAll();
+            for (const s of allStrokes) {
+              if (selection.ids.includes(s.id)) {
+                const expandedBox = {
+                  minX: s.bounds.minX - s.width,
+                  minY: s.bounds.minY - s.width,
+                  maxX: s.bounds.maxX + s.width,
+                  maxY: s.bounds.maxY + s.width,
+                };
+                if (pointInBox(worldPoint, expandedBox)) {
+                  clickedOnSelection = true;
+                  break;
+                }
+              }
+            }
+          }
+
+          if (clickedOnSelection) {
+            isDraggingSelection.current = true;
+            dragStart.current = worldPoint;
+            setDragOffset({ dx: 0, dy: 0 });
+          } else {
+            isDraggingSelection.current = false;
+            selectionStart.current = worldPoint;
+            setSelectionBox(null);
+            setSelection({ ids: [] });
+          }
         } else if (!isEraserMode) {
           // Start a new stroke
           activeStrokeBuilder.current = new StrokeBuilder(
@@ -250,25 +282,32 @@ export function CanvasViewport() {
           offsetY: vp.offsetY + dy,
         }));
       } else if (isInteracting.current) {
-        if (isSelectMode && selectionStart.current) {
+        if (isSelectMode) {
           const rect = e.currentTarget.getBoundingClientRect();
           const screenPoint = { x: e.clientX - rect.left, y: e.clientY - rect.top };
           const currentWorld = screenToWorld(screenPoint, viewport);
           const startWorld = selectionStart.current;
           
-          const box: BoundingBox = {
-            minX: Math.min(startWorld.x, currentWorld.x),
-            minY: Math.min(startWorld.y, currentWorld.y),
-            maxX: Math.max(startWorld.x, currentWorld.x),
-            maxY: Math.max(startWorld.y, currentWorld.y),
-          };
-          setSelectionBox(box);
+          if (isDraggingSelection.current && dragStart.current) {
+            setDragOffset({
+              dx: currentWorld.x - dragStart.current.x,
+              dy: currentWorld.y - dragStart.current.y,
+            });
+          } else if (startWorld) {
+            const box: BoundingBox = {
+              minX: Math.min(startWorld.x, currentWorld.x),
+              minY: Math.min(startWorld.y, currentWorld.y),
+              maxX: Math.max(startWorld.x, currentWorld.x),
+              maxY: Math.max(startWorld.y, currentWorld.y),
+            };
+            setSelectionBox(box);
 
-          const allStrokes = store.getAll();
-          const selectedIds = allStrokes
-            .filter((s) => boxesIntersect(s.bounds, box))
-            .map((s) => s.id);
-          setSelection({ ids: selectedIds });
+            const allStrokes = store.getAll();
+            const selectedIds = allStrokes
+              .filter((s) => boxesIntersect(s.bounds, box))
+              .map((s) => s.id);
+            setSelection({ ids: selectedIds });
+          }
         } else if (!isSelectMode) {
           samplePointerMove(e);
         }
@@ -290,8 +329,40 @@ export function CanvasViewport() {
 
       if (isInteracting.current) {
         if (isSelectMode) {
-          selectionStart.current = null;
-          setSelectionBox(null);
+          if (isDraggingSelection.current && dragOffset) {
+            const allStrokes = store.getAll();
+            const commands = selection.ids.map((id) => {
+              const oldStroke = allStrokes.find((s) => s.id === id);
+              if (!oldStroke) return null;
+              const newStroke: Stroke = {
+                ...oldStroke,
+                points: oldStroke.points.map((p) => ({
+                  ...p,
+                  x: p.x + dragOffset.dx,
+                  y: p.y + dragOffset.dy,
+                })),
+                bounds: {
+                  minX: oldStroke.bounds.minX + dragOffset.dx,
+                  minY: oldStroke.bounds.minY + dragOffset.dy,
+                  maxX: oldStroke.bounds.maxX + dragOffset.dx,
+                  maxY: oldStroke.bounds.maxY + dragOffset.dy,
+                },
+              };
+              return new UpdateObjectCommand(store, oldStroke, newStroke);
+            }).filter(Boolean) as UpdateObjectCommand<Stroke>[];
+
+            if (commands.length > 0) {
+              const cmd = commands.length === 1 ? commands[0] : new CompositeCommand(commands, 'Move strokes');
+              history.execute(cmd);
+            }
+
+            isDraggingSelection.current = false;
+            dragStart.current = null;
+            setDragOffset(null);
+          } else {
+            selectionStart.current = null;
+            setSelectionBox(null);
+          }
         } else {
           samplePointerUp(e);
           if (activeStrokeBuilder.current) {
@@ -379,27 +450,35 @@ export function CanvasViewport() {
     ctx.fill();
 
     // Draw strokes
-    renderStrokes(ctx, strokes, viewport);
+    const unselectedStrokes = strokes.filter((s) => !selection.ids.includes(s.id));
+    const selectedStrokes = strokes.filter((s) => selection.ids.includes(s.id));
+
+    renderStrokes(ctx, unselectedStrokes, viewport);
     if (activeStroke) {
       renderStrokes(ctx, [activeStroke], viewport);
     }
 
-    // Highlight selected strokes
-    if (selection.ids.length > 0) {
+    if (selectedStrokes.length > 0) {
+      ctx.save();
+      if (dragOffset) {
+        ctx.translate(dragOffset.dx * viewport.zoom, dragOffset.dy * viewport.zoom);
+      }
+      
+      renderStrokes(ctx, selectedStrokes, viewport);
+      
       ctx.strokeStyle = 'rgba(13, 110, 253, 0.5)';
       ctx.lineWidth = 2;
-      for (const stroke of strokes) {
-        if (selection.ids.includes(stroke.id)) {
-          const screenMin = worldToScreen({ x: stroke.bounds.minX, y: stroke.bounds.minY }, viewport);
-          const screenMax = worldToScreen({ x: stroke.bounds.maxX, y: stroke.bounds.maxY }, viewport);
-          ctx.strokeRect(
-            screenMin.x - 4,
-            screenMin.y - 4,
-            screenMax.x - screenMin.x + 8,
-            screenMax.y - screenMin.y + 8
-          );
-        }
+      for (const stroke of selectedStrokes) {
+        const screenMin = worldToScreen({ x: stroke.bounds.minX, y: stroke.bounds.minY }, viewport);
+        const screenMax = worldToScreen({ x: stroke.bounds.maxX, y: stroke.bounds.maxY }, viewport);
+        ctx.strokeRect(
+          screenMin.x - 4,
+          screenMin.y - 4,
+          screenMax.x - screenMin.x + 8,
+          screenMax.y - screenMin.y + 8
+        );
       }
+      ctx.restore();
     }
 
     // Draw selection box
@@ -414,7 +493,7 @@ export function CanvasViewport() {
       ctx.fillRect(screenMin.x, screenMin.y, w, h);
       ctx.strokeRect(screenMin.x, screenMin.y, w, h);
     }
-  }, [viewport, strokes, activeStroke, selection, selectionBox]);
+  }, [viewport, strokes, activeStroke, selection, selectionBox, dragOffset]);
 
   // Re-render on resize
   useEffect(() => {

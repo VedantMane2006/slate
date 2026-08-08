@@ -29,6 +29,13 @@ export class RemoveObjectCommand<T extends Identifiable> implements Command {
   undo() { this.store.add(this.obj); }
 }
 
+export class UpdateObjectCommand<T extends Identifiable> implements Command {
+  label = 'Update Object';
+  constructor(private store: ObjectStore<T>, private oldObj: T, private newObj: T) {}
+  do() { this.store.update(this.newObj.id, this.newObj); }
+  undo() { this.store.update(this.oldObj.id, this.oldObj); }
+}
+
 export class CompositeCommand implements Command {
   constructor(private commands: Command[], public label: string = 'Batch Action') {}
   do() {

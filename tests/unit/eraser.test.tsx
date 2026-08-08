@@ -78,10 +78,8 @@ describe('Eraser Tool', () => {
     const canvas = container.querySelector('canvas');
     if (!canvas) throw new Error('Canvas not found');
 
-    if (!canvas.setPointerCapture) {
-      canvas.setPointerCapture = vi.fn();
-      canvas.releasePointerCapture = vi.fn();
-    }
+    HTMLCanvasElement.prototype.setPointerCapture = vi.fn();
+    HTMLCanvasElement.prototype.releasePointerCapture = vi.fn();
 
     // 1. Draw a stroke at 100,100
     fireEvent.pointerDown(canvas, { pointerId: 1, clientX: 100, clientY: 100 });

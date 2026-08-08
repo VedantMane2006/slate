@@ -21,16 +21,17 @@ describe('Selection Tool', () => {
       fill: vi.fn(),
       arc: vi.fn(),
       strokeRect: strokeRectSpy,
+      save: vi.fn(),
+      restore: vi.fn(),
+      translate: vi.fn(),
     } as unknown as CanvasRenderingContext2D);
 
     const { container } = render(<CanvasViewport />);
     const canvas = container.querySelector('canvas');
     if (!canvas) throw new Error('Canvas not found');
 
-    if (!canvas.setPointerCapture) {
-      canvas.setPointerCapture = vi.fn();
-      canvas.releasePointerCapture = vi.fn();
-    }
+    HTMLCanvasElement.prototype.setPointerCapture = vi.fn();
+    HTMLCanvasElement.prototype.releasePointerCapture = vi.fn();
 
     // 1. Draw first stroke at (100, 100) -> (120, 120)
     fireEvent.pointerDown(canvas, { pointerId: 1, clientX: 100, clientY: 100 });

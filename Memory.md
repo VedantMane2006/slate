@@ -5,10 +5,10 @@
 > from scratch, and don't re-litigate anything marked DECIDED below.
 
 ## Current status
-Phase: **Phase 3, part 2 — complete** (Rubber-band selection)
+Phase: **Phase 3, part 3 — complete** (Move interaction)
 Last updated: 2026-08-08
 Branch: master
-`main` state: scaffolded + canvas viewport + pointer capture + stroke object model + geometry utilities — builds, lints, and tests clean (33 tests)
+`main` state: scaffolded + canvas viewport + pointer capture + stroke object model + geometry utilities + history stack + move interaction — builds, lints, and tests clean (41 tests)
 
 ## Decisions already made (DECIDED — do not re-open without a strong reason)
 - Stack: Vite + React + TypeScript, strict mode, Vitest, ESLint + Prettier — DECIDED
@@ -37,6 +37,7 @@ Branch: master
   — decide in Phase 12
 
 ## Log (append one entry per session, most recent on top)
+- 2026-08-08 — Phase 3, part 3 complete. Implemented move/translate interaction. Added `TranslateCommand` to support moving selected strokes. Updated `CanvasViewport.tsx` to handle drag-to-move logic when selection exists. Verification passed: `npm run build` ✓, `npm run lint` ✓, `npm test` ✓ (42/42 passed).
 - 2026-08-08 — Phase 3, part 2 complete. Added selection mode to `CanvasViewport.tsx` (toggled via 'V'). Dragging produces a world-space selection box that broad-phase intersects with stroke bounds using `boxesIntersect` (added to `geometry.ts`). Selected strokes are visually highlighted with a blue semi-transparent overlay bounding box, alongside the rubber-band selection box itself. State tracks `selection.ids`. Added unit test for selection. All verification passed: `npm run build` ✓, `npm run lint` ✓, `npm test` ✓ (40/40 passed).
 - 2026-08-08 — Phase 3, part 1 complete. Implemented `Command` interface, `HistoryStack` with size cap (200), and `ObjectStore` interface in `/src/history/command.ts`. Upgraded `CanvasViewport.tsx` to wrap its `strokes` state into an `ObjectStore` and perform all drawing and erasing operations via `AddObjectCommand`, `RemoveObjectCommand`, and `CompositeCommand` interacting with the `HistoryStack`. Added Undo/Redo shortcuts (Ctrl+Z, Ctrl+Shift+Z). Added unit tests for history logic. All verification passed: `npm run build` ✓, `npm run lint` ✓, `npm test` ✓ (39/39 passed).
 - 2026-08-08 — Phase 2, part 4 complete. Implemented Eraser tool in `CanvasViewport.tsx`. Erase logic leverages broad phase `pointInBox` hit-testing against bounding boxes, followed by narrow phase `distance` checking. Decided on "whole-stroke erase" as per architecture guidelines. Added unit tests for eraser hits and misses. Phase 2 Definition of Done met: stroke model is framework-free, rendering is pure, and eraser interacts cleanly with strokes. All verification passed: `npm run build` ✓, `npm run lint` ✓, `npm test` ✓ (36/36 passed).
@@ -63,4 +64,4 @@ Branch: master
   Next action: start Phase 0 (scaffolding) using the Phase 0 prompt from the roadmap.
 
 ## Next action
-Start Phase 3, part 3 — Move/Translate.
+Start Keyboard Shortcuts (Move/Translate) for selected objects using arrow keys.
