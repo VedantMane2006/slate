@@ -15,6 +15,28 @@ export interface ExtractionResult {
   expanded: boolean;
 }
 
+export interface TraceEntry {
+  timestamp: number;
+  strategy: string;
+  confidence: ContextConfidence;
+  objectCount: number;
+  bounds: BoundingBox | null;
+}
+
+// NOTE: This is an in-memory stub only; real file/local persistence for 
+// traces is built later (Phase 13, per Architecture.md) — do not implement file I/O here.
+export const __EXTRACTION_TRACES: TraceEntry[] = [];
+
+export function writeExtractionTrace(result: ExtractionResult, confidence: ContextConfidence): void {
+  __EXTRACTION_TRACES.push({
+    timestamp: Date.now(),
+    strategy: result.strategy,
+    confidence,
+    objectCount: result.objectIds.length,
+    bounds: result.bounds ? { ...result.bounds } : null,
+  });
+}
+
 const DEFAULT_RECENT_WINDOW_MS = 10000;
 const DEFAULT_PROXIMITY_THRESHOLD = 5;
 const DEFAULT_EXPANSION_CAP = 5;
@@ -73,10 +95,12 @@ export function extractContext(
       strategy: 'none' as const,
       expanded: false,
     };
-    return {
+    const finalResult = {
       ...partial,
       confidence: computeConfidence(partial, objects),
     };
+    writeExtractionTrace(finalResult, finalResult.confidence);
+    return finalResult;
   }
 
   // 4. Cluster expansion
@@ -118,10 +142,14 @@ export function extractContext(
     expanded,
   };
 
-  return {
+  const finalResult = {
     ...partialResult,
     confidence: computeConfidence(partialResult, objects),
   };
+
+  writeExtractionTrace(finalResult, finalResult.confidence);
+
+  return finalResult;
 }
 
 export function computeConfidence(

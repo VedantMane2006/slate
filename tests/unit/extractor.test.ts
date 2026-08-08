@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { extractContext } from '../../src/context-extraction/extractor.ts';
+import { extractContext, __EXTRACTION_TRACES } from '../../src/context-extraction/extractor.ts';
 import type { CanvasObject } from '../../src/objects/canvas-object.ts';
 
 // Mock CanvasObject that also includes a timestamp for testing purposes
@@ -28,7 +28,12 @@ const obj3: TestObject = {
   timestamp: 15000
 };
 
+import { beforeEach } from 'vitest';
+
 describe('Context Extraction Strategies', () => {
+  beforeEach(() => {
+    __EXTRACTION_TRACES.length = 0;
+  });
   it('selection present -> strategy is "selection", bounds match selection exactly', () => {
     const objects = [obj1, obj2, obj3];
     const selection = { ids: ['obj-1', 'obj-2'] };
@@ -184,5 +189,24 @@ describe('Context Extraction Strategies', () => {
     expect(result.confidence.reasons).toContain('Extraction derived from recent activity fallback');
     expect(result.confidence.reasons).toContain('Context contains some objects');
     expect(result.confidence.reasons).toContain('Cluster expansion required (confidence reduced due to distance)');
+  });
+
+  it('calling extractContext appends a correctly-shaped trace entry to the in-memory array', () => {
+    const objects = [obj1, obj2];
+    const selection = { ids: ['obj-1'] };
+    
+    // We expect __EXTRACTION_TRACES to be empty before the call (due to beforeEach)
+    expect(__EXTRACTION_TRACES.length).toBe(0);
+
+    const result = extractContext(objects, selection, Date.now());
+
+    expect(__EXTRACTION_TRACES.length).toBe(1);
+    
+    const trace = __EXTRACTION_TRACES[0];
+    expect(typeof trace.timestamp).toBe('number');
+    expect(trace.strategy).toBe(result.strategy);
+    expect(trace.confidence).toEqual(result.confidence);
+    expect(trace.objectCount).toBe(result.objectIds.length);
+    expect(trace.bounds).toEqual(result.bounds);
   });
 });

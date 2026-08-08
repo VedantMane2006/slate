@@ -5,10 +5,10 @@
 > from scratch, and don't re-litigate anything marked DECIDED below.
 
 ## Current status
-Phase: **Phase 5 — IN PROGRESS** (Context Extraction)
+Phase: **Phase 5 — COMPLETE** (Context Extraction)
 Last updated: 2026-08-08
 Branch: master
-`main` state: Phase 1-4 features complete, Phase 5 parts 1-3 complete (Selection, Recent, Cluster, Confidence) — builds, lints, and tests clean (64 tests)
+`main` state: Phase 1-5 features complete (Context extraction fully functional with tracing) — builds, lints, and tests clean (65 tests)
 
 ## Decisions already made (DECIDED — do not re-open without a strong reason)
 - Stack: Vite + React + TypeScript, strict mode, Vitest, ESLint + Prettier — DECIDED
@@ -37,6 +37,7 @@ Branch: master
   — decide in Phase 12
 
 ## Log (append one entry per session, most recent on top)
+- 2026-08-08 — Phase 5, part 4 complete. Added `writeExtractionTrace` and `__EXTRACTION_TRACES` in-memory stub to `extractor.ts`. Every call to `extractContext` now automatically pushes a `TraceEntry` `{ timestamp, strategy, confidence, objectCount, bounds }` to this array, providing telemetry for all extraction requests. Verified functionality via unit tests resetting the trace array and confirming correct append behavior, without introducing side effects or DOM dependencies. Definition of Done for Phase 5 is met (extractContext handles selection/no-selection, sparse/dense scenes correctly, fully unit tested, zero framework dependencies). Verification passed: `npm run lint` ✓, `npm test` ✓ (65/65 tests).
 - 2026-08-08 — Phase 5, part 3 complete. Replaced placeholder `ContextConfidence` with true shape `{ level: 'high'|'medium'|'low', reasons: string[] }`. Added `computeConfidence` pure function to score extractions based on explicit selection, recent activity fallback, object density, and cluster expansion distance. Wired this into `extractContext` and verified with new unit tests testing clean user selection and sparse expanded cases. All verification passed: `npm run lint` ✓, `npm test` ✓ (64/64 tests).
 - 2026-08-08 — Phase 5, part 2 complete. Extended `extractContext` with a simple bounding-box proximity-based cluster expansion. The algorithm repeatedly pulls in objects intersecting an expanded proximity bounding box (5px threshold) around the current working set, bounded by a loop cap (max 5 iterations). Added test coverage to ensure dense synthetic scenes respect the cap and isolated objects are excluded, while preserving the integrity of previous selection/recent logic tests. Verification passed: `npm run lint` ✓, `npm test` ✓ (62/62 tests).
 - 2026-08-08 — Phase 5, part 1 complete. Implemented `extractContext` in `/src/context-extraction/extractor.ts` using pure functions. Defined `ExtractionResult` and a minimal `ContextConfidence` shape. Implemented selection-first strategy and recent-strokes fallback strategy (10s window). Added comprehensive unit tests handling both strategies and the empty fallback case. Verification passed: tests pass (60/60).
@@ -72,4 +73,4 @@ Branch: master
   Next action: start Phase 0 (scaffolding) using the Phase 0 prompt from the roadmap.
 
 ## Next action
-Start Phase 5, part 4 — Context bounds extraction wire-up (UI/canvas integration).
+Start Phase 6 — Crop Rendering + Multimodal Request Composition.
