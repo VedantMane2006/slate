@@ -95,6 +95,25 @@ export function CanvasViewport() {
         e.preventDefault();
         if (e.shiftKey) history.redo();
         else history.undo();
+      } else if (e.code === 'Delete' || e.code === 'Backspace') {
+        if (selection.ids.length > 0) {
+          e.preventDefault();
+          const allStrokes = store.getAll();
+          const commands = selection.ids
+            .map((id) => {
+              const s = allStrokes.find((stroke) => stroke.id === id);
+              return s ? new RemoveObjectCommand(store, s) : null;
+            })
+            .filter(Boolean) as RemoveObjectCommand<Stroke>[];
+
+          if (commands.length > 0) {
+            const cmd =
+              commands.length === 1
+                ? commands[0]
+                : new CompositeCommand(commands, 'Delete selected strokes');
+            history.execute(cmd);
+          }
+        }
       }
     };
     const onKeyUp = (e: KeyboardEvent) => {
@@ -110,7 +129,7 @@ export function CanvasViewport() {
       window.removeEventListener('keydown', onKeyDown);
       window.removeEventListener('keyup', onKeyUp);
     };
-  }, []);
+  }, [history, store, selection]);
 
   // Wheel zoom — native listener so we can use { passive: false }
   useEffect(() => {
