@@ -80,5 +80,78 @@ describe('Context Extraction Strategies', () => {
     expect(result.objectIds).toEqual([]);
     expect(result.bounds).toBeNull();
     expect(result.confidence.score).toBe(0.0);
+    expect(result.expanded).toBe(false);
+  });
+
+  it('cluster expansion pulls in a nearby object but not a far one', () => {
+    // Threshold is 5.
+    const centerObj: TestObject = {
+      id: 'center', type: 'stroke',
+      bounds: { minX: 100, minY: 100, maxX: 110, maxY: 110 },
+      timestamp: 20000 // recent
+    };
+    const nearbyObj: TestObject = {
+      id: 'nearby', type: 'text',
+      bounds: { minX: 112, minY: 100, maxX: 120, maxY: 110 }, // 2px away (112 - 110 = 2) <= 5
+      timestamp: 0 // very old, won't be picked up by recent strategy
+    };
+    const farObj: TestObject = {
+      id: 'far', type: 'image',
+      bounds: { minX: 150, minY: 100, maxX: 160, maxY: 110 }, // 40px away, > 5
+      timestamp: 0
+    };
+
+    const objects = [centerObj, nearbyObj, farObj];
+    const now = 20000;
+
+    const result = extractContext(objects, null, now); // uses recent strategy
+
+    expect(result.strategy).toBe('recent');
+    expect(result.expanded).toBe(true);
+    // Should include center and nearby, but not far
+    expect(result.objectIds.sort()).toEqual(['center', 'nearby'].sort());
+    expect(result.bounds).toEqual({
+      minX: 100,
+      minY: 100,
+      maxX: 120,
+      maxY: 110
+    });
+  });
+
+  it('expansion cap prevents runaway growth on a dense synthetic scene', () => {
+    // Create a chain of objects, each 2px apart.
+    // If cap is 5, it should only expand 5 times.
+    const objects: TestObject[] = [];
+    
+    // First object is recent
+    objects.push({
+      id: 'chain-0', type: 'stroke',
+      bounds: { minX: 0, minY: 0, maxX: 10, maxY: 10 },
+      timestamp: 20000
+    });
+
+    // Add 10 more objects in a chain
+    for (let i = 1; i <= 10; i++) {
+      objects.push({
+        id: `chain-${i}`, type: 'stroke',
+        bounds: { minX: i * 12, minY: 0, maxX: i * 12 + 10, maxY: 10 },
+        timestamp: 0 // old
+      });
+    }
+
+    const now = 20000;
+    const result = extractContext(objects, null, now);
+    
+    // It starts with 'chain-0'.
+    // Iteration 1 pulls in 'chain-1' (minX: 12, maxX: 22), bounds become minX: 0, maxX: 22
+    // Iteration 2 pulls in 'chain-2' (minX: 24, maxX: 34), bounds become minX: 0, maxX: 34
+    // Iteration 3 pulls in 'chain-3' ... maxX: 46
+    // Iteration 4 pulls in 'chain-4' ... maxX: 58
+    // Iteration 5 pulls in 'chain-5' ... maxX: 70
+    // Then cap is hit. So total 6 objects (chain-0 to chain-5).
+    expect(result.expanded).toBe(true);
+    expect(result.objectIds.length).toBe(6);
+    expect(result.objectIds.includes('chain-5')).toBe(true);
+    expect(result.objectIds.includes('chain-6')).toBe(false);
   });
 });
