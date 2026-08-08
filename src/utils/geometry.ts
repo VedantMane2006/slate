@@ -40,3 +40,15 @@ export function pointInBox(point: Point, box: BoundingBox): boolean {
 export function distance(a: Point, b: Point): number {
   return Math.hypot(b.x - a.x, b.y - a.y);
 }
+
+/**
+ * Returns true if two bounding boxes intersect.
+ */
+export function boxesIntersect(a: BoundingBox, b: BoundingBox): boolean {
+  return (
+    a.minX <= b.maxX &&
+    a.maxX >= b.minX &&
+    a.minY <= b.maxY &&
+    a.maxY >= b.minY
+  );
+}

@@ -10,7 +10,7 @@ import {
 import { usePointerEvents } from '../hooks/usePointerEvents.ts';
 import { StrokeBuilder, type Stroke } from '../objects/stroke.ts';
 import { renderStrokes } from './renderer.ts';
-import { pointInBox, distance } from '../utils/geometry.ts';
+import { pointInBox, distance, boxesIntersect, type BoundingBox } from '../utils/geometry.ts';
 import {
   HistoryStack,
   AddObjectCommand,
@@ -35,6 +35,9 @@ export function CanvasViewport() {
   const [strokes, setStrokes] = useState<Stroke[]>([]);
   const [activeStroke, setActiveStroke] = useState<Stroke | null>(null);
   const [isEraserMode, setIsEraserMode] = useState(false);
+  const [isSelectMode, setIsSelectMode] = useState(false);
+  const [selection, setSelection] = useState<{ ids: string[] }>({ ids: [] });
+  const [selectionBox, setSelectionBox] = useState<BoundingBox | null>(null);
 
   const strokesRef = useRef<Stroke[]>(strokes);
   strokesRef.current = strokes;
@@ -62,6 +65,7 @@ export function CanvasViewport() {
 
   const activeStrokeBuilder = useRef<StrokeBuilder | null>(null);
   const isInteracting = useRef(false);
+  const selectionStart = useRef<{ x: number; y: number } | null>(null);
 
   const spaceHeld = useRef(false);
   const isPanning = useRef(false);
@@ -74,10 +78,15 @@ export function CanvasViewport() {
         e.preventDefault();
         spaceHeld.current = true;
         setCursorStyle('grab');
+      } else if (e.code === 'KeyV' && !e.repeat) {
+        setIsSelectMode(true);
+        setIsEraserMode(false);
       } else if (e.code === 'KeyE' && !e.repeat) {
         setIsEraserMode(true);
+        setIsSelectMode(false);
       } else if (e.code === 'KeyD' && !e.repeat) {
         setIsEraserMode(false);
+        setIsSelectMode(false);
       } else if (e.code === 'KeyZ' && (e.ctrlKey || e.metaKey)) {
         e.preventDefault();
         if (e.shiftKey) history.redo();
@@ -154,7 +163,7 @@ export function CanvasViewport() {
         const cmd = commands.length === 1 ? commands[0] : new CompositeCommand(commands, 'Erase strokes');
         history.execute(cmd);
       }
-    } else if (activeStrokeBuilder.current) {
+    } else if (!isSelectMode && activeStrokeBuilder.current) {
       activeStrokeBuilder.current.addPoint(sample);
       try {
         setActiveStroke(activeStrokeBuilder.current.build());
@@ -178,7 +187,13 @@ export function CanvasViewport() {
         }
       } else {
         isInteracting.current = true;
-        if (!isEraserMode) {
+        if (isSelectMode) {
+          const rect = e.currentTarget.getBoundingClientRect();
+          const screenPoint = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+          selectionStart.current = screenToWorld(screenPoint, viewport);
+          setSelectionBox(null);
+          setSelection({ ids: [] });
+        } else if (!isEraserMode) {
           // Start a new stroke
           activeStrokeBuilder.current = new StrokeBuilder(
             // simple unique ID fallback since crypto.randomUUID isn't guaranteed in all JS environments
@@ -188,10 +203,11 @@ export function CanvasViewport() {
             Date.now()
           );
         }
-        samplePointerDown(e);
+        
+        if (!isSelectMode) samplePointerDown(e);
       }
     },
-    [samplePointerDown, isEraserMode],
+    [samplePointerDown, isEraserMode, isSelectMode, viewport],
   );
 
   const handlePointerMove = useCallback(
@@ -234,10 +250,31 @@ export function CanvasViewport() {
           offsetY: vp.offsetY + dy,
         }));
       } else if (isInteracting.current) {
-        samplePointerMove(e);
+        if (isSelectMode && selectionStart.current) {
+          const rect = e.currentTarget.getBoundingClientRect();
+          const screenPoint = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+          const currentWorld = screenToWorld(screenPoint, viewport);
+          const startWorld = selectionStart.current;
+          
+          const box: BoundingBox = {
+            minX: Math.min(startWorld.x, currentWorld.x),
+            minY: Math.min(startWorld.y, currentWorld.y),
+            maxX: Math.max(startWorld.x, currentWorld.x),
+            maxY: Math.max(startWorld.y, currentWorld.y),
+          };
+          setSelectionBox(box);
+
+          const allStrokes = store.getAll();
+          const selectedIds = allStrokes
+            .filter((s) => boxesIntersect(s.bounds, box))
+            .map((s) => s.id);
+          setSelection({ ids: selectedIds });
+        } else if (!isSelectMode) {
+          samplePointerMove(e);
+        }
       }
     },
-    [samplePointerMove],
+    [samplePointerMove, isSelectMode, viewport, store],
   );
 
   const handlePointerUp = useCallback(
@@ -252,21 +289,26 @@ export function CanvasViewport() {
       }
 
       if (isInteracting.current) {
-        samplePointerUp(e);
-        if (activeStrokeBuilder.current) {
-          try {
-            const finalStroke = activeStrokeBuilder.current.build();
-            history.execute(new AddObjectCommand(store, finalStroke));
-          } catch {
-            // Ignored
+        if (isSelectMode) {
+          selectionStart.current = null;
+          setSelectionBox(null);
+        } else {
+          samplePointerUp(e);
+          if (activeStrokeBuilder.current) {
+            try {
+              const finalStroke = activeStrokeBuilder.current.build();
+              history.execute(new AddObjectCommand(store, finalStroke));
+            } catch {
+              // Ignored
+            }
+            activeStrokeBuilder.current = null;
+            setActiveStroke(null);
           }
-          activeStrokeBuilder.current = null;
-          setActiveStroke(null);
         }
         isInteracting.current = false;
       }
     },
-    [samplePointerUp, history, store],
+    [samplePointerUp, history, store, isSelectMode],
   );
 
   // Render grid
@@ -341,7 +383,38 @@ export function CanvasViewport() {
     if (activeStroke) {
       renderStrokes(ctx, [activeStroke], viewport);
     }
-  }, [viewport, strokes, activeStroke]);
+
+    // Highlight selected strokes
+    if (selection.ids.length > 0) {
+      ctx.strokeStyle = 'rgba(13, 110, 253, 0.5)';
+      ctx.lineWidth = 2;
+      for (const stroke of strokes) {
+        if (selection.ids.includes(stroke.id)) {
+          const screenMin = worldToScreen({ x: stroke.bounds.minX, y: stroke.bounds.minY }, viewport);
+          const screenMax = worldToScreen({ x: stroke.bounds.maxX, y: stroke.bounds.maxY }, viewport);
+          ctx.strokeRect(
+            screenMin.x - 4,
+            screenMin.y - 4,
+            screenMax.x - screenMin.x + 8,
+            screenMax.y - screenMin.y + 8
+          );
+        }
+      }
+    }
+
+    // Draw selection box
+    if (selectionBox) {
+      const screenMin = worldToScreen({ x: selectionBox.minX, y: selectionBox.minY }, viewport);
+      const screenMax = worldToScreen({ x: selectionBox.maxX, y: selectionBox.maxY }, viewport);
+      ctx.fillStyle = 'rgba(13, 110, 253, 0.1)';
+      ctx.strokeStyle = 'rgba(13, 110, 253, 0.8)';
+      ctx.lineWidth = 1;
+      const w = screenMax.x - screenMin.x;
+      const h = screenMax.y - screenMin.y;
+      ctx.fillRect(screenMin.x, screenMin.y, w, h);
+      ctx.strokeRect(screenMin.x, screenMin.y, w, h);
+    }
+  }, [viewport, strokes, activeStroke, selection, selectionBox]);
 
   // Re-render on resize
   useEffect(() => {
