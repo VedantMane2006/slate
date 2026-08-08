@@ -1,6 +1,6 @@
 import type { PointerSample } from '../hooks/usePointerEvents.ts';
 import type { BoundingBox } from '../utils/geometry.ts';
-import type { CanvasObject, Serializable, AIPayloadFragment } from './canvas-object.ts';
+import type { CanvasObject, Serializable } from './canvas-object.ts';
 
 export interface Stroke extends CanvasObject, Serializable {
   type: 'stroke';

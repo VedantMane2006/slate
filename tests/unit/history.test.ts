@@ -38,8 +38,8 @@ class AddObjectCommand implements Command {
 
 class DummyCommand implements Command {
   label = 'Dummy';
-  do() {}
-  undo() {}
+  do() { /* dummy */ }
+  undo() { /* dummy */ }
 }
 
 describe('HistoryStack', () => {

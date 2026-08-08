@@ -160,7 +160,7 @@ export function CanvasViewport() {
       const ERASER_TOLERANCE = 10 / viewport.zoom;
       
       const prevStrokes = store.getAll();
-      let commands: RemoveObjectCommand<Stroke>[] = [];
+      const commands: RemoveObjectCommand<Stroke>[] = [];
 
       for (let i = prevStrokes.length - 1; i >= 0; i--) {
         const stroke = prevStrokes[i];
@@ -258,7 +258,7 @@ export function CanvasViewport() {
         if (!isSelectMode) samplePointerDown(e);
       }
     },
-    [samplePointerDown, isEraserMode, isSelectMode, viewport],
+    [samplePointerDown, isEraserMode, isSelectMode, viewport, selection.ids, store],
   );
 
   const handlePointerMove = useCallback(
@@ -398,7 +398,7 @@ export function CanvasViewport() {
         isInteracting.current = false;
       }
     },
-    [samplePointerUp, history, store, isSelectMode],
+    [samplePointerUp, history, store, isSelectMode, selection.ids, dragOffset],
   );
 
   // Render grid

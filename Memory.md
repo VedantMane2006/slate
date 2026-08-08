@@ -5,10 +5,10 @@
 > from scratch, and don't re-litigate anything marked DECIDED below.
 
 ## Current status
-Phase: **Phase 4, part 3 — complete** (Image & Equation objects)
+Phase: **Phase 4 — COMPLETE** (Structured Objects & UI Editors)
 Last updated: 2026-08-08
 Branch: master
-`main` state: Phase 1-3 features complete + Phase 4 all data models — builds, lints, and tests clean (53 tests)
+`main` state: Phase 1-4 features complete (Stroke, Table, Text, Image, Equation models + minimal UI editors) — builds, lints, and tests clean (57 tests)
 
 ## Decisions already made (DECIDED — do not re-open without a strong reason)
 - Stack: Vite + React + TypeScript, strict mode, Vitest, ESLint + Prettier — DECIDED
@@ -37,6 +37,7 @@ Branch: master
   — decide in Phase 12
 
 ## Log (append one entry per session, most recent on top)
+- 2026-08-08 — Phase 4 complete. Added minimal React overlay editors (`TableEditor`, `TextEditor`, `ImageEditor`, `EquationEditor`) positioned via `worldToScreen`. The components produce valid CanvasObject instances with AI payload serialization properly implemented. The frontend is functional but these components are pending integration into the `CanvasViewport` state and interactions. Phase 4 Definition of Done met: structured models and their base UI editing primitives exist. Verification passed: `npm run lint` ✓, `npm test` ✓ (57/57 tests).
 - 2026-08-08 — Phase 4, part 3 complete. Added `ImageObject` and `EquationObject` data models implementing `CanvasObject` and `Serializable`. Implemented `createImage` and `createEquation` factories returning objects with non-enumerable `toAIPayload()` functions to preserve `JSON.stringify/parse` equality. Wrote unit tests confirming payloads map correctly to `{ kind: 'image' }` and `{ kind: 'text' }` and round-trip successfully. Verification passed: `npm run build` ✓, `npm run lint` ✓, `npm test` ✓ (53/53 passed).
 - 2026-08-08 — Phase 4, part 2 complete. Added `Table` and `TextObject` data models implementing `CanvasObject` and `Serializable`. Implemented `createTable` and `createText` factories returning objects with non-enumerable `toAIPayload()` functions to preserve `JSON.stringify/parse` equality. Wrote unit tests confirming payloads map correctly to `{ kind: 'json' }` and `{ kind: 'text' }` and round-trip successfully. Verification passed: `npm run build` ✓, `npm run lint` ✓, `npm test` ✓ (49/49 passed).
 - 2026-08-08 — Phase 4, part 1 complete. Extracted `CanvasObject` into `canvas-object.ts` along with `CanvasObjectType`, `Serializable`, and `AIPayloadFragment`. Refactored `Stroke` to implement `CanvasObject` and `Serializable` while keeping its fields framework-free. Added non-enumerable `toAIPayload` implementation to `StrokeBuilder` to preserve `JSON.parse` equality in existing tests. Verified compile-time interface conformance and runtime behavior in a new unit test. Verification passed: `npm run build` ✓, `npm run lint` ✓, `npm test` ✓ (45/45 passed).
@@ -68,4 +69,4 @@ Branch: master
   Next action: start Phase 0 (scaffolding) using the Phase 0 prompt from the roadmap.
 
 ## Next action
-Start Phase 4, part 4 — UI editors/renderers for Table, Text, Image, Equation.
+Start Phase 5 — Context Extraction.

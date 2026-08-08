@@ -37,7 +37,7 @@ export class UpdateObjectCommand<T extends Identifiable> implements Command {
 }
 
 export class CompositeCommand implements Command {
-  constructor(private commands: Command[], public label: string = 'Batch Action') {}
+  constructor(private commands: Command[], public label = 'Batch Action') {}
   do() {
     for (const cmd of this.commands) cmd.do();
   }
@@ -53,7 +53,7 @@ export class HistoryStack {
   private redoStack: Command[] = [];
   private readonly maxSize: number;
 
-  constructor(maxSize: number = 200) {
+  constructor(maxSize = 200) {
     this.maxSize = maxSize;
   }
 

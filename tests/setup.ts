@@ -18,7 +18,7 @@ if (!global.PointerEvent) {
     clientX: number;
     clientY: number;
     button: number;
-    constructor(type: string, params: any = {}) {
+    constructor(type: string, params: Record<string, unknown> = {}) {
       super(type, params);
       this.pointerId = params.pointerId || 1;
       this.clientX = params.clientX || 0;
@@ -26,5 +26,5 @@ if (!global.PointerEvent) {
       this.button = params.button || 0;
     }
   }
-  global.PointerEvent = MockPointerEvent as any;
+  (globalThis as unknown as { PointerEvent: typeof MockPointerEvent }).PointerEvent = MockPointerEvent;
 }
