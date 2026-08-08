@@ -37,6 +37,7 @@ Branch: master
   — decide in Phase 12
 
 ## Log (append one entry per session, most recent on top)
+- 2026-08-08 — Phase 5, part 1 complete. Implemented `extractContext` in `/src/context-extraction/extractor.ts` using pure functions. Defined `ExtractionResult` and a minimal `ContextConfidence` shape. Implemented selection-first strategy and recent-strokes fallback strategy (10s window). Added comprehensive unit tests handling both strategies and the empty fallback case. Verification passed: tests pass (60/60).
 - 2026-08-08 — Phase 4 complete. Added minimal React overlay editors (`TableEditor`, `TextEditor`, `ImageEditor`, `EquationEditor`) positioned via `worldToScreen`. The components produce valid CanvasObject instances with AI payload serialization properly implemented. The frontend is functional but these components are pending integration into the `CanvasViewport` state and interactions. Phase 4 Definition of Done met: structured models and their base UI editing primitives exist. Verification passed: `npm run lint` ✓, `npm test` ✓ (57/57 tests).
 - 2026-08-08 — Phase 4, part 3 complete. Added `ImageObject` and `EquationObject` data models implementing `CanvasObject` and `Serializable`. Implemented `createImage` and `createEquation` factories returning objects with non-enumerable `toAIPayload()` functions to preserve `JSON.stringify/parse` equality. Wrote unit tests confirming payloads map correctly to `{ kind: 'image' }` and `{ kind: 'text' }` and round-trip successfully. Verification passed: `npm run build` ✓, `npm run lint` ✓, `npm test` ✓ (53/53 passed).
 - 2026-08-08 — Phase 4, part 2 complete. Added `Table` and `TextObject` data models implementing `CanvasObject` and `Serializable`. Implemented `createTable` and `createText` factories returning objects with non-enumerable `toAIPayload()` functions to preserve `JSON.stringify/parse` equality. Wrote unit tests confirming payloads map correctly to `{ kind: 'json' }` and `{ kind: 'text' }` and round-trip successfully. Verification passed: `npm run build` ✓, `npm run lint` ✓, `npm test` ✓ (49/49 passed).
@@ -69,4 +70,4 @@ Branch: master
   Next action: start Phase 0 (scaffolding) using the Phase 0 prompt from the roadmap.
 
 ## Next action
-Start Phase 5 — Context Extraction.
+Start Phase 5, part 2 — Cluster expansion strategy.
