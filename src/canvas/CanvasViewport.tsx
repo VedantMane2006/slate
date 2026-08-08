@@ -8,6 +8,8 @@ import {
   type ScreenPoint,
 } from './coordinates.ts';
 import { usePointerEvents } from '../hooks/usePointerEvents.ts';
+import { StrokeBuilder, type Stroke } from '../objects/stroke.ts';
+import { renderStrokes } from './renderer.ts';
 
 interface PointerRecord {
   x: number;
@@ -22,6 +24,10 @@ export function CanvasViewport() {
     zoom: 1,
   });
   const [cursorStyle, setCursorStyle] = useState('default');
+  const [strokes, setStrokes] = useState<Stroke[]>([]);
+  const [activeStroke, setActiveStroke] = useState<Stroke | null>(null);
+
+  const activeStrokeBuilder = useRef<StrokeBuilder | null>(null);
 
   const spaceHeld = useRef(false);
   const isPanning = useRef(false);
@@ -76,19 +82,38 @@ export function CanvasViewport() {
     onPointerMove: samplePointerMove,
     onPointerUp: samplePointerUp,
   } = usePointerEvents(viewport, (sample) => {
-    // Phase 1 just logs it. Phase 2 will draw with this.
-    console.log('Pointer Sample:', sample);
+    if (activeStrokeBuilder.current) {
+      activeStrokeBuilder.current.addPoint(sample);
+      try {
+        setActiveStroke(activeStrokeBuilder.current.build());
+      } catch {
+        // Ignored, builder throws if 0 points
+      }
+    }
   });
 
   const handlePointerDown = useCallback(
     (e: React.PointerEvent<HTMLCanvasElement>) => {
-      samplePointerDown(e);
       e.currentTarget.setPointerCapture(e.pointerId);
       activePointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
 
-      if ((spaceHeld.current || e.button === 1) && activePointers.current.size === 1) {
-        isPanning.current = true;
-        setCursorStyle('grabbing');
+      const isPan = spaceHeld.current || e.button === 1 || activePointers.current.size > 1;
+
+      if (isPan) {
+        if (activePointers.current.size === 1) {
+          isPanning.current = true;
+          setCursorStyle('grabbing');
+        }
+      } else {
+        // Start a new stroke
+        activeStrokeBuilder.current = new StrokeBuilder(
+          // simple unique ID fallback since crypto.randomUUID isn't guaranteed in all JS environments
+          Date.now().toString(36) + Math.random().toString(36).substring(2),
+          4,
+          '#000000',
+          Date.now()
+        );
+        samplePointerDown(e);
       }
     },
     [samplePointerDown],
@@ -133,6 +158,8 @@ export function CanvasViewport() {
           offsetX: vp.offsetX + dx,
           offsetY: vp.offsetY + dy,
         }));
+      } else if (activeStrokeBuilder.current) {
+        samplePointerMove(e);
       }
     },
     [samplePointerMove],
@@ -140,12 +167,25 @@ export function CanvasViewport() {
 
   const handlePointerUp = useCallback(
     (e: React.PointerEvent<HTMLCanvasElement>) => {
-      samplePointerUp(e);
-      activePointers.current.delete(e.pointerId);
+      const ptrs = activePointers.current;
+      ptrs.delete(e.pointerId);
       e.currentTarget.releasePointerCapture(e.pointerId);
-      if (activePointers.current.size === 0) {
+
+      if (ptrs.size === 0) {
         isPanning.current = false;
         setCursorStyle(spaceHeld.current ? 'grab' : 'default');
+      }
+
+      if (activeStrokeBuilder.current) {
+        samplePointerUp(e);
+        try {
+          const finalStroke = activeStrokeBuilder.current.build();
+          setStrokes((prev) => [...prev, finalStroke]);
+        } catch {
+          // Ignored
+        }
+        activeStrokeBuilder.current = null;
+        setActiveStroke(null);
       }
     },
     [samplePointerUp],
@@ -217,7 +257,13 @@ export function CanvasViewport() {
     ctx.beginPath();
     ctx.arc(origin.x, origin.y, 4, 0, Math.PI * 2);
     ctx.fill();
-  }, [viewport]);
+
+    // Draw strokes
+    renderStrokes(ctx, strokes, viewport);
+    if (activeStroke) {
+      renderStrokes(ctx, [activeStroke], viewport);
+    }
+  }, [viewport, strokes, activeStroke]);
 
   // Re-render on resize
   useEffect(() => {

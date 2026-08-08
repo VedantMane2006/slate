@@ -37,6 +37,7 @@ Branch: master
   — decide in Phase 12
 
 ## Log (append one entry per session, most recent on top)
+- 2026-08-08 — Phase 2, part 3 complete. Maintained in-memory array of `Stroke` objects in `CanvasViewport`. Wired-up `usePointerEvents` to create/append to `StrokeBuilder` state and finalized `renderStrokes` loop. Verification passed: `npm run build` ✓, `npm run lint` ✓, `npm test` ✓ (34/34 passed across 7 test files).
 - 2026-08-08 — Phase 2, part 2 complete. Implemented pure geometry utilities in `/src/utils/geometry.ts` (`BoundingBox`, `Point`, `unionBoundingBoxes`, `pointInBox`, `distance`). Added robust unit tests covering edge cases like zero-area boxes, points on bounding box edges/corners, and distance calculations with negative coordinates and identical points. Verification passed: `npm run build` ✓, `npm run lint` ✓, `npm test` ✓ (33/33 passed across 6 test files).
 - 2026-08-08 — Phase 2, part 1 complete. Implemented `Stroke` object type and `StrokeBuilder` class in `/src/objects/stroke.ts`. `StrokeBuilder` accumulates pointer samples and correctly updates bounding boxes incrementally without recomputing from scratch. Added rigorous unit tests (single point, straight line, L-shape, JSON round-trip). Verification passed: `npm run build` ✓, `npm run lint` ✓, `npm test` ✓ (22/22 passed across 5 test files).
 - 2026-08-08 — Phase 1, part 3 complete. Implemented `usePointerEvents` hook in `/src/hooks` to capture pointerdown/move/up events on the canvas. Added extraction of coalesced events for smoother sampling, explicit pressure/tilt support detection with fallback (pressure=0.5, tilt=0), and conversion to world-space coordinates. Added unit tests for pressure fallback and world coordinate calculations. Phase 1 Definition of Done met: canvas renders, pans, zooms, and emits clean world-space pointer samples. Verification passed: `npm run build` ✓, `npm run lint` ✓, `npm test` ✓ (17/17 passed across 4 test files).
@@ -59,4 +60,4 @@ Branch: master
   Next action: start Phase 0 (scaffolding) using the Phase 0 prompt from the roadmap.
 
 ## Next action
-Run Phase 2, part 3 (CanvasStateProvider and stroke integration).
+Run Phase 3.
