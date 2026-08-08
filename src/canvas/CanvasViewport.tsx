@@ -7,6 +7,7 @@ import {
   type Viewport,
   type ScreenPoint,
 } from './coordinates.ts';
+import { usePointerEvents } from '../hooks/usePointerEvents.ts';
 
 interface PointerRecord {
   x: number;
@@ -70,8 +71,18 @@ export function CanvasViewport() {
     return () => canvas.removeEventListener('wheel', onWheel);
   }, []);
 
+  const {
+    onPointerDown: samplePointerDown,
+    onPointerMove: samplePointerMove,
+    onPointerUp: samplePointerUp,
+  } = usePointerEvents(viewport, (sample) => {
+    // Phase 1 just logs it. Phase 2 will draw with this.
+    console.log('Pointer Sample:', sample);
+  });
+
   const handlePointerDown = useCallback(
     (e: React.PointerEvent<HTMLCanvasElement>) => {
+      samplePointerDown(e);
       e.currentTarget.setPointerCapture(e.pointerId);
       activePointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
 
@@ -80,11 +91,12 @@ export function CanvasViewport() {
         setCursorStyle('grabbing');
       }
     },
-    [],
+    [samplePointerDown],
   );
 
   const handlePointerMove = useCallback(
     (e: React.PointerEvent<HTMLCanvasElement>) => {
+      samplePointerMove(e);
       const ptrs = activePointers.current;
       const prev = ptrs.get(e.pointerId);
       if (!prev) return;
@@ -123,11 +135,12 @@ export function CanvasViewport() {
         }));
       }
     },
-    [],
+    [samplePointerMove],
   );
 
   const handlePointerUp = useCallback(
     (e: React.PointerEvent<HTMLCanvasElement>) => {
+      samplePointerUp(e);
       activePointers.current.delete(e.pointerId);
       e.currentTarget.releasePointerCapture(e.pointerId);
       if (activePointers.current.size === 0) {
@@ -135,7 +148,7 @@ export function CanvasViewport() {
         setCursorStyle(spaceHeld.current ? 'grab' : 'default');
       }
     },
-    [],
+    [samplePointerUp],
   );
 
   // Render grid

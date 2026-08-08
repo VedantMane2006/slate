@@ -5,10 +5,10 @@
 > from scratch, and don't re-litigate anything marked DECIDED below.
 
 ## Current status
-Phase: **Phase 1, part 2 — complete** (canvas viewport with pan/zoom)
+Phase: **Phase 1 — complete** (Pointer event capture)
 Last updated: 2026-08-08
 Branch: master
-`main` state: scaffolded + canvas viewport — builds, lints, and tests clean (14 tests)
+`main` state: scaffolded + canvas viewport + pointer capture — builds, lints, and tests clean (17 tests)
 
 ## Decisions already made (DECIDED — do not re-open without a strong reason)
 - Stack: Vite + React + TypeScript, strict mode, Vitest, ESLint + Prettier — DECIDED
@@ -37,6 +37,7 @@ Branch: master
   — decide in Phase 12
 
 ## Log (append one entry per session, most recent on top)
+- 2026-08-08 — Phase 1, part 3 complete. Implemented `usePointerEvents` hook in `/src/hooks` to capture pointerdown/move/up events on the canvas. Added extraction of coalesced events for smoother sampling, explicit pressure/tilt support detection with fallback (pressure=0.5, tilt=0), and conversion to world-space coordinates. Added unit tests for pressure fallback and world coordinate calculations. Phase 1 Definition of Done met: canvas renders, pans, zooms, and emits clean world-space pointer samples. Verification passed: `npm run build` ✓, `npm run lint` ✓, `npm test` ✓ (17/17 passed across 4 test files).
 - 2026-08-08 — Phase 1, part 2 complete. Implemented `CanvasViewport` component rendering an infinite canvas with space+drag panning, pinch zoom, and anchored wheel zoom. Adaptive grid and origin axes implemented purely using `worldToScreen`/`screenToWorld`. Added tests for `zoomAtPoint` anchoring (6 tests) and added `ResizeObserver`/`getContext` jsdom mocks. Verification passed: `npm run build` ✓, `npm run lint` ✓, `npm test` ✓ (14/14 passed across 3 test files).
 - 2026-08-08 — Phase 1, part 1 complete. Added `/src/canvas/coordinates.ts` with
   `WorldPoint`, `ScreenPoint`, `Viewport` types and pure `worldToScreen`/`screenToWorld`
@@ -56,4 +57,4 @@ Branch: master
   Next action: start Phase 0 (scaffolding) using the Phase 0 prompt from the roadmap.
 
 ## Next action
-Run Phase 1, part 3 (pointer sample capture, drawing abstraction).
+Start Phase 2 — Stroke Model.
