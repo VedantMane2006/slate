@@ -5,10 +5,10 @@
 > from scratch, and don't re-litigate anything marked DECIDED below.
 
 ## Current status
-Phase: **Phase 0 — not yet started**
-Last updated: [update this timestamp yourself each session]
-Branch: none yet
-`main` state: empty repo / not initialized
+Phase: **Phase 0 — complete**
+Last updated: 2026-08-08
+Branch: master
+`main` state: scaffolded — builds, lints, and tests clean
 
 ## Decisions already made (DECIDED — do not re-open without a strong reason)
 - Stack: Vite + React + TypeScript, strict mode, Vitest, ESLint + Prettier — DECIDED
@@ -36,10 +36,17 @@ Branch: none yet
   — decide in Phase 12
 
 ## Log (append one entry per session, most recent on top)
+- 2026-08-08 — Phase 0 complete. Scaffolded Vite + React + TypeScript project with strict
+  mode. Created full folder structure per Architecture.md (canvas, objects, history,
+  context-extraction, ai/adapters, ai/lifecycle, ai/rendering, ai/gating, metrics,
+  persistence, hooks, providers, components, shared/types, tests/unit, tests/integration,
+  benchmarks, experiments, traces, config). Configured ESLint (flat config, strict TS rules),
+  Prettier, Vitest (jsdom). One passing smoke test. README.md with install/run/test
+  instructions. `.gitignore` in place. All verification passed: `npm run build` ✓,
+  `npm run lint` ✓ (zero warnings), `npm test` ✓ (1/1 passed).
 - [DATE] — Planning session. Created PRD.md, Architecture.md, Rules.md, Memory.md and the
   full phase-by-phase execution roadmap (15 phases, Phase 0 → Phase 14). No code written yet.
   Next action: start Phase 0 (scaffolding) using the Phase 0 prompt from the roadmap.
 
 ## Next action
-Run the Phase 0 prompt (project scaffolding). Nothing before this is currently unblocked —
-this is the starting point.
+Run the Phase 1 prompt (Canvas viewport, pointer events, pan/zoom).
