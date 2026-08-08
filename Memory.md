@@ -5,10 +5,10 @@
 > from scratch, and don't re-litigate anything marked DECIDED below.
 
 ## Current status
-Phase: **Phase 0 — complete**
+Phase: **Phase 1, part 1 — complete** (coordinate system)
 Last updated: 2026-08-08
 Branch: master
-`main` state: scaffolded — builds, lints, and tests clean
+`main` state: scaffolded + coordinate transforms — builds, lints, and tests clean (8 tests)
 
 ## Decisions already made (DECIDED — do not re-open without a strong reason)
 - Stack: Vite + React + TypeScript, strict mode, Vitest, ESLint + Prettier — DECIDED
@@ -24,6 +24,7 @@ Branch: master
   8 JSON Rendering/Draft Cards → 9 Metrics → 10 Gating/Dedup/Cost Preview →
   11 Clustering/Adaptive Res → 12 Persistence/Export → 13 Experiments →
   14 Docs/Attribution/Video — DECIDED (see Architecture.md for phase details)
+- Coordinate transform: screen = world * zoom + offset — DECIDED (Phase 1.1)
 
 ## Open questions / not yet decided (flag if a prompt needs one of these)
 - True token streaming vs. chunked polling for the Gemini client (affects TTFT accuracy —
@@ -36,6 +37,11 @@ Branch: master
   — decide in Phase 12
 
 ## Log (append one entry per session, most recent on top)
+- 2026-08-08 — Phase 1, part 1 complete. Added `/src/canvas/coordinates.ts` with
+  `WorldPoint`, `ScreenPoint`, `Viewport` types and pure `worldToScreen`/`screenToWorld`
+  functions. Added 7 round-trip and direct-value tests in
+  `tests/unit/coordinates.test.ts`. All verification passed: `npm run build` ✓,
+  `npm run lint` ✓ (zero warnings), `npm test` ✓ (8/8 passed across 2 test files).
 - 2026-08-08 — Phase 0 complete. Scaffolded Vite + React + TypeScript project with strict
   mode. Created full folder structure per Architecture.md (canvas, objects, history,
   context-extraction, ai/adapters, ai/lifecycle, ai/rendering, ai/gating, metrics,
@@ -49,4 +55,4 @@ Branch: master
   Next action: start Phase 0 (scaffolding) using the Phase 0 prompt from the roadmap.
 
 ## Next action
-Run the Phase 1 prompt (Canvas viewport, pointer events, pan/zoom).
+Run Phase 1, part 2 (canvas viewport component, pointer events, pan/zoom).
