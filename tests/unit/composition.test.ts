@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi } from 'vitest';
-import { composeMultimodalRequest } from '../../src/ai/composition.ts';
+import { composeMultimodalRequest, canonicalSerialize } from '../../src/ai/composition.ts';
 import type { CanvasObject, Serializable, AIPayloadFragment } from '../../src/objects/canvas-object.ts';
 import type { ExtractionResult } from '../../src/context-extraction/extractor.ts';
 import type { Stroke } from '../../src/objects/stroke.ts';
@@ -87,5 +87,72 @@ describe('composeMultimodalRequest', () => {
     const payloadTypes = payload.fragments.map(f => f.kind);
     expect(payloadTypes).toContain('json');
     expect(payloadTypes).toContain('text');
+  });
+});
+
+describe('canonicalSerialize', () => {
+  it('is deterministic (same input called twice -> identical string)', () => {
+    const stroke1 = { id: 's1', type: 'stroke', bounds: { minX: 0, minY: 0, maxX: 5, maxY: 5 } } as CanvasObject;
+    const stroke2 = { id: 's2', type: 'stroke', bounds: { minX: 5, minY: 5, maxX: 10, maxY: 10 } } as CanvasObject;
+    const allObjects = [stroke1, stroke2];
+    const result: ExtractionResult = {
+      objectIds: ['s1', 's2'],
+      bounds: { minX: 0, minY: 0, maxX: 10, maxY: 10 },
+      strategy: 'recent',
+      confidence: { level: 'medium', reasons: [] },
+      expanded: false
+    };
+
+    const firstCall = canonicalSerialize(result, allObjects);
+    const secondCall = canonicalSerialize(result, allObjects);
+
+    expect(firstCall).toBe(secondCall);
+  });
+
+  it('changes when object data changes (e.g. one stroke moved)', () => {
+    const stroke1 = { id: 's1', type: 'stroke', bounds: { minX: 0, minY: 0, maxX: 5, maxY: 5 } } as CanvasObject;
+    const allObjects1 = [stroke1];
+    
+    // Create a modified copy (e.g., moved stroke)
+    const stroke1Moved = { id: 's1', type: 'stroke', bounds: { minX: 10, minY: 10, maxX: 15, maxY: 15 } } as CanvasObject;
+    const allObjects2 = [stroke1Moved];
+
+    const result: ExtractionResult = {
+      objectIds: ['s1'],
+      bounds: { minX: 0, minY: 0, maxX: 15, maxY: 15 },
+      strategy: 'selection',
+      confidence: { level: 'high', reasons: [] },
+      expanded: false
+    };
+
+    const firstCall = canonicalSerialize(result, allObjects1);
+    const secondCall = canonicalSerialize(result, allObjects2);
+
+    expect(firstCall).not.toBe(secondCall);
+  });
+
+  it('is stable regardless of object array ordering (sorting by ID makes this true)', () => {
+    const stroke1 = { id: 'a-stroke', type: 'stroke', bounds: { minX: 0, minY: 0, maxX: 5, maxY: 5 } } as CanvasObject;
+    const stroke2 = { id: 'z-stroke', type: 'stroke', bounds: { minX: 5, minY: 5, maxX: 10, maxY: 10 } } as CanvasObject;
+    const stroke3 = { id: 'm-stroke', type: 'stroke', bounds: { minX: 15, minY: 15, maxX: 20, maxY: 20 } } as CanvasObject;
+    
+    const allObjectsOrder1 = [stroke1, stroke2, stroke3];
+    const allObjectsOrder2 = [stroke3, stroke2, stroke1];
+    const allObjectsOrder3 = [stroke2, stroke1, stroke3];
+
+    const result: ExtractionResult = {
+      objectIds: ['a-stroke', 'z-stroke', 'm-stroke'],
+      bounds: { minX: 0, minY: 0, maxX: 20, maxY: 20 },
+      strategy: 'selection',
+      confidence: { level: 'high', reasons: [] },
+      expanded: false
+    };
+
+    const hash1 = canonicalSerialize(result, allObjectsOrder1);
+    const hash2 = canonicalSerialize(result, allObjectsOrder2);
+    const hash3 = canonicalSerialize(result, allObjectsOrder3);
+
+    expect(hash1).toBe(hash2);
+    expect(hash2).toBe(hash3);
   });
 });

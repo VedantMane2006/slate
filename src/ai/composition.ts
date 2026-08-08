@@ -34,3 +34,21 @@ export function composeMultimodalRequest(
   
   return { image, fragments };
 }
+
+export function canonicalSerialize(
+  result: ExtractionResult,
+  allObjects: CanvasObject[]
+): string {
+  const extractedObjects = allObjects.filter((obj) => result.objectIds.includes(obj.id));
+  
+  // Sort objects by ID to ensure deterministic ordering regardless of input array order
+  const sortedObjects = [...extractedObjects].sort((a, b) => a.id.localeCompare(b.id));
+
+  const payload = {
+    bounds: result.bounds,
+    strategy: result.strategy,
+    objects: sortedObjects
+  };
+  
+  return JSON.stringify(payload);
+}
