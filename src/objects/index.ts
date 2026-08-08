@@ -1,1 +1,1 @@
-export {};
+export * from './stroke.ts';
