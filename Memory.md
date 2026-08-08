@@ -5,10 +5,10 @@
 > from scratch, and don't re-litigate anything marked DECIDED below.
 
 ## Current status
-Phase: **Phase 6 — IN PROGRESS** (Crop Rendering)
+Phase: **Phase 6 — IN PROGRESS** (Crop Rendering & Composition)
 Last updated: 2026-08-08
 Branch: master
-`main` state: Phase 1-5 features complete, Phase 6 part 1 complete (Crop Rendering) — builds, lints, and tests clean (67 tests)
+`main` state: Phase 1-5 features complete, Phase 6 parts 1-2 complete (Crop Rendering, Multimodal Composition) — builds, lints, and tests clean (69 tests)
 
 ## Decisions already made (DECIDED — do not re-open without a strong reason)
 - Stack: Vite + React + TypeScript, strict mode, Vitest, ESLint + Prettier — DECIDED
@@ -37,6 +37,7 @@ Branch: master
   — decide in Phase 12
 
 ## Log (append one entry per session, most recent on top)
+- 2026-08-08 — Phase 6, part 2 complete. Added `composeMultimodalRequest` in `src/ai/composition.ts`. It correctly partitions an extracted selection: rendering strokes and images into a single crop image via `renderCrop`, and extracting structural data (tables, text, equations) into `AIPayloadFragment`s via `toAIPayload()`. Added unit tests verifying correct filtering and formatting. Verification passed: `npm run lint` ✓, `npm test` ✓ (69/69 tests).
 - 2026-08-08 — Phase 6, part 1 complete. Added `renderCrop` function to `renderer.ts` to render objects within a bounding box to an off-screen canvas. Implemented filtering for strokes and images, and reused the existing `renderStrokes` drawing logic. Added mock-based unit tests for rendering size and bounds filtering. Verified functionality via unit tests. Verification passed: `npm run lint` ✓, `npm test` ✓ (67/67 tests).
 - 2026-08-08 — Phase 5, part 4 complete. Added `writeExtractionTrace` and `__EXTRACTION_TRACES` in-memory stub to `extractor.ts`. Every call to `extractContext` now automatically pushes a `TraceEntry` `{ timestamp, strategy, confidence, objectCount, bounds }` to this array, providing telemetry for all extraction requests. Verified functionality via unit tests resetting the trace array and confirming correct append behavior, without introducing side effects or DOM dependencies. Definition of Done for Phase 5 is met (extractContext handles selection/no-selection, sparse/dense scenes correctly, fully unit tested, zero framework dependencies). Verification passed: `npm run lint` ✓, `npm test` ✓ (65/65 tests).
 - 2026-08-08 — Phase 5, part 3 complete. Replaced placeholder `ContextConfidence` with true shape `{ level: 'high'|'medium'|'low', reasons: string[] }`. Added `computeConfidence` pure function to score extractions based on explicit selection, recent activity fallback, object density, and cluster expansion distance. Wired this into `extractContext` and verified with new unit tests testing clean user selection and sparse expanded cases. All verification passed: `npm run lint` ✓, `npm test` ✓ (64/64 tests).
@@ -74,4 +75,4 @@ Branch: master
   Next action: start Phase 0 (scaffolding) using the Phase 0 prompt from the roadmap.
 
 ## Next action
-Continue Phase 6 — Multimodal Request Composition.
+Finish Phase 6 — canonical serialization (Prompt 3).
