@@ -5,7 +5,7 @@
 > from scratch, and don't re-litigate anything marked DECIDED below.
 
 ## Current status
-Phase: **Phase 2 — COMPLETE** (Stroke Object Model & Eraser)
+Phase: **Phase 3, part 1 — complete** (Command pattern and generic object store)
 Last updated: 2026-08-08
 Branch: master
 `main` state: scaffolded + canvas viewport + pointer capture + stroke object model + geometry utilities — builds, lints, and tests clean (33 tests)
@@ -37,6 +37,7 @@ Branch: master
   — decide in Phase 12
 
 ## Log (append one entry per session, most recent on top)
+- 2026-08-08 — Phase 3, part 1 complete. Implemented `Command` interface, `HistoryStack` with size cap (200), and `ObjectStore` interface in `/src/history/command.ts`. Upgraded `CanvasViewport.tsx` to wrap its `strokes` state into an `ObjectStore` and perform all drawing and erasing operations via `AddObjectCommand`, `RemoveObjectCommand`, and `CompositeCommand` interacting with the `HistoryStack`. Added Undo/Redo shortcuts (Ctrl+Z, Ctrl+Shift+Z). Added unit tests for history logic. All verification passed: `npm run build` ✓, `npm run lint` ✓, `npm test` ✓ (39/39 passed).
 - 2026-08-08 — Phase 2, part 4 complete. Implemented Eraser tool in `CanvasViewport.tsx`. Erase logic leverages broad phase `pointInBox` hit-testing against bounding boxes, followed by narrow phase `distance` checking. Decided on "whole-stroke erase" as per architecture guidelines. Added unit tests for eraser hits and misses. Phase 2 Definition of Done met: stroke model is framework-free, rendering is pure, and eraser interacts cleanly with strokes. All verification passed: `npm run build` ✓, `npm run lint` ✓, `npm test` ✓ (36/36 passed).
 - 2026-08-08 — Phase 2, part 3 complete. Maintained in-memory array of `Stroke` objects in `CanvasViewport`. Wired-up `usePointerEvents` to create/append to `StrokeBuilder` state and finalized `renderStrokes` loop. Verification passed: `npm run build` ✓, `npm run lint` ✓, `npm test` ✓ (34/34 passed across 7 test files).
 - 2026-08-08 — Phase 2, part 2 complete. Implemented pure geometry utilities in `/src/utils/geometry.ts` (`BoundingBox`, `Point`, `unionBoundingBoxes`, `pointInBox`, `distance`). Added robust unit tests covering edge cases like zero-area boxes, points on bounding box edges/corners, and distance calculations with negative coordinates and identical points. Verification passed: `npm run build` ✓, `npm run lint` ✓, `npm test` ✓ (33/33 passed across 6 test files).
@@ -61,4 +62,4 @@ Branch: master
   Next action: start Phase 0 (scaffolding) using the Phase 0 prompt from the roadmap.
 
 ## Next action
-Start Phase 3 — Selection, Undo/Redo.
+Start Phase 3, part 2 — Selection.

@@ -1,5 +1,5 @@
 import type React from 'react';
-import { useRef, useState, useCallback, useEffect } from 'react';
+import { useRef, useState, useCallback, useEffect, useMemo } from 'react';
 import {
   screenToWorld,
   worldToScreen,
@@ -11,6 +11,13 @@ import { usePointerEvents } from '../hooks/usePointerEvents.ts';
 import { StrokeBuilder, type Stroke } from '../objects/stroke.ts';
 import { renderStrokes } from './renderer.ts';
 import { pointInBox, distance } from '../utils/geometry.ts';
+import {
+  HistoryStack,
+  AddObjectCommand,
+  RemoveObjectCommand,
+  CompositeCommand,
+  type ObjectStore,
+} from '../history/command.ts';
 
 interface PointerRecord {
   x: number;
@@ -28,6 +35,30 @@ export function CanvasViewport() {
   const [strokes, setStrokes] = useState<Stroke[]>([]);
   const [activeStroke, setActiveStroke] = useState<Stroke | null>(null);
   const [isEraserMode, setIsEraserMode] = useState(false);
+
+  const strokesRef = useRef<Stroke[]>(strokes);
+  strokesRef.current = strokes;
+
+  // Generic object store interface mapped over local state
+  const { store, history } = useMemo(() => {
+    const hist = new HistoryStack();
+    const st: ObjectStore<Stroke> = {
+      add: (stroke) => {
+        strokesRef.current = [...strokesRef.current, stroke];
+        setStrokes(strokesRef.current);
+      },
+      remove: (id) => {
+        strokesRef.current = strokesRef.current.filter((s) => s.id !== id);
+        setStrokes(strokesRef.current);
+      },
+      update: (id, newStroke) => {
+        strokesRef.current = strokesRef.current.map((s) => (s.id === id ? newStroke : s));
+        setStrokes(strokesRef.current);
+      },
+      getAll: () => strokesRef.current,
+    };
+    return { store: st, history: hist };
+  }, []);
 
   const activeStrokeBuilder = useRef<StrokeBuilder | null>(null);
   const isInteracting = useRef(false);
@@ -47,6 +78,10 @@ export function CanvasViewport() {
         setIsEraserMode(true);
       } else if (e.code === 'KeyD' && !e.repeat) {
         setIsEraserMode(false);
+      } else if (e.code === 'KeyZ' && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        if (e.shiftKey) history.redo();
+        else history.undo();
       }
     };
     const onKeyUp = (e: KeyboardEvent) => {
@@ -91,35 +126,34 @@ export function CanvasViewport() {
   } = usePointerEvents(viewport, (sample) => {
     if (isEraserMode) {
       const ERASER_TOLERANCE = 10 / viewport.zoom;
-      setStrokes((prevStrokes) => {
-        let strokesToRemove = new Set<string>();
+      
+      const prevStrokes = store.getAll();
+      let commands: RemoveObjectCommand<Stroke>[] = [];
 
-        for (let i = prevStrokes.length - 1; i >= 0; i--) {
-          const stroke = prevStrokes[i];
-          const expandedBox = {
-            minX: stroke.bounds.minX - ERASER_TOLERANCE - stroke.width,
-            minY: stroke.bounds.minY - ERASER_TOLERANCE - stroke.width,
-            maxX: stroke.bounds.maxX + ERASER_TOLERANCE + stroke.width,
-            maxY: stroke.bounds.maxY + ERASER_TOLERANCE + stroke.width,
-          };
-          
-          if (!pointInBox(sample, expandedBox)) continue;
-          
-          for (const pt of stroke.points) {
-            if (distance(sample, pt) <= ERASER_TOLERANCE + stroke.width) {
-              // DECIDED: Whole-stroke erase design choice.
-              // In this phase, we remove the entire stroke from the array instead of
-              // splitting it into segments. This keeps the object model purely stroke-based for now.
-              strokesToRemove.add(stroke.id);
-              break;
-            }
+      for (let i = prevStrokes.length - 1; i >= 0; i--) {
+        const stroke = prevStrokes[i];
+        const expandedBox = {
+          minX: stroke.bounds.minX - ERASER_TOLERANCE - stroke.width,
+          minY: stroke.bounds.minY - ERASER_TOLERANCE - stroke.width,
+          maxX: stroke.bounds.maxX + ERASER_TOLERANCE + stroke.width,
+          maxY: stroke.bounds.maxY + ERASER_TOLERANCE + stroke.width,
+        };
+        
+        if (!pointInBox(sample, expandedBox)) continue;
+        
+        for (const pt of stroke.points) {
+          if (distance(sample, pt) <= ERASER_TOLERANCE + stroke.width) {
+            // DECIDED: Whole-stroke erase design choice.
+            commands.push(new RemoveObjectCommand(store, stroke));
+            break;
           }
         }
-        if (strokesToRemove.size > 0) {
-          return prevStrokes.filter((s) => !strokesToRemove.has(s.id));
-        }
-        return prevStrokes;
-      });
+      }
+      
+      if (commands.length > 0) {
+        const cmd = commands.length === 1 ? commands[0] : new CompositeCommand(commands, 'Erase strokes');
+        history.execute(cmd);
+      }
     } else if (activeStrokeBuilder.current) {
       activeStrokeBuilder.current.addPoint(sample);
       try {
@@ -222,7 +256,7 @@ export function CanvasViewport() {
         if (activeStrokeBuilder.current) {
           try {
             const finalStroke = activeStrokeBuilder.current.build();
-            setStrokes((prev) => [...prev, finalStroke]);
+            history.execute(new AddObjectCommand(store, finalStroke));
           } catch {
             // Ignored
           }
@@ -232,7 +266,7 @@ export function CanvasViewport() {
         isInteracting.current = false;
       }
     },
-    [samplePointerUp],
+    [samplePointerUp, history, store],
   );
 
   // Render grid
