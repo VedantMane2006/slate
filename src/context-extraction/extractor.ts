@@ -3,8 +3,8 @@ import { unionBoundingBoxes, boxesIntersect } from '../utils/geometry.ts';
 import type { CanvasObject } from '../objects/canvas-object.ts';
 
 export interface ContextConfidence {
-  score: number;
-  reason: string;
+  level: 'high' | 'medium' | 'low';
+  reasons: string[];
 }
 
 export interface ExtractionResult {
@@ -27,7 +27,6 @@ export function extractContext(
   let initialBounds: BoundingBox | null = null;
   let initialObjectIds: string[] = [];
   let strategy: 'selection' | 'recent' | 'none' = 'none';
-  let confidence: ContextConfidence = { score: 0.0, reason: 'No context found' };
 
   // 1. Selection-first strategy
   if (selection && selection.ids.length > 0) {
@@ -40,7 +39,7 @@ export function extractContext(
       initialBounds = unionBounds;
       initialObjectIds = selectedObjects.map((o) => o.id);
       strategy = 'selection';
-      confidence = { score: 1.0, reason: 'Explicit user selection' };
+      strategy = 'selection';
     }
   }
 
@@ -62,18 +61,21 @@ export function extractContext(
       initialBounds = unionBounds;
       initialObjectIds = recentObjects.map((o) => o.id);
       strategy = 'recent';
-      confidence = { score: 0.8, reason: 'Recent activity fallback' };
+      strategy = 'recent';
     }
   }
 
   // 3. Fallback: No selection, no recent objects
   if (strategy === 'none' || !initialBounds) {
-    return {
+    const partial = {
       bounds: null,
       objectIds: [],
-      strategy: 'none',
-      confidence,
+      strategy: 'none' as const,
       expanded: false,
+    };
+    return {
+      ...partial,
+      confidence: computeConfidence(partial, objects),
     };
   }
 
@@ -109,11 +111,57 @@ export function extractContext(
     }
   }
 
-  return {
+  const partialResult = {
     bounds: currentBounds,
     objectIds: Array.from(currentObjectIds),
     strategy,
-    confidence,
     expanded,
   };
+
+  return {
+    ...partialResult,
+    confidence: computeConfidence(partialResult, objects),
+  };
+}
+
+export function computeConfidence(
+  result: Omit<ExtractionResult, 'confidence'>,
+  objects: CanvasObject[]
+): ContextConfidence {
+  if (result.strategy === 'none') {
+    return { level: 'low', reasons: ['No context found'] };
+  }
+
+  let score = 0;
+  const reasons: string[] = [];
+
+  if (result.strategy === 'selection') {
+    score += 50;
+    reasons.push('Extraction derived from explicit user selection');
+  } else if (result.strategy === 'recent') {
+    score += 20;
+    reasons.push('Extraction derived from recent activity fallback');
+  }
+
+  if (result.objectIds.length > 5) {
+    score += 20;
+    reasons.push('High density of objects within context bounds');
+  } else if (result.objectIds.length > 0) {
+    score += 10;
+    reasons.push('Context contains some objects');
+  }
+
+  if (result.expanded) {
+    score -= 10;
+    reasons.push('Cluster expansion required (confidence reduced due to distance)');
+  }
+
+  let level: 'high' | 'medium' | 'low' = 'low';
+  if (score >= 50) {
+    level = 'high';
+  } else if (score >= 30) {
+    level = 'medium';
+  }
+
+  return { level, reasons };
 }

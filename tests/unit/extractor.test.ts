@@ -79,7 +79,8 @@ describe('Context Extraction Strategies', () => {
     expect(result.strategy).toBe('none');
     expect(result.objectIds).toEqual([]);
     expect(result.bounds).toBeNull();
-    expect(result.confidence.score).toBe(0.0);
+    expect(result.confidence.level).toBe('low');
+    expect(result.confidence.reasons).toContain('No context found');
     expect(result.expanded).toBe(false);
   });
 
@@ -153,5 +154,35 @@ describe('Context Extraction Strategies', () => {
     expect(result.objectIds.length).toBe(6);
     expect(result.objectIds.includes('chain-5')).toBe(true);
     expect(result.objectIds.includes('chain-6')).toBe(false);
+  });
+
+  it('confidence is "high" for a clean, real selection', () => {
+    const objects = [obj1, obj2];
+    const selection = { ids: ['obj-1'] };
+    const result = extractContext(objects, selection, Date.now());
+    
+    expect(result.confidence.level).toBe('high');
+    expect(result.confidence.reasons.length).toBeGreaterThan(0);
+    expect(result.confidence.reasons).toContain('Extraction derived from explicit user selection');
+  });
+
+  it('confidence is "low" for a sparse, heavily-expanded recent-fallback case', () => {
+    // Only 1 object (sparse), and it causes an expansion (so expanded is true)
+    const objects: TestObject[] = [
+      { id: '1', type: 'stroke', bounds: { minX: 0, minY: 0, maxX: 10, maxY: 10 }, timestamp: 20000 },
+      { id: '2', type: 'stroke', bounds: { minX: 12, minY: 0, maxX: 20, maxY: 10 }, timestamp: 0 },
+    ];
+    // Uses recent fallback, then expands to include '2'
+    const result = extractContext(objects, null, 20000);
+    
+    expect(result.strategy).toBe('recent');
+    expect(result.expanded).toBe(true);
+    // Sparse (2 objects <= 5), recent (20 - 10 = 10, plus 10 = 20 score). 20 means 'medium' or 'low'?
+    // Wait, recent (20) + sparse (10) = 30. But expanded (-10) = 20.
+    // Score 20 is < 30, so level is 'low'.
+    expect(result.confidence.level).toBe('low');
+    expect(result.confidence.reasons).toContain('Extraction derived from recent activity fallback');
+    expect(result.confidence.reasons).toContain('Context contains some objects');
+    expect(result.confidence.reasons).toContain('Cluster expansion required (confidence reduced due to distance)');
   });
 });
