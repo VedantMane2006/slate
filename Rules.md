@@ -20,6 +20,15 @@ session, regardless of what the phase-specific prompt says.
 6. Never auto-resolve ambiguity by guessing silently. If a decision isn't documented in
    `Architecture.md` or `Memory.md`, ask, or make a clearly-flagged assumption and say so
    out loud in your response — don't bury it.
+
+## AI Interactions & Workflow
+- You may automate `npm run build`, `npm run lint`, and `npm test` checks.
+- Do not automate browser UI testing (e.g., using a browser subagent). Always ask the user to test the UI manually, as they use Brave and the automated headless Chrome tool does not work on this machine.
+- Start every session by reading this file, `PRD.md`, `Architecture.md`, and `Memory.md`.
+- End every session by updating `Memory.md`'s log, current status, and next action.
+- Update `Architecture.md` if any structural decisions change, but do not change the core stack without permission.
+- If you run into a `[not yet decided]` item from `Memory.md` that blocks you, STOP and ask me to decide. Do not invent a choice without flagging it.
+
 7. Never hash rendered pixels for dedup. Always hash the canonical data serialization.
 8. Never let selection/move/undo code special-case by object type. If you find yourself
    writing `if (type === 'table')` inside `/src/canvas` or `/src/history`, stop — the

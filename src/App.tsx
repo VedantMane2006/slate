@@ -1,3 +1,9 @@
+import { CanvasViewport } from './canvas/CanvasViewport.tsx';
+
 export function App() {
-  return <h1>SLATE</h1>;
+  return (
+    <div style={{ width: '100vw', height: '100vh', overflow: 'hidden' }}>
+      <CanvasViewport />
+    </div>
+  );
 }
