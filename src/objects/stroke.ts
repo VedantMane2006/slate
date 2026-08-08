@@ -1,19 +1,8 @@
 import type { PointerSample } from '../hooks/usePointerEvents.ts';
+import type { BoundingBox } from '../utils/geometry.ts';
+import type { CanvasObject, Serializable, AIPayloadFragment } from './canvas-object.ts';
 
-export interface BoundingBox {
-  minX: number;
-  minY: number;
-  maxX: number;
-  maxY: number;
-}
-
-export interface CanvasObject {
-  id: string;
-  type: string;
-  bounds: BoundingBox;
-}
-
-export interface Stroke extends CanvasObject {
+export interface Stroke extends CanvasObject, Serializable {
   type: 'stroke';
   points: PointerSample[];
   timestamp: number;
@@ -66,14 +55,23 @@ export class StrokeBuilder {
       throw new Error("Cannot build a stroke with no points");
     }
     
-    return {
+    const stroke = {
       id: this.id,
-      type: 'stroke',
+      type: 'stroke' as const,
       points: [...this.points],
       timestamp: this.timestamp,
       width: this.width,
       color: this.color,
       bounds: { ...this.bounds }
     };
+
+    Object.defineProperty(stroke, 'toAIPayload', {
+      value: () => ({ kind: 'image', data: '' }),
+      enumerable: false,
+      writable: true,
+      configurable: true
+    });
+
+    return stroke as Stroke;
   }
 }

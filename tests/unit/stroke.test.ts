@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { StrokeBuilder, type Stroke } from '../../src/objects/stroke.ts';
 import type { PointerSample } from '../../src/hooks/usePointerEvents.ts';
+import type { CanvasObject, Serializable } from '../../src/objects/canvas-object.ts';
 
 describe('StrokeBuilder', () => {
   const createSample = (x: number, y: number): PointerSample => ({
@@ -83,5 +84,23 @@ describe('StrokeBuilder', () => {
     expect(parsedStroke.color).toBe('#abcdef');
     expect(parsedStroke.timestamp).toBe(987654321);
     expect(parsedStroke.bounds).toEqual({ minX: 7.5, minY: 7.5, maxX: 22.5, maxY: 27.5 });
+  });
+
+  it('Stroke correctly satisfies CanvasObject and Serializable at compile time and runtime', () => {
+    const builder = new StrokeBuilder('stroke-interfaces', 2, '#000000', 123);
+    builder.addPoint(createSample(10, 10));
+    const stroke = builder.build();
+
+    // Compile-time check
+    const canvasObj: CanvasObject = stroke;
+    const serializable: Serializable = stroke;
+
+    // Runtime checks
+    expect(canvasObj.id).toBe('stroke-interfaces');
+    expect(canvasObj.type).toBe('stroke');
+    expect(canvasObj.bounds).toBeDefined();
+
+    const payload = serializable.toAIPayload();
+    expect(payload).toEqual({ kind: 'image', data: '' });
   });
 });
