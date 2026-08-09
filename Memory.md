@@ -8,7 +8,7 @@
 Phase: **Phase 8 — IN PROGRESS** (JSON Rendering / Draft Cards)
 Last updated: 2026-08-09
 Branch: master
-`main` state: Phase 1-7 features complete, Phase 8 parts 1-3 complete (AI Output Schema, JSON prompt instruction, Schema validation wiring) — builds, lints, and tests clean (90 tests)
+`main` state: Phase 1-7 features complete, Phase 8 parts 1-4 complete (AI Output Schema, JSON prompt, Validation wiring, Renderers) — builds, lints, and tests clean (94 tests)
 
 ## Decisions already made (DECIDED — do not re-open without a strong reason)
 - Stack: Vite + React + TypeScript, strict mode, Vitest, ESLint + Prettier — DECIDED
@@ -37,6 +37,7 @@ Branch: master
   — decide in Phase 12
 
 ## Log (append one entry per session, most recent on top)
+- 2026-08-09 — Phase 8, part 4 complete. Implemented local rendering functions for AI output in `src/ai/rendering/renderers.tsx` (`renderMarkdown`, `renderLatex`, `renderTable`, `renderGraph`). Installed `marked`, `dompurify`, and `katex`. `dompurify` is used to sanitize Markdown output directly against XSS. `katex` renders LaTeX safely. Opted for a custom lightweight SVG graph renderer over heavy libraries like Chart.js to keep bundle size small per Phase 10 goals. Verified consistent returns in `CanvasViewport.tsx`. Added thorough unit tests checking functionality and malicious input sanitization. Verification passed: `npm run lint` ✓, `npm test` ✓ (94/94 tests).
 - 2026-08-09 — Phase 8, part 3 complete. Wired schema validation natively into `RequestLifecycleManager` (`src/ai/lifecycle/state-machine.ts`). Reaching `completed` now requires the raw `responseText`, which is JSON-parsed and run through `validateAIOutput`. Invalid responses explicitly transition to an `'error'` state with a distinct error message, preventing silent UI failures. Added tests validating that correct JSON attaches `parsedData`, while malformed/non-JSON data safely surfaces honest error messages without exceptions. Verification passed: `npm run lint` ✓, `npm test` ✓ (90/90 tests).
 - 2026-08-09 — Phase 8, part 2 complete. Updated `GeminiClient` (`src/ai/adapters/gemini.ts`) to configure Gemini with a concrete `systemInstruction` dictating it must respond ONLY in a specific JSON shape matching `AIOutputSchema`. Also enabled `responseMimeType: "application/json"` to ensure structural compliance from the model. Updated the Gemini unit test (`gemini.test.ts`) to assert that the `systemInstruction` and `generationConfig` are correctly piped to the model instance. Verification passed: `npm run lint` ✓, `npm test` ✓ (88/88 tests).
 - 2026-08-09 — Phase 8, part 1 complete. Defined `AIOutputSchema` and implemented `validateAIOutput(raw: unknown)` in `src/ai/rendering/schema.ts`. Decided to use hand-written type guards instead of Zod to keep the client-side dependency footprint minimal, since the schema is well-defined and flat. Added rigorous unit tests in `schema.test.ts` verifying robust rejection of missing fields, wrong types, and garbage JSON. Verification passed: `npm run lint` ✓, `npm test` ✓ (88/88 tests).
@@ -85,4 +86,4 @@ Branch: master
   Next action: start Phase 0 (scaffolding) using the Phase 0 prompt from the roadmap.
 
 ## Next action
-Continue Phase 8 — Part 4 (AI Draft Card UI Implementation).
+Continue Phase 8 — Part 5 (DraftCard implementation and rendering).

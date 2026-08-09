@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { RequestLifecycleManager } from '../../src/ai/lifecycle/state-machine.ts';
 
 describe('RequestLifecycleManager', () => {
@@ -34,7 +34,7 @@ describe('RequestLifecycleManager', () => {
   it('cancel() during waiting or streaming results in cancelled, not error or completed', () => {
     const req = manager.createRequest('req-1', mockPayload);
     manager.transition('req-1', 'waiting');
-    
+
     manager.cancel('req-1');
     expect(req.state).toBe('cancelled');
     expect(req.timestamps.cancelled).toBeDefined();
@@ -51,10 +51,10 @@ describe('RequestLifecycleManager', () => {
 
     // Triggering request B should automatically supersede A
     const reqB = manager.createRequest('req-B', mockPayload);
-    
+
     expect(reqA.state).toBe('superseded');
     expect(reqA.timestamps.superseded).toBeDefined();
-    
+
     expect(reqB.state).toBe('encoding');
     expect(manager.getActiveRequest()?.id).toBe('req-B');
 
@@ -68,10 +68,10 @@ describe('RequestLifecycleManager', () => {
   it('a simulated timeout reaches timeout state', async () => {
     const req = manager.createRequest('req-timeout', mockPayload);
     manager.transition('req-timeout', 'waiting');
-    
+
     // Wait for the 10ms timeout to trigger
     await new Promise((resolve) => setTimeout(resolve, 20));
-    
+
     expect(req.state).toBe('timeout');
     expect(req.timestamps.timeout).toBeDefined();
   });
@@ -79,12 +79,12 @@ describe('RequestLifecycleManager', () => {
   it('clear timeout if completed successfully before timeout', async () => {
     const req = manager.createRequest('req-clear', mockPayload);
     manager.transition('req-clear', 'waiting');
-    
+
     manager.transition('req-clear', 'completed', JSON.stringify({ explanation: 'test' }));
-    
+
     // Wait past the 10ms timeout
     await new Promise((resolve) => setTimeout(resolve, 20));
-    
+
     // State should still be completed, not timeout
     expect(req.state).toBe('completed');
   });
@@ -95,9 +95,9 @@ describe('RequestLifecycleManager', () => {
       explanation: 'A valid explanation',
       latex: '\\pi'
     });
-    
+
     manager.transition('req-valid', 'completed', validJson);
-    
+
     expect(req.state).toBe('completed');
     expect(req.parsedData).toBeDefined();
     expect(req.parsedData?.explanation).toBe('A valid explanation');

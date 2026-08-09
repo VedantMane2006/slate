@@ -51,6 +51,7 @@ export function CanvasViewport() {
       const timer = setTimeout(() => setHideTerminalState(true), 3000);
       return () => clearTimeout(timer);
     }
+    return undefined;
   }, [activeRequest?.state, activeRequest?.id]);
 
   const strokesRef = useRef<Stroke[]>(strokes);
