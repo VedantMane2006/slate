@@ -12,9 +12,14 @@ export class GeminiClient {
   constructor() {
     // Read the API key from Vite's environment variables
     const apiKey = import.meta.env.VITE_GEMINI_API_KEY || '';
+    
+    // Log masked API key for debugging
+    const maskedKey = apiKey ? `${apiKey.substring(0, 4)}...` : 'empty';
+    console.log(`Initialized GeminiClient with API key: ${maskedKey}`);
+    
     this.ai = new GoogleGenerativeAI(apiKey);
-    // Use gemini-1.5-flash as the default for multimodal streaming
-    this.model = 'gemini-1.5-flash';
+    // Using gemini-2.5-flash as the closest equivalent fast/cheap multimodal model since gemini-1.5-flash is no longer available on v1beta in 2026.
+    this.model = 'gemini-2.5-flash';
   }
 
   async sendRequest(

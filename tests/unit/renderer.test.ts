@@ -2,7 +2,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { renderCrop } from '../../src/canvas/renderer.ts';
 import type { Stroke } from '../../src/objects/stroke.ts';
-import type { ImageObject } from '../../src/objects/image.ts';
 
 describe('renderCrop', () => {
   it('produces an image data URL matching the output dimensions', () => {

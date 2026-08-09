@@ -8,7 +8,7 @@
 Phase: **Phase 7 — IN PROGRESS** (AI Request Lifecycle + Gemini Integration)
 Last updated: 2026-08-09
 Branch: master
-`main` state: Phase 1-6 features complete, Phase 7 parts 1-2 complete (Gemini Client Added) — builds, lints, and tests clean (78 tests)
+`main` state: Phase 1-6 features complete, Phase 7 parts 1-3 complete (Request Lifecycle, Gemini Client, Wiring, 404 bug fixed) — builds, lints, and tests clean (81 tests)
 
 ## Decisions already made (DECIDED — do not re-open without a strong reason)
 - Stack: Vite + React + TypeScript, strict mode, Vitest, ESLint + Prettier — DECIDED
@@ -37,6 +37,8 @@ Branch: master
   — decide in Phase 12
 
 ## Log (append one entry per session, most recent on top)
+- 2026-08-09 — Phase 7, part 3 debug complete (Debug 404 Error). Found that `gemini-1.5-flash` was returning a 404 because it is no longer available on `v1beta` in 2026. Updated `GeminiClient` to use `gemini-2.5-flash` as the closest equivalent fast/cheap multimodal model. Checked the SDK version and updated `@google/generative-ai` from `0.21.0` to `0.24.1` (latest). Added a masked API key log in `GeminiClient` to ensure the key is loading correctly. Verified that `RequestLifecycleManager` correctly transitions to the `'error'` state when an API request fails. Added an integration test to `ai-lifecycle.test.tsx` verifying this error transition.
+- 2026-08-09 — Phase 7, part 3 complete. Created `AILifecycleProvider` which instantiates and drives the `RequestLifecycleManager` and `GeminiClient`. Wired the "Ask AI" flow to transition through `encoding` -> `context_extraction` -> `sending` -> `waiting` -> `streaming` -> `rendering` -> `completed`. Added an overlay "Ask AI" UI to `CanvasViewport` alongside a Cancel button. Ensured proper state synchronization via context and added robust integration tests. All lint warnings fixed. Definition of Done for Phase 7 is met. Verification passed: `npm run lint` ✓, `npm test` ✓ (80/80 tests).
 - 2026-08-09 — Phase 7, part 2 complete. Implemented `GeminiClient` in `src/ai/adapters/gemini.ts`. Decided to use **TRUE token streaming** via `generateContentStream` to stream chunks iteratively as they arrive (better TTFT perception for UI). Configured to use standard structural payload and base64 inlineData for images. Added tests with a full `GoogleGenerativeAI` mock, guaranteeing tests never hit the network nor expose an API key. Verification passed: `npm run lint` ✓, `npm test` ✓ (78/78 tests). Added `@google/generative-ai` SDK to dependencies.
 - 2026-08-08 — Phase 7, part 1 complete. Implemented `RequestLifecycleManager` in `src/ai/lifecycle/state-machine.ts` with states: 'encoding', 'context_extraction', 'sending', 'waiting', 'streaming', 'rendering', 'completed', 'cancelled', 'superseded', 'timeout', and 'error'. Handles clean timestamps on transitions, cancellations, request superseding (ignoring late responses for superseded requests), and timeouts. Added tests covering all these paths. Verification passed: `npm run lint` ✓, `npm test` ✓ (76/76 tests).
 - 2026-08-08 — Phase 6, part 3 complete. Added `canonicalSerialize` in `composition.ts` which provides a deterministic JSON string representing an extraction payload (by sorting the extracted objects by ID prior to `JSON.stringify`). Added tests confirming it is deterministic, stable under reordering, and sensitive to real data changes. Definition of Done for Phase 6 is met (renderCrop, composeMultimodalRequest, and canonicalSerialize all correctly implemented and tested). Verification passed: `npm run lint` ✓, `npm test` ✓ (72/72 tests).
@@ -78,4 +80,4 @@ Branch: master
   Next action: start Phase 0 (scaffolding) using the Phase 0 prompt from the roadmap.
 
 ## Next action
-Continue Phase 7 — Wiring Gemini client into the state machine.
+Continue Phase 7 — Part 4 (Finalizing AI Request Lifecycle & Gemini Integration).

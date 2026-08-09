@@ -97,7 +97,7 @@ export function extractContext(
     };
     const finalResult = {
       ...partial,
-      confidence: computeConfidence(partial, objects),
+      confidence: computeConfidence(partial),
     };
     writeExtractionTrace(finalResult, finalResult.confidence);
     return finalResult;
@@ -144,7 +144,7 @@ export function extractContext(
 
   const finalResult = {
     ...partialResult,
-    confidence: computeConfidence(partialResult, objects),
+    confidence: computeConfidence(partialResult),
   };
 
   writeExtractionTrace(finalResult, finalResult.confidence);
@@ -153,8 +153,7 @@ export function extractContext(
 }
 
 export function computeConfidence(
-  result: Omit<ExtractionResult, 'confidence'>,
-  objects: CanvasObject[]
+  result: Omit<ExtractionResult, 'confidence'>
 ): ContextConfidence {
   if (result.strategy === 'none') {
     return { level: 'low', reasons: ['No context found'] };
