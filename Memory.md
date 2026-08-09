@@ -8,7 +8,7 @@
 Phase: **Phase 8 — IN PROGRESS** (JSON Rendering / Draft Cards)
 Last updated: 2026-08-09
 Branch: master
-`main` state: Phase 1-7 features complete, Phase 8 part 1 complete (AI Output Schema) — builds, lints, and tests clean (88 tests)
+`main` state: Phase 1-7 features complete, Phase 8 parts 1-2 complete (AI Output Schema, JSON prompt instruction) — builds, lints, and tests clean (88 tests)
 
 ## Decisions already made (DECIDED — do not re-open without a strong reason)
 - Stack: Vite + React + TypeScript, strict mode, Vitest, ESLint + Prettier — DECIDED
@@ -37,6 +37,7 @@ Branch: master
   — decide in Phase 12
 
 ## Log (append one entry per session, most recent on top)
+- 2026-08-09 — Phase 8, part 2 complete. Updated `GeminiClient` (`src/ai/adapters/gemini.ts`) to configure Gemini with a concrete `systemInstruction` dictating it must respond ONLY in a specific JSON shape matching `AIOutputSchema`. Also enabled `responseMimeType: "application/json"` to ensure structural compliance from the model. Updated the Gemini unit test (`gemini.test.ts`) to assert that the `systemInstruction` and `generationConfig` are correctly piped to the model instance. Verification passed: `npm run lint` ✓, `npm test` ✓ (88/88 tests).
 - 2026-08-09 — Phase 8, part 1 complete. Defined `AIOutputSchema` and implemented `validateAIOutput(raw: unknown)` in `src/ai/rendering/schema.ts`. Decided to use hand-written type guards instead of Zod to keep the client-side dependency footprint minimal, since the schema is well-defined and flat. Added rigorous unit tests in `schema.test.ts` verifying robust rejection of missing fields, wrong types, and garbage JSON. Verification passed: `npm run lint` ✓, `npm test` ✓ (88/88 tests).
 - 2026-08-09 — Phase 7, part 4 complete. Diagnosed inconsistent/truncated Gemini responses ("How to make tea in 3 steps?" yielding an echo). Investigated `maxOutputTokens`, chunk accumulation, and system prompts. Confirmed chunk accumulation is robust (`fullText += chunkText` is fully tested) and no token limits are artificially clamping output. The root cause is the absence of an explicit system instruction/prompt to guide the AI, which is 100% expected pre-Phase-8 behavior. No code fixes applied as the system behaves correctly for Phase 7.
 - 2026-08-09 — Phase 7, part 4 complete. Audited the `CanvasViewport` and verified that the canvas remains fully interactive while an AI request is in-flight. The "Ask AI" button and request status indicator are localized floating corner badges that do not capture underlying pointer events or use blocking overlays. Added an integration test in `ai-lifecycle.test.tsx` verifying drawing strokes during the `waiting` and `streaming` states successfully updates the canvas. Definition of Done for Phase 7 is fully met (real Gemini requests flow through states correctly; distinct cancel/supersede/timeout paths; canvas stays interactive). Verification passed: `npm run lint` ✓, `npm test` ✓ (82/82 tests).
@@ -83,4 +84,4 @@ Branch: master
   Next action: start Phase 0 (scaffolding) using the Phase 0 prompt from the roadmap.
 
 ## Next action
-Continue Phase 8 — Part 2 (Prompt formatting with JSON schema instructions).
+Continue Phase 8 — Part 3 (Wiring schema validation into the AI Request Lifecycle).

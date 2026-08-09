@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { GeminiClient } from '../../src/ai/adapters/gemini.ts';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import type { MultimodalRequestPayload } from '../../src/ai/composition.ts';
 
 // Mock the GoogleGenerativeAI module completely
@@ -53,6 +54,15 @@ describe('GeminiClient', () => {
 
     const response = await client.sendRequest(payload);
     expect(response).toBe('mocked response text');
+
+    // Assert that the request payload includes the schema instruction and JSON config
+    const getGenerativeModelMock = (GoogleGenerativeAI as any).mock.results[0].value.getGenerativeModel;
+    expect(getGenerativeModelMock).toHaveBeenCalled();
+    const callArgs = getGenerativeModelMock.mock.calls[0][0];
+    
+    expect(callArgs.systemInstruction).toMatch(/Schema:/);
+    expect(callArgs.systemInstruction).toMatch(/"explanation": "string"/);
+    expect(callArgs.generationConfig.responseMimeType).toBe('application/json');
   });
 
   it('onChunk is called correctly if streaming is implemented', async () => {

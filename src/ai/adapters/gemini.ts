@@ -26,7 +26,31 @@ export class GeminiClient {
     payload: MultimodalRequestPayload,
     onChunk?: (chunk: string) => void
   ): Promise<string> {
-    const generativeModel = this.ai.getGenerativeModel({ model: this.model });
+    const systemInstruction = `You are an AI assistant analyzing a user's canvas.
+Explain the image and fragments you receive.
+You must respond ONLY with valid JSON matching the following schema.
+Do not include any prose outside the JSON, and do not include markdown blocks like \`\`\`json.
+Include 'latex', 'table', or 'graph' fields only when relevant to the content.
+
+Schema:
+{
+  "explanation": "string",
+  "latex": "string (optional)",
+  "table": [["string", "array"], ["of", "strings"]] (optional),
+  "graph": {
+    "type": "bar" | "line",
+    "labels": ["string array"],
+    "values": [1, 2, 3] (number array)
+  } (optional)
+}`;
+
+    const generativeModel = this.ai.getGenerativeModel({ 
+      model: this.model,
+      systemInstruction,
+      generationConfig: {
+        responseMimeType: "application/json"
+      }
+    });
 
     const parts: Part[] = [];
 
