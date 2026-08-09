@@ -1,7 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { AILifecycleProvider, useAILifecycle } from '../../src/providers/AILifecycleProvider.tsx';
 import type { CanvasObject } from '../../src/objects/canvas-object.ts';
+import { CanvasViewport } from '../../src/canvas/CanvasViewport.tsx';
 
 // Mock Gemini SDK
 vi.mock('@google/generative-ai', () => {
@@ -116,6 +117,63 @@ describe('AI Lifecycle Integration', () => {
     // Eventually it reaches error
     await vi.waitFor(() => {
       expect(screen.getByTestId('status').textContent).toBe('error');
+    });
+  });
+
+  it('canvas remains fully interactive while an AI request is in-flight', async () => {
+    const strokeSpy = vi.fn();
+    HTMLCanvasElement.prototype.setPointerCapture = vi.fn();
+    HTMLCanvasElement.prototype.releasePointerCapture = vi.fn();
+
+    vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue({
+      scale: vi.fn(),
+      fillRect: vi.fn(),
+      beginPath: vi.fn(),
+      moveTo: vi.fn(),
+      lineTo: vi.fn(),
+      stroke: strokeSpy,
+      fill: vi.fn(),
+      arc: vi.fn(),
+      strokeRect: vi.fn(),
+      save: vi.fn(),
+      restore: vi.fn(),
+      translate: vi.fn(),
+    } as unknown as CanvasRenderingContext2D);
+
+    const { container } = render(
+      <AILifecycleProvider>
+        <CanvasViewport />
+      </AILifecycleProvider>
+    );
+
+    // 1. Draw a small initial stroke so ContextExtraction has something to find
+    const canvas = container.querySelector('canvas');
+    if (!canvas) throw new Error('Canvas not found');
+
+    fireEvent.pointerDown(canvas, { pointerId: 1, clientX: 10, clientY: 10 });
+    fireEvent.pointerMove(canvas, { pointerId: 1, clientX: 20, clientY: 20 });
+    fireEvent.pointerUp(canvas, { pointerId: 1, clientX: 20, clientY: 20 });
+    
+    // Clear the stroke spy so we only count new strokes drawn during the request
+    strokeSpy.mockClear();
+
+    // 2. Trigger Ask AI (the button is inside the CanvasViewport now)
+    fireEvent.click(screen.getByText('Ask AI'));
+
+    // Wait until it reaches 'waiting' or 'streaming' (mid-flight)
+    await waitFor(() => {
+      const stateText = screen.getByText(/State:/)?.textContent;
+      expect(stateText).toMatch(/waiting|streaming/);
+    });
+
+    // 3. While in-flight, draw a new stroke
+    fireEvent.pointerDown(canvas, { pointerId: 2, clientX: 100, clientY: 100 });
+    fireEvent.pointerMove(canvas, { pointerId: 2, clientX: 120, clientY: 120 });
+    fireEvent.pointerUp(canvas, { pointerId: 2, clientX: 120, clientY: 120 });
+
+    // 4. Assert that the stroke was successfully drawn (stroke() called on canvas)
+    await waitFor(() => {
+      expect(strokeSpy).toHaveBeenCalled();
     });
   });
 });
