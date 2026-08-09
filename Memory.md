@@ -5,10 +5,10 @@
 > from scratch, and don't re-litigate anything marked DECIDED below.
 
 ## Current status
-Phase: **Phase 6 — COMPLETE** (Crop Rendering & Composition)
+Phase: **Phase 7 — IN PROGRESS** (AI Request Lifecycle + Gemini Integration)
 Last updated: 2026-08-08
 Branch: master
-`main` state: Phase 1-6 features complete (Crop Rendering, Multimodal Composition, Canonical Serialization) — builds, lints, and tests clean (72 tests)
+`main` state: Phase 1-6 features complete, Phase 7 part 1 complete (Request Lifecycle State Machine) — builds, lints, and tests clean (76 tests)
 
 ## Decisions already made (DECIDED — do not re-open without a strong reason)
 - Stack: Vite + React + TypeScript, strict mode, Vitest, ESLint + Prettier — DECIDED
@@ -37,6 +37,7 @@ Branch: master
   — decide in Phase 12
 
 ## Log (append one entry per session, most recent on top)
+- 2026-08-08 — Phase 7, part 1 complete. Implemented `RequestLifecycleManager` in `src/ai/lifecycle/state-machine.ts` with states: 'encoding', 'context_extraction', 'sending', 'waiting', 'streaming', 'rendering', 'completed', 'cancelled', 'superseded', 'timeout', and 'error'. Handles clean timestamps on transitions, cancellations, request superseding (ignoring late responses for superseded requests), and timeouts. Added tests covering all these paths. Verification passed: `npm run lint` ✓, `npm test` ✓ (76/76 tests).
 - 2026-08-08 — Phase 6, part 3 complete. Added `canonicalSerialize` in `composition.ts` which provides a deterministic JSON string representing an extraction payload (by sorting the extracted objects by ID prior to `JSON.stringify`). Added tests confirming it is deterministic, stable under reordering, and sensitive to real data changes. Definition of Done for Phase 6 is met (renderCrop, composeMultimodalRequest, and canonicalSerialize all correctly implemented and tested). Verification passed: `npm run lint` ✓, `npm test` ✓ (72/72 tests).
 - 2026-08-08 — Phase 6, part 2 complete. Added `composeMultimodalRequest` in `src/ai/composition.ts`. It correctly partitions an extracted selection: rendering strokes and images into a single crop image via `renderCrop`, and extracting structural data (tables, text, equations) into `AIPayloadFragment`s via `toAIPayload()`. Added unit tests verifying correct filtering and formatting. Verification passed: `npm run lint` ✓, `npm test` ✓ (69/69 tests).
 - 2026-08-08 — Phase 6, part 1 complete. Added `renderCrop` function to `renderer.ts` to render objects within a bounding box to an off-screen canvas. Implemented filtering for strokes and images, and reused the existing `renderStrokes` drawing logic. Added mock-based unit tests for rendering size and bounds filtering. Verified functionality via unit tests. Verification passed: `npm run lint` ✓, `npm test` ✓ (67/67 tests).
@@ -76,4 +77,4 @@ Branch: master
   Next action: start Phase 0 (scaffolding) using the Phase 0 prompt from the roadmap.
 
 ## Next action
-Start Phase 7 — AI Request Lifecycle + Gemini Integration.
+Continue Phase 7 — Gemini Integration.
