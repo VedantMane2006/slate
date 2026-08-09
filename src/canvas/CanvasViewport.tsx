@@ -41,8 +41,17 @@ export function CanvasViewport() {
   const [selection, setSelection] = useState<{ ids: string[] }>({ ids: [] });
   const [selectionBox, setSelectionBox] = useState<BoundingBox | null>(null);
   const [dragOffset, setDragOffset] = useState<{ dx: number; dy: number } | null>(null);
+  const [hideTerminalState, setHideTerminalState] = useState(false);
 
   const { askAI, activeRequest, cancelRequest } = useAILifecycle();
+
+  useEffect(() => {
+    if (activeRequest && ['error', 'cancelled', 'timeout'].includes(activeRequest.state)) {
+      setHideTerminalState(false);
+      const timer = setTimeout(() => setHideTerminalState(true), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [activeRequest?.state, activeRequest?.id]);
 
   const strokesRef = useRef<Stroke[]>(strokes);
   strokesRef.current = strokes;
@@ -546,10 +555,12 @@ export function CanvasViewport() {
         onPointerCancel={handlePointerUp}
       />
       <div style={{ position: 'absolute', top: 20, right: 20, zIndex: 100, display: 'flex', flexDirection: 'column', gap: 8 }}>
-        {activeRequest && !['completed', 'cancelled', 'error', 'timeout'].includes(activeRequest.state) ? (
+        {activeRequest && activeRequest.state !== 'completed' && !(hideTerminalState && ['error', 'cancelled', 'timeout'].includes(activeRequest.state)) ? (
           <div style={{ background: 'white', padding: '10px', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
             <div style={{ marginBottom: 8, fontSize: 14 }}>State: {activeRequest.state}</div>
-            <button onClick={cancelRequest} style={{ padding: '6px 12px', background: '#dc3545', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Cancel AI</button>
+            {!['error', 'cancelled', 'timeout'].includes(activeRequest.state) && (
+              <button onClick={cancelRequest} style={{ padding: '6px 12px', background: '#dc3545', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Cancel AI</button>
+            )}
           </div>
         ) : (
           <button 

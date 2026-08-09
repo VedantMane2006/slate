@@ -80,12 +80,42 @@ describe('RequestLifecycleManager', () => {
     const req = manager.createRequest('req-clear', mockPayload);
     manager.transition('req-clear', 'waiting');
     
-    manager.transition('req-clear', 'completed');
+    manager.transition('req-clear', 'completed', JSON.stringify({ explanation: 'test' }));
     
     // Wait past the 10ms timeout
     await new Promise((resolve) => setTimeout(resolve, 20));
     
     // State should still be completed, not timeout
     expect(req.state).toBe('completed');
+  });
+
+  it('a completed request with valid JSON correctly attaches parsed AIOutputSchema data', () => {
+    const req = manager.createRequest('req-valid', mockPayload);
+    const validJson = JSON.stringify({
+      explanation: 'A valid explanation',
+      latex: '\\pi'
+    });
+    
+    manager.transition('req-valid', 'completed', validJson);
+    
+    expect(req.state).toBe('completed');
+    expect(req.parsedData).toBeDefined();
+    expect(req.parsedData?.explanation).toBe('A valid explanation');
+    expect(req.parsedData?.latex).toBe('\\pi');
+  });
+
+  it('a completed request with invalid/malformed JSON correctly captures an honest error state and message, without throwing an unhandled exception', () => {
+    // Case 1: Unparseable JSON
+    const req1 = manager.createRequest('req-invalid-1', mockPayload);
+    manager.transition('req-invalid-1', 'completed', 'This is not JSON');
+    expect(req1.state).toBe('error');
+    expect(req1.error).toMatch(/Failed to parse AI response as JSON/);
+
+    // Case 2: Parseable JSON, but invalid schema (missing explanation)
+    const req2 = manager.createRequest('req-invalid-2', mockPayload);
+    manager.transition('req-invalid-2', 'completed', JSON.stringify({ latex: 'only latex' }));
+    expect(req2.state).toBe('error');
+    expect(req2.error).toMatch(/Invalid AI response schema/);
+    expect(req2.parsedData).toBeUndefined();
   });
 });

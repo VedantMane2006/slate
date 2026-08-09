@@ -79,7 +79,7 @@ export function AILifecycleProvider({ children }: { children: React.ReactNode })
       // Phase 7 part 3 requires we simply log the final text to the console
       console.log('AI Response:', responseText);
 
-      manager.transition(id, 'completed');
+      manager.transition(id, 'completed', responseText);
       sync();
       
     } catch (err: any) {

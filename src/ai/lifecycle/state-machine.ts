@@ -1,4 +1,5 @@
 import type { MultimodalRequestPayload } from '../composition.ts';
+import { validateAIOutput, type AIOutputSchema } from '../rendering/schema.ts';
 
 export type RequestState =
   | 'encoding'
@@ -19,6 +20,7 @@ export interface AIRequest {
   payload: MultimodalRequestPayload;
   timestamps: Partial<Record<RequestState, number>>;
   error?: string;
+  parsedData?: AIOutputSchema;
 }
 
 export class RequestLifecycleManager {
@@ -59,7 +61,7 @@ export class RequestLifecycleManager {
     return this.activeRequest;
   }
 
-  transition(id: string, newState: RequestState, error?: string): void {
+  transition(id: string, newState: RequestState, data?: string): void {
     const request = this.requests.get(id);
     if (!request) return;
 
@@ -68,11 +70,35 @@ export class RequestLifecycleManager {
       return;
     }
 
+    if (newState === 'completed' && data) {
+      let parsed: unknown;
+      try {
+        parsed = JSON.parse(data);
+      } catch (e: any) {
+        request.state = 'error';
+        request.timestamps['error'] = Date.now();
+        request.error = `Failed to parse AI response as JSON: ${e.message}`;
+        this.clearCurrentTimeout();
+        return;
+      }
+
+      const validation = validateAIOutput(parsed);
+      if (!validation.valid) {
+        request.state = 'error';
+        request.timestamps['error'] = Date.now();
+        request.error = `Invalid AI response schema: ${validation.error}`;
+        this.clearCurrentTimeout();
+        return;
+      }
+      
+      request.parsedData = validation.data;
+    }
+
     request.state = newState;
     request.timestamps[newState] = Date.now();
 
-    if (error) {
-      request.error = error;
+    if (newState === 'error' && data) {
+      request.error = data;
     }
 
     if (newState === 'waiting') {

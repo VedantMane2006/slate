@@ -8,7 +8,7 @@
 Phase: **Phase 8 — IN PROGRESS** (JSON Rendering / Draft Cards)
 Last updated: 2026-08-09
 Branch: master
-`main` state: Phase 1-7 features complete, Phase 8 parts 1-2 complete (AI Output Schema, JSON prompt instruction) — builds, lints, and tests clean (88 tests)
+`main` state: Phase 1-7 features complete, Phase 8 parts 1-3 complete (AI Output Schema, JSON prompt instruction, Schema validation wiring) — builds, lints, and tests clean (90 tests)
 
 ## Decisions already made (DECIDED — do not re-open without a strong reason)
 - Stack: Vite + React + TypeScript, strict mode, Vitest, ESLint + Prettier — DECIDED
@@ -37,6 +37,7 @@ Branch: master
   — decide in Phase 12
 
 ## Log (append one entry per session, most recent on top)
+- 2026-08-09 — Phase 8, part 3 complete. Wired schema validation natively into `RequestLifecycleManager` (`src/ai/lifecycle/state-machine.ts`). Reaching `completed` now requires the raw `responseText`, which is JSON-parsed and run through `validateAIOutput`. Invalid responses explicitly transition to an `'error'` state with a distinct error message, preventing silent UI failures. Added tests validating that correct JSON attaches `parsedData`, while malformed/non-JSON data safely surfaces honest error messages without exceptions. Verification passed: `npm run lint` ✓, `npm test` ✓ (90/90 tests).
 - 2026-08-09 — Phase 8, part 2 complete. Updated `GeminiClient` (`src/ai/adapters/gemini.ts`) to configure Gemini with a concrete `systemInstruction` dictating it must respond ONLY in a specific JSON shape matching `AIOutputSchema`. Also enabled `responseMimeType: "application/json"` to ensure structural compliance from the model. Updated the Gemini unit test (`gemini.test.ts`) to assert that the `systemInstruction` and `generationConfig` are correctly piped to the model instance. Verification passed: `npm run lint` ✓, `npm test` ✓ (88/88 tests).
 - 2026-08-09 — Phase 8, part 1 complete. Defined `AIOutputSchema` and implemented `validateAIOutput(raw: unknown)` in `src/ai/rendering/schema.ts`. Decided to use hand-written type guards instead of Zod to keep the client-side dependency footprint minimal, since the schema is well-defined and flat. Added rigorous unit tests in `schema.test.ts` verifying robust rejection of missing fields, wrong types, and garbage JSON. Verification passed: `npm run lint` ✓, `npm test` ✓ (88/88 tests).
 - 2026-08-09 — Phase 7, part 4 complete. Diagnosed inconsistent/truncated Gemini responses ("How to make tea in 3 steps?" yielding an echo). Investigated `maxOutputTokens`, chunk accumulation, and system prompts. Confirmed chunk accumulation is robust (`fullText += chunkText` is fully tested) and no token limits are artificially clamping output. The root cause is the absence of an explicit system instruction/prompt to guide the AI, which is 100% expected pre-Phase-8 behavior. No code fixes applied as the system behaves correctly for Phase 7.
@@ -84,4 +85,4 @@ Branch: master
   Next action: start Phase 0 (scaffolding) using the Phase 0 prompt from the roadmap.
 
 ## Next action
-Continue Phase 8 — Part 3 (Wiring schema validation into the AI Request Lifecycle).
+Continue Phase 8 — Part 4 (AI Draft Card UI Implementation).
