@@ -9,6 +9,7 @@ interface AILifecycleContextValue {
   activeRequest: AIRequest | null;
   askAI: (objects: CanvasObject[], selection: { ids: string[] } | null) => Promise<void>;
   cancelRequest: () => void;
+  clearRequest: () => void;
 }
 
 const AILifecycleContext = createContext<AILifecycleContextValue | null>(null);
@@ -41,7 +42,7 @@ export function AILifecycleProvider({ children }: { children: React.ReactNode })
     
     // 3. Create request in 'encoding' state
     const id = Date.now().toString();
-    const req = manager.createRequest(id, payload);
+    const req = manager.createRequest(id, payload, result.bounds);
     sync();
 
     // The prompt requires we transition through these specific states:
@@ -98,8 +99,13 @@ export function AILifecycleProvider({ children }: { children: React.ReactNode })
     }
   }, [manager, sync]);
 
+  const clearRequest = useCallback(() => {
+    manager.clearActiveRequest();
+    sync();
+  }, [manager, sync]);
+
   return (
-    <AILifecycleContext.Provider value={{ activeRequest, askAI, cancelRequest }}>
+    <AILifecycleContext.Provider value={{ activeRequest, askAI, cancelRequest, clearRequest }}>
       {children}
     </AILifecycleContext.Provider>
   );

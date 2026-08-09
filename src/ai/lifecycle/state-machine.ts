@@ -21,6 +21,7 @@ export interface AIRequest {
   timestamps: Partial<Record<RequestState, number>>;
   error?: string;
   parsedData?: AIOutputSchema;
+  contextBounds?: import('../../utils/geometry.ts').BoundingBox | null;
 }
 
 export class RequestLifecycleManager {
@@ -33,7 +34,7 @@ export class RequestLifecycleManager {
     this.timeoutDuration = timeoutDurationMs;
   }
 
-  createRequest(id: string, payload: MultimodalRequestPayload): AIRequest {
+  createRequest(id: string, payload: MultimodalRequestPayload, contextBounds?: import('../../utils/geometry.ts').BoundingBox | null): AIRequest {
     if (this.activeRequest && !this.isTerminalState(this.activeRequest.state)) {
       this.transition(this.activeRequest.id, 'superseded');
     }
@@ -42,6 +43,7 @@ export class RequestLifecycleManager {
       id,
       state: 'encoding',
       payload,
+      contextBounds,
       timestamps: {
         encoding: Date.now()
       }
@@ -113,6 +115,10 @@ export class RequestLifecycleManager {
 
   cancel(id: string): void {
     this.transition(id, 'cancelled');
+  }
+
+  clearActiveRequest(): void {
+    this.activeRequest = null;
   }
 
   public isTerminalState(state: RequestState): boolean {

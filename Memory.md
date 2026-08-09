@@ -8,7 +8,7 @@
 Phase: **Phase 8 — IN PROGRESS** (JSON Rendering / Draft Cards)
 Last updated: 2026-08-09
 Branch: master
-`main` state: Phase 1-7 features complete, Phase 8 parts 1-4 complete (AI Output Schema, JSON prompt, Validation wiring, Renderers) — builds, lints, and tests clean (94 tests)
+`main` state: Phase 1-7 features complete, Phase 8 parts 1-5 complete (Schema, Instruct, Validate, Render, DraftCard component) — builds, lints, and tests clean (98 tests)
 
 ## Decisions already made (DECIDED — do not re-open without a strong reason)
 - Stack: Vite + React + TypeScript, strict mode, Vitest, ESLint + Prettier — DECIDED
@@ -37,6 +37,7 @@ Branch: master
   — decide in Phase 12
 
 ## Log (append one entry per session, most recent on top)
+- 2026-08-09 — Phase 8, part 5 complete. Built the `DraftCard` component in `src/components/DraftCard.tsx`. It intelligently anchors itself near the source ROI using `worldToScreen`, with dynamic viewport clamping to ensure it never goes off-screen even when panning or zooming aggressively. Handles both successful parsed schemas (rendering using Phase 8.4 renderers) and honest `'error'` states (hiding Accept, showing error text). Verified layout logic independently without relying on external UI libs. Mounted it in `CanvasViewport.tsx` and wired `clearActiveRequest` into `state-machine.ts` to instantly drop the card out of the React tree upon Accept or Discard. Tuned the Gemini instruction prompt to explicitly ANSWER or SOLVE questions instead of just describing them. Added unit tests for DraftCard layout, honest failure rendering, state machine clearing, and the new Gemini instruction. Verification passed: `npm run lint` ✓, `npm test` ✓ (98/98 tests).
 - 2026-08-09 — Phase 8, part 4 complete. Implemented local rendering functions for AI output in `src/ai/rendering/renderers.tsx` (`renderMarkdown`, `renderLatex`, `renderTable`, `renderGraph`). Installed `marked`, `dompurify`, and `katex`. `dompurify` is used to sanitize Markdown output directly against XSS. `katex` renders LaTeX safely. Opted for a custom lightweight SVG graph renderer over heavy libraries like Chart.js to keep bundle size small per Phase 10 goals. Verified consistent returns in `CanvasViewport.tsx`. Added thorough unit tests checking functionality and malicious input sanitization. Verification passed: `npm run lint` ✓, `npm test` ✓ (94/94 tests).
 - 2026-08-09 — Phase 8, part 3 complete. Wired schema validation natively into `RequestLifecycleManager` (`src/ai/lifecycle/state-machine.ts`). Reaching `completed` now requires the raw `responseText`, which is JSON-parsed and run through `validateAIOutput`. Invalid responses explicitly transition to an `'error'` state with a distinct error message, preventing silent UI failures. Added tests validating that correct JSON attaches `parsedData`, while malformed/non-JSON data safely surfaces honest error messages without exceptions. Verification passed: `npm run lint` ✓, `npm test` ✓ (90/90 tests).
 - 2026-08-09 — Phase 8, part 2 complete. Updated `GeminiClient` (`src/ai/adapters/gemini.ts`) to configure Gemini with a concrete `systemInstruction` dictating it must respond ONLY in a specific JSON shape matching `AIOutputSchema`. Also enabled `responseMimeType: "application/json"` to ensure structural compliance from the model. Updated the Gemini unit test (`gemini.test.ts`) to assert that the `systemInstruction` and `generationConfig` are correctly piped to the model instance. Verification passed: `npm run lint` ✓, `npm test` ✓ (88/88 tests).
@@ -86,4 +87,4 @@ Branch: master
   Next action: start Phase 0 (scaffolding) using the Phase 0 prompt from the roadmap.
 
 ## Next action
-Continue Phase 8 — Part 5 (DraftCard implementation and rendering).
+Continue Phase 8 — Part 6 (Wiring DraftCard Accept to actually commit CanvasObjects).

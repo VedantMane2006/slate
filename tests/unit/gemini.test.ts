@@ -61,6 +61,7 @@ describe('GeminiClient', () => {
     const callArgs = getGenerativeModelMock.mock.calls[0][0];
     
     expect(callArgs.systemInstruction).toMatch(/Schema:/);
+    expect(callArgs.systemInstruction).toMatch(/ANSWER or SOLVE/);
     expect(callArgs.systemInstruction).toMatch(/"explanation": "string"/);
     expect(callArgs.generationConfig.responseMimeType).toBe('application/json');
   });

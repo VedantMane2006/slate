@@ -20,6 +20,7 @@ import {
   type ObjectStore,
 } from '../history/command.ts';
 import { useAILifecycle } from '../providers/AILifecycleProvider.tsx';
+import { DraftCard } from '../components/DraftCard.tsx';
 
 interface PointerRecord {
   x: number;
@@ -43,7 +44,7 @@ export function CanvasViewport() {
   const [dragOffset, setDragOffset] = useState<{ dx: number; dy: number } | null>(null);
   const [hideTerminalState, setHideTerminalState] = useState(false);
 
-  const { askAI, activeRequest, cancelRequest } = useAILifecycle();
+  const { askAI, activeRequest, cancelRequest, clearRequest } = useAILifecycle();
 
   useEffect(() => {
     if (activeRequest && ['error', 'cancelled', 'timeout'].includes(activeRequest.state)) {
@@ -572,6 +573,26 @@ export function CanvasViewport() {
           </button>
         )}
       </div>
+      
+      {activeRequest && (activeRequest.state === 'completed' || activeRequest.state === 'error') && (
+        <DraftCard
+          request={activeRequest}
+          viewport={viewport}
+          roiBounds={activeRequest.contextBounds || null}
+          onAccept={() => {
+            // Placeholder: next prompt will wire this to commit objects
+            console.log("Accept handler triggered. activeRequest.state before:", activeRequest.state);
+            console.log("Draft accepted");
+            clearRequest(); // true dismiss
+            console.log("Accept handler finished.");
+          }}
+          onDiscard={() => {
+            console.log("Discard handler triggered. activeRequest.state before:", activeRequest.state);
+            clearRequest();
+            console.log("Discard handler finished.");
+          }}
+        />
+      )}
     </div>
   );
 }

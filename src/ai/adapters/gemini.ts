@@ -27,7 +27,9 @@ export class GeminiClient {
     onChunk?: (chunk: string) => void
   ): Promise<string> {
     const systemInstruction = `You are an AI assistant analyzing a user's canvas.
-Explain the image and fragments you receive.
+Your job is to ANSWER or SOLVE the question, problem, or prompt shown in the image and fragments you receive.
+Do NOT simply describe what the image looks like. If the image shows a math problem (like "23*2=?"), compute and provide the actual answer. If it asks a question (like "How to make tea in 3 steps?"), answer the question with the steps.
+The 'explanation' field should contain this actual answer or solution.
 You must respond ONLY with valid JSON matching the following schema.
 Do not include any prose outside the JSON, and do not include markdown blocks like \`\`\`json.
 Include 'latex', 'table', or 'graph' fields only when relevant to the content.

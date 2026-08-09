@@ -118,4 +118,16 @@ describe('RequestLifecycleManager', () => {
     expect(req2.error).toMatch(/Invalid AI response schema/);
     expect(req2.parsedData).toBeUndefined();
   });
+
+  it('clearActiveRequest() drops the active request without modifying its terminal state', () => {
+    manager.createRequest('req-clear-active', mockPayload);
+    manager.transition('req-clear-active', 'completed', JSON.stringify({ explanation: 'test' }));
+    
+    expect(manager.getActiveRequest()?.id).toBe('req-clear-active');
+    manager.clearActiveRequest();
+    
+    expect(manager.getActiveRequest()).toBeNull();
+    // The request itself should remain in the map and retain its state
+    expect(manager.getRequest('req-clear-active')?.state).toBe('completed');
+  });
 });
