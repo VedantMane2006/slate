@@ -1,5 +1,6 @@
 import type { MultimodalRequestPayload } from '../composition.ts';
 import { validateAIOutput, type AIOutputSchema } from '../rendering/schema.ts';
+import { CURRENT_EXPERIMENT_CONFIG } from '../../config/experiment.ts';
 
 export type RequestState =
   | 'encoding'
@@ -22,6 +23,8 @@ export interface AIRequest {
   error?: string;
   parsedData?: AIOutputSchema;
   contextBounds?: import('../../utils/geometry.ts').BoundingBox | null;
+  configId: string;
+  promptVersion: string;
 }
 
 export class RequestLifecycleManager {
@@ -44,6 +47,8 @@ export class RequestLifecycleManager {
       state: 'encoding',
       payload,
       contextBounds,
+      configId: CURRENT_EXPERIMENT_CONFIG.configId,
+      promptVersion: CURRENT_EXPERIMENT_CONFIG.promptVersion,
       timestamps: {
         encoding: Date.now()
       }

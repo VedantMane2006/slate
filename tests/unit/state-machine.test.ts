@@ -130,4 +130,10 @@ describe('RequestLifecycleManager', () => {
     // The request itself should remain in the map and retain its state
     expect(manager.getRequest('req-clear-active')?.state).toBe('completed');
   });
+
+  it('a newly created AIRequest has configId and promptVersion populated', () => {
+    const req = manager.createRequest('req-config', mockPayload);
+    expect(req.configId).toBe('default');
+    expect(req.promptVersion).toBe('1.0.0');
+  });
 });

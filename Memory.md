@@ -37,6 +37,7 @@ Branch: master
   — decide in Phase 12
 
 ## Log (append one entry per session, most recent on top)
+- 2026-08-10 — Phase 9, part 4 complete. Added traceability tagging to every AIRequest. Created `src/config/experiment.ts` with hardcoded defaults (`configId: 'default'`, `promptVersion: '1.0.0'`). Updated `AIRequest` interface and `RequestLifecycleManager.createRequest` in `state-machine.ts` to automatically stamp these config tags onto every new request. Added unit test verifying fields are correctly populated upon request creation. No live API calls used. Verification passed via `vitest` unit tests.
 - 2026-08-10 — Phase 9, part 3 complete. Implemented `aggregate(records: MetricsRecord[])` in `src/metrics/aggregate.ts`. This pure function takes a list of finalized request metrics and computes overall telemetry: average latency, average cost, acceptance rate, wasted token ratio, and confidence-level distributions. Added robust unit tests verifying correct fractional and aggregated computations across mixed-outcome and mixed-confidence fixture lists, including a zero-records fallback check. Verification passed via `vitest` unit tests.
 - 2026-08-10 — Phase 9, part 2 complete. Implemented `deriveTokenUsageAndCost` in `src/metrics/cost.ts`. This computes token usage and exact USD cost based on `gemini-2.5-flash` rates. It parses actual `usageMetadata` if provided by the SDK (setting `estimated: false`). If missing, it falls back to a deterministic text length and crop-resolution estimation heuristic (setting `estimated: true`). Added unit tests for exact counts, estimated fallback, and cost calculation correctness without live API calls. Verification passed via `vitest` unit tests.
 - 2026-08-10 — Phase 9, part 1 complete. Implemented `deriveMetrics(request: AIRequest): RequestMetrics` in `src/metrics/derive.ts`. It strictly derives all timings (captureTime, encodingTime, dispatchTime, ttfb, ttft, renderingLatency, endToEndLatency) directly from the adjacent lifecycle timestamps of the AIRequest, with zero external stopwatches. Marked `estimatedTtft: false` because `gemini.ts` implements TRUE token streaming. Missing timestamps degrade gracefully (returning `undefined`). Added unit tests with hand-computed fixtures to verify perfect derivation logic. Verification passed via `vitest` unit tests.
@@ -91,4 +92,4 @@ Branch: master
   Next action: start Phase 0 (scaffolding) using the Phase 0 prompt from the roadmap.
 
 ## Next action
-Start Phase 9 — Metrics (Part 4: Context extraction metadata).
+Continue Phase 9 — Metrics (Part 5: Live Metrics Panel).
