@@ -9,7 +9,9 @@ import {
 } from './coordinates.ts';
 import { usePointerEvents } from '../hooks/usePointerEvents.ts';
 import { StrokeBuilder, type Stroke } from '../objects/stroke.ts';
-import { renderStrokes } from './renderer.ts';
+import type { CanvasObject } from '../objects/canvas-object.ts';
+import { createDraftObject, type DraftObject } from '../objects/draft-object.ts';
+import { renderStrokes, renderDraftObjects } from './renderer.ts';
 import { pointInBox, distance, boxesIntersect, type BoundingBox } from '../utils/geometry.ts';
 import {
   HistoryStack,
@@ -35,7 +37,7 @@ export function CanvasViewport() {
     zoom: 1,
   });
   const [cursorStyle, setCursorStyle] = useState('default');
-  const [strokes, setStrokes] = useState<Stroke[]>([]);
+  const [objects, setObjects] = useState<CanvasObject[]>([]);
   const [activeStroke, setActiveStroke] = useState<Stroke | null>(null);
   const [isEraserMode, setIsEraserMode] = useState(false);
   const [isSelectMode, setIsSelectMode] = useState(false);
@@ -55,26 +57,26 @@ export function CanvasViewport() {
     return undefined;
   }, [activeRequest?.state, activeRequest?.id]);
 
-  const strokesRef = useRef<Stroke[]>(strokes);
-  strokesRef.current = strokes;
+  const objectsRef = useRef<CanvasObject[]>(objects);
+  objectsRef.current = objects;
 
   // Generic object store interface mapped over local state
   const { store, history } = useMemo(() => {
     const hist = new HistoryStack();
-    const st: ObjectStore<Stroke> = {
-      add: (stroke) => {
-        strokesRef.current = [...strokesRef.current, stroke];
-        setStrokes(strokesRef.current);
+    const st: ObjectStore<CanvasObject> = {
+      add: (obj) => {
+        objectsRef.current = [...objectsRef.current, obj];
+        setObjects(objectsRef.current);
       },
       remove: (id) => {
-        strokesRef.current = strokesRef.current.filter((s) => s.id !== id);
-        setStrokes(strokesRef.current);
+        objectsRef.current = objectsRef.current.filter((o) => o.id !== id);
+        setObjects(objectsRef.current);
       },
-      update: (id, newStroke) => {
-        strokesRef.current = strokesRef.current.map((s) => (s.id === id ? newStroke : s));
-        setStrokes(strokesRef.current);
+      update: (id, newObj) => {
+        objectsRef.current = objectsRef.current.map((o) => (o.id === id ? newObj : o));
+        setObjects(objectsRef.current);
       },
-      getAll: () => strokesRef.current,
+      getAll: () => objectsRef.current,
     };
     return { store: st, history: hist };
   }, []);
@@ -112,19 +114,19 @@ export function CanvasViewport() {
       } else if (e.code === 'Delete' || e.code === 'Backspace') {
         if (selection.ids.length > 0) {
           e.preventDefault();
-          const allStrokes = store.getAll();
+          const allObjects = store.getAll();
           const commands = selection.ids
             .map((id) => {
-              const s = allStrokes.find((stroke) => stroke.id === id);
-              return s ? new RemoveObjectCommand(store, s) : null;
+              const o = allObjects.find((obj) => obj.id === id);
+              return o ? new RemoveObjectCommand(store, o) : null;
             })
-            .filter(Boolean) as RemoveObjectCommand<Stroke>[];
+            .filter(Boolean) as RemoveObjectCommand<CanvasObject>[];
 
           if (commands.length > 0) {
             const cmd =
               commands.length === 1
                 ? commands[0]
-                : new CompositeCommand(commands, 'Delete selected strokes');
+                : new CompositeCommand(commands, 'Delete selected objects');
             history.execute(cmd);
           }
         }
@@ -173,31 +175,45 @@ export function CanvasViewport() {
     if (isEraserMode) {
       const ERASER_TOLERANCE = 10 / viewport.zoom;
       
-      const prevStrokes = store.getAll();
-      const commands: RemoveObjectCommand<Stroke>[] = [];
+      const prevObjects = store.getAll();
+      const commands: RemoveObjectCommand<CanvasObject>[] = [];
 
-      for (let i = prevStrokes.length - 1; i >= 0; i--) {
-        const stroke = prevStrokes[i];
-        const expandedBox = {
-          minX: stroke.bounds.minX - ERASER_TOLERANCE - stroke.width,
-          minY: stroke.bounds.minY - ERASER_TOLERANCE - stroke.width,
-          maxX: stroke.bounds.maxX + ERASER_TOLERANCE + stroke.width,
-          maxY: stroke.bounds.maxY + ERASER_TOLERANCE + stroke.width,
-        };
+      for (let i = prevObjects.length - 1; i >= 0; i--) {
+        const obj = prevObjects[i];
         
-        if (!pointInBox(sample, expandedBox)) continue;
-        
-        for (const pt of stroke.points) {
-          if (distance(sample, pt) <= ERASER_TOLERANCE + stroke.width) {
-            // DECIDED: Whole-stroke erase design choice.
-            commands.push(new RemoveObjectCommand(store, stroke));
-            break;
+        if (obj.type === 'stroke') {
+          const stroke = obj as Stroke;
+          const expandedBox = {
+            minX: stroke.bounds.minX - ERASER_TOLERANCE - stroke.width,
+            minY: stroke.bounds.minY - ERASER_TOLERANCE - stroke.width,
+            maxX: stroke.bounds.maxX + ERASER_TOLERANCE + stroke.width,
+            maxY: stroke.bounds.maxY + ERASER_TOLERANCE + stroke.width,
+          };
+          
+          if (!pointInBox(sample, expandedBox)) continue;
+          
+          for (const pt of stroke.points) {
+            if (distance(sample, pt) <= ERASER_TOLERANCE + stroke.width) {
+              commands.push(new RemoveObjectCommand(store, stroke));
+              break;
+            }
+          }
+        } else {
+          // Erase non-strokes by simple bounding box hit test
+          const expandedBox = {
+            minX: obj.bounds.minX - ERASER_TOLERANCE,
+            minY: obj.bounds.minY - ERASER_TOLERANCE,
+            maxX: obj.bounds.maxX + ERASER_TOLERANCE,
+            maxY: obj.bounds.maxY + ERASER_TOLERANCE,
+          };
+          if (pointInBox(sample, expandedBox)) {
+            commands.push(new RemoveObjectCommand(store, obj));
           }
         }
       }
       
       if (commands.length > 0) {
-        const cmd = commands.length === 1 ? commands[0] : new CompositeCommand(commands, 'Erase strokes');
+        const cmd = commands.length === 1 ? commands[0] : new CompositeCommand(commands, 'Erase objects');
         history.execute(cmd);
       }
     } else if (!isSelectMode && activeStrokeBuilder.current) {
@@ -231,14 +247,15 @@ export function CanvasViewport() {
           
           let clickedOnSelection = false;
           if (selection.ids.length > 0) {
-            const allStrokes = store.getAll();
-            for (const s of allStrokes) {
-              if (selection.ids.includes(s.id)) {
+            const allObjects = store.getAll();
+            for (const o of allObjects) {
+              if (selection.ids.includes(o.id)) {
+                const width = o.type === 'stroke' ? (o as Stroke).width : 0;
                 const expandedBox = {
-                  minX: s.bounds.minX - s.width,
-                  minY: s.bounds.minY - s.width,
-                  maxX: s.bounds.maxX + s.width,
-                  maxY: s.bounds.maxY + s.width,
+                  minX: o.bounds.minX - width,
+                  minY: o.bounds.minY - width,
+                  maxX: o.bounds.maxX + width,
+                  maxY: o.bounds.maxY + width,
                 };
                 if (pointInBox(worldPoint, expandedBox)) {
                   clickedOnSelection = true;
@@ -335,10 +352,10 @@ export function CanvasViewport() {
             };
             setSelectionBox(box);
 
-            const allStrokes = store.getAll();
-            const selectedIds = allStrokes
-              .filter((s) => boxesIntersect(s.bounds, box))
-              .map((s) => s.id);
+            const allObjects = store.getAll();
+            const selectedIds = allObjects
+              .filter((o) => boxesIntersect(o.bounds, box))
+              .map((o) => o.id);
             setSelection({ ids: selectedIds });
           }
         } else if (!isSelectMode) {
@@ -363,29 +380,44 @@ export function CanvasViewport() {
       if (isInteracting.current) {
         if (isSelectMode) {
           if (isDraggingSelection.current && dragOffset) {
-            const allStrokes = store.getAll();
+            const allObjects = store.getAll();
             const commands = selection.ids.map((id) => {
-              const oldStroke = allStrokes.find((s) => s.id === id);
-              if (!oldStroke) return null;
-              const newStroke: Stroke = {
-                ...oldStroke,
-                points: oldStroke.points.map((p) => ({
-                  ...p,
-                  x: p.x + dragOffset.dx,
-                  y: p.y + dragOffset.dy,
-                })),
-                bounds: {
-                  minX: oldStroke.bounds.minX + dragOffset.dx,
-                  minY: oldStroke.bounds.minY + dragOffset.dy,
-                  maxX: oldStroke.bounds.maxX + dragOffset.dx,
-                  maxY: oldStroke.bounds.maxY + dragOffset.dy,
-                },
-              };
-              return new UpdateObjectCommand(store, oldStroke, newStroke);
-            }).filter(Boolean) as UpdateObjectCommand<Stroke>[];
+              const oldObj = allObjects.find((o) => o.id === id);
+              if (!oldObj) return null;
+              
+              if (oldObj.type === 'stroke') {
+                const oldStroke = oldObj as Stroke;
+                const newStroke: Stroke = {
+                  ...oldStroke,
+                  points: oldStroke.points.map((p) => ({
+                    ...p,
+                    x: p.x + dragOffset.dx,
+                    y: p.y + dragOffset.dy,
+                  })),
+                  bounds: {
+                    minX: oldStroke.bounds.minX + dragOffset.dx,
+                    minY: oldStroke.bounds.minY + dragOffset.dy,
+                    maxX: oldStroke.bounds.maxX + dragOffset.dx,
+                    maxY: oldStroke.bounds.maxY + dragOffset.dy,
+                  },
+                };
+                return new UpdateObjectCommand(store, oldStroke, newStroke);
+              } else {
+                const newObj: CanvasObject = {
+                  ...oldObj,
+                  bounds: {
+                    minX: oldObj.bounds.minX + dragOffset.dx,
+                    minY: oldObj.bounds.minY + dragOffset.dy,
+                    maxX: oldObj.bounds.maxX + dragOffset.dx,
+                    maxY: oldObj.bounds.maxY + dragOffset.dy,
+                  }
+                };
+                return new UpdateObjectCommand(store, oldObj, newObj);
+              }
+            }).filter(Boolean) as UpdateObjectCommand<CanvasObject>[];
 
             if (commands.length > 0) {
-              const cmd = commands.length === 1 ? commands[0] : new CompositeCommand(commands, 'Move strokes');
+              const cmd = commands.length === 1 ? commands[0] : new CompositeCommand(commands, 'Move objects');
               history.execute(cmd);
             }
 
@@ -482,28 +514,39 @@ export function CanvasViewport() {
     ctx.arc(origin.x, origin.y, 4, 0, Math.PI * 2);
     ctx.fill();
 
-    // Draw strokes
-    const unselectedStrokes = strokes.filter((s) => !selection.ids.includes(s.id));
-    const selectedStrokes = strokes.filter((s) => selection.ids.includes(s.id));
+    // Separate objects by type for rendering
+    const strokeObjects = objects.filter((o) => o.type === 'stroke') as Stroke[];
+    const draftObjects = objects.filter((o) => o.type === 'draft') as DraftObject[];
+    const unselectedStrokes = strokeObjects.filter((s) => !selection.ids.includes(s.id));
+    const selectedStrokes = strokeObjects.filter((s) => selection.ids.includes(s.id));
+    const unselectedDrafts = draftObjects.filter((d) => !selection.ids.includes(d.id));
+    const selectedDrafts = draftObjects.filter((d) => selection.ids.includes(d.id));
 
+    // Get selected objects of all types (for selection highlight rectangles)
+    const selectedObjects = objects.filter((o) => selection.ids.includes(o.id));
+
+    // Render unselected objects
     renderStrokes(ctx, unselectedStrokes, viewport);
+    renderDraftObjects(ctx, unselectedDrafts, viewport);
     if (activeStroke) {
       renderStrokes(ctx, [activeStroke], viewport);
     }
 
-    if (selectedStrokes.length > 0) {
+    // Render selected objects with optional drag offset and selection highlight
+    if (selectedObjects.length > 0) {
       ctx.save();
       if (dragOffset) {
         ctx.translate(dragOffset.dx * viewport.zoom, dragOffset.dy * viewport.zoom);
       }
       
       renderStrokes(ctx, selectedStrokes, viewport);
+      renderDraftObjects(ctx, selectedDrafts, viewport);
       
       ctx.strokeStyle = 'rgba(13, 110, 253, 0.5)';
       ctx.lineWidth = 2;
-      for (const stroke of selectedStrokes) {
-        const screenMin = worldToScreen({ x: stroke.bounds.minX, y: stroke.bounds.minY }, viewport);
-        const screenMax = worldToScreen({ x: stroke.bounds.maxX, y: stroke.bounds.maxY }, viewport);
+      for (const obj of selectedObjects) {
+        const screenMin = worldToScreen({ x: obj.bounds.minX, y: obj.bounds.minY }, viewport);
+        const screenMax = worldToScreen({ x: obj.bounds.maxX, y: obj.bounds.maxY }, viewport);
         ctx.strokeRect(
           screenMin.x - 4,
           screenMin.y - 4,
@@ -526,7 +569,7 @@ export function CanvasViewport() {
       ctx.fillRect(screenMin.x, screenMin.y, w, h);
       ctx.strokeRect(screenMin.x, screenMin.y, w, h);
     }
-  }, [viewport, strokes, activeStroke, selection, selectionBox, dragOffset]);
+  }, [viewport, objects, activeStroke, selection, selectionBox, dragOffset]);
 
   // Re-render on resize
   useEffect(() => {
@@ -580,16 +623,21 @@ export function CanvasViewport() {
           viewport={viewport}
           roiBounds={activeRequest.contextBounds || null}
           onAccept={() => {
-            // Placeholder: next prompt will wire this to commit objects
-            console.log("Accept handler triggered. activeRequest.state before:", activeRequest.state);
-            console.log("Draft accepted");
-            clearRequest(); // true dismiss
-            console.log("Accept handler finished.");
+            if (activeRequest.parsedData && activeRequest.contextBounds) {
+              const draftObj = createDraftObject(
+                activeRequest.id, 
+                activeRequest.parsedData, 
+                activeRequest.contextBounds
+              );
+              history.execute(new AddObjectCommand(store, draftObj));
+              console.log("Draft accepted. Object created and committed via HistoryStack:", draftObj);
+            } else {
+              console.warn("Draft Accept skipped: missing parsedData or contextBounds", { activeRequest });
+            }
+            clearRequest();
           }}
           onDiscard={() => {
-            console.log("Discard handler triggered. activeRequest.state before:", activeRequest.state);
             clearRequest();
-            console.log("Discard handler finished.");
           }}
         />
       )}

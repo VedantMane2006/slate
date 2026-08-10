@@ -5,10 +5,10 @@
 > from scratch, and don't re-litigate anything marked DECIDED below.
 
 ## Current status
-Phase: **Phase 8 — IN PROGRESS** (JSON Rendering / Draft Cards)
-Last updated: 2026-08-09
+Phase: **Phase 9 — IN PROGRESS** (Metrics / Instrumentation Wrapper + Live Metrics Panel)
+Last updated: 2026-08-10
 Branch: master
-`main` state: Phase 1-7 features complete, Phase 8 parts 1-5 complete (Schema, Instruct, Validate, Render, DraftCard component) — builds, lints, and tests clean (98 tests)
+`main` state: Phase 1-8 features complete (AI Output Schema, JSON prompt, Validation wiring, Renderers, DraftCard component, DraftObject undo/redo wiring and canvas rendering) — builds, lints, and tests clean (100 tests)
 
 ## Decisions already made (DECIDED — do not re-open without a strong reason)
 - Stack: Vite + React + TypeScript, strict mode, Vitest, ESLint + Prettier — DECIDED
@@ -37,6 +37,7 @@ Branch: master
   — decide in Phase 12
 
 ## Log (append one entry per session, most recent on top)
+- 2026-08-10 — Phase 8, part 6 complete and debugged. Implemented `DraftObject` (wrapping the validated AI schema) conforming strictly to `CanvasObject` interface. Upgraded `CanvasViewport`'s ObjectStore to track generic `CanvasObject[]` instead of specific `Stroke[]`, enabling multi-modal canvas elements. Wired DraftCard's Accept button to construct a `DraftObject` and commit it via `AddObjectCommand` natively to the `HistoryStack`. Wired Discard button to seamlessly clear the active request. Debugged a visual issue where accepted drafts were committed to history but didn't visually render on the canvas: added `renderDraftObjects` to `renderer.ts` to explicitly draw draft objects as labeled cards and wired it into `CanvasViewport.tsx`. Added unit tests for the draft acceptance workflow, proving proper mock tracking and undoability hooks. Definition of Done for Phase 8 met (end-to-end draw → Ask AI → validated, rendered draft card → Accept/Discard works; malformed responses degrade honestly). Verification passed: `npm run lint` ✓, `npm test` ✓ (100/100 tests).
 - 2026-08-09 — Phase 8, part 5 complete. Built the `DraftCard` component in `src/components/DraftCard.tsx`. It intelligently anchors itself near the source ROI using `worldToScreen`, with dynamic viewport clamping to ensure it never goes off-screen even when panning or zooming aggressively. Handles both successful parsed schemas (rendering using Phase 8.4 renderers) and honest `'error'` states (hiding Accept, showing error text). Verified layout logic independently without relying on external UI libs. Mounted it in `CanvasViewport.tsx` and wired `clearActiveRequest` into `state-machine.ts` to instantly drop the card out of the React tree upon Accept or Discard. Tuned the Gemini instruction prompt to explicitly ANSWER or SOLVE questions instead of just describing them. Added unit tests for DraftCard layout, honest failure rendering, state machine clearing, and the new Gemini instruction. Verification passed: `npm run lint` ✓, `npm test` ✓ (98/98 tests).
 - 2026-08-09 — Phase 8, part 4 complete. Implemented local rendering functions for AI output in `src/ai/rendering/renderers.tsx` (`renderMarkdown`, `renderLatex`, `renderTable`, `renderGraph`). Installed `marked`, `dompurify`, and `katex`. `dompurify` is used to sanitize Markdown output directly against XSS. `katex` renders LaTeX safely. Opted for a custom lightweight SVG graph renderer over heavy libraries like Chart.js to keep bundle size small per Phase 10 goals. Verified consistent returns in `CanvasViewport.tsx`. Added thorough unit tests checking functionality and malicious input sanitization. Verification passed: `npm run lint` ✓, `npm test` ✓ (94/94 tests).
 - 2026-08-09 — Phase 8, part 3 complete. Wired schema validation natively into `RequestLifecycleManager` (`src/ai/lifecycle/state-machine.ts`). Reaching `completed` now requires the raw `responseText`, which is JSON-parsed and run through `validateAIOutput`. Invalid responses explicitly transition to an `'error'` state with a distinct error message, preventing silent UI failures. Added tests validating that correct JSON attaches `parsedData`, while malformed/non-JSON data safely surfaces honest error messages without exceptions. Verification passed: `npm run lint` ✓, `npm test` ✓ (90/90 tests).
@@ -87,4 +88,4 @@ Branch: master
   Next action: start Phase 0 (scaffolding) using the Phase 0 prompt from the roadmap.
 
 ## Next action
-Continue Phase 8 — Part 6 (Wiring DraftCard Accept to actually commit CanvasObjects).
+Start Phase 9 — Metrics / Instrumentation Wrapper + Live Metrics Panel.

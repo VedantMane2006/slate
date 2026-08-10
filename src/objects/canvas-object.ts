@@ -1,6 +1,6 @@
 import type { BoundingBox } from '../utils/geometry.ts';
 
-export type CanvasObjectType = 'stroke' | 'table' | 'text' | 'image' | 'equation';
+export type CanvasObjectType = 'stroke' | 'table' | 'text' | 'image' | 'equation' | 'draft';
 
 export interface CanvasObject {
   id: string;

@@ -14,7 +14,6 @@ export interface DraftCardProps {
 }
 
 export function DraftCard({ request, roiBounds, viewport, onAccept, onDiscard }: DraftCardProps) {
-  console.log("DraftCard rendering. request state:", request.state, "id:", request.id);
   const [screenBounds, setScreenBounds] = useState({ width: 1024, height: 768 });
 
   useEffect(() => {
