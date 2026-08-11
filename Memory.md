@@ -5,7 +5,7 @@
 > from scratch, and don't re-litigate anything marked DECIDED below.
 
 ## Current status
-Phase: **Phase 9 — COMPLETE** (Metrics / Instrumentation Wrapper + Live Metrics Panel)
+Phase: **Phase 10 — IN PROGRESS** (Request Gating + SHA-256 Dedup + Cost Preview)
 Last updated: 2026-08-11
 Branch: master
 `main` state: Phase 1-9 features complete (Derive Metrics, Token Usage & Cost Estimation, Metrics Aggregation, Config Traceability Tagging, MetricsProvider & Live MetricsPanel, Manual Toolbar UI Editors) — builds, lints, and tests clean
@@ -37,6 +37,7 @@ Branch: master
   — decide in Phase 12
 
 ## Log (append one entry per session, most recent on top)
+- 2026-08-11 — Phase 10, part 1 complete. Implemented pure gating heuristics in `src/ai/gating/gate.ts`. `evaluateGate` checks that extraction working set length > 15, extraction bounds area > 100px, idle time > 2000ms, and canvas is not completely empty. Accumulates reasons for failures, but immediately bypasses checking if `isManualTrigger` is true, resolving to `{ allowed: true, reasons: ['manual override'] }`. Created unit tests verifying individual failures and manual overrides without side-effects or network calls.
 - 2026-08-10 — Phase 9, part 5 complete. Built `MetricsProvider` and `MetricsPanel` components in `src/providers/MetricsProvider.tsx` and `src/components/MetricsPanel.tsx`. Hooked into terminal request states (error, timeout, superseded, cancelled) natively in `CanvasViewport`, alongside accepted/discarded outcomes in `DraftCard`, routing all finalized telemetry to `MetricsProvider`. `MetricsPanel` renders a live, auto-updating dashboard of all aggregated metrics (average latency, average cost, acceptance rate, wasted token ratio, confidence distribution, configId, promptVersion) without page refreshes. Component-tested using RTL and mocked fixture drivers (`tests/unit/MetricsPanel.test.tsx`). **Definition of Done met**: Live metrics panel reflects real, wrapper-derived telemetry numbers, fully unit-tested against fixture data. Phase 9 is COMPLETE.
 - 2026-08-10 — Toolbar UI Fixes. Investigated missing objects after Save: root cause was `renderer.ts` previously lacking functions to draw the new Table/Text/Image/Equation types. Added render functions. Fixed Image/Equation renderers to properly draw async `HTMLImageElement`s (SVG for equations via KaTeX) by loading them into a cache and dispatching a `force-render` event when complete. Fixed `TableEditor` to support custom row/col sizing on the fly. Fixed `EquationEditor` to show a live math preview while typing, and allowed it to dynamically size up to 600px width.
 - 2026-08-10 — Phase 4 UI update complete. Added a minimal toolbar to `CanvasViewport.tsx` to expose the Phase 4 structured object editors (Table, Text, Image, Equation). These buttons mount the respective editors as overlay components on the canvas, which upon save, immediately commit a new blank object via the `HistoryStack` (making manual creation fully undoable). Added component tests verifying the UI triggers correctly.
@@ -95,4 +96,4 @@ Branch: master
   Next action: start Phase 0 (scaffolding) using the Phase 0 prompt from the roadmap.
 
 ## Next action
-Start Phase 10 — Request Gating + SHA-256 Dedup + Cost Preview.
+Continue Phase 10 — Request Gating + SHA-256 Dedup (Part 2: SHA-256 Dedup cache).
