@@ -11,7 +11,15 @@ import { usePointerEvents } from '../hooks/usePointerEvents.ts';
 import { StrokeBuilder, type Stroke } from '../objects/stroke.ts';
 import type { CanvasObject } from '../objects/canvas-object.ts';
 import { createDraftObject, type DraftObject } from '../objects/draft-object.ts';
-import { renderStrokes, renderDraftObjects } from './renderer.ts';
+import { TextEditor } from '../components/TextEditor.tsx';
+import { TableEditor } from '../components/TableEditor.tsx';
+import { ImageEditor } from '../components/ImageEditor.tsx';
+import { EquationEditor } from '../components/EquationEditor.tsx';
+import { renderStrokes, renderDraftObjects, renderTextObjects, renderTableObjects, renderEquationObjects, renderImageObjects } from './renderer.ts';
+import type { TextObject } from '../objects/text.ts';
+import type { Table } from '../objects/table.ts';
+import type { EquationObject } from '../objects/equation.ts';
+import type { ImageObject } from '../objects/image.ts';
 import { pointInBox, distance, boxesIntersect, type BoundingBox } from '../utils/geometry.ts';
 import {
   HistoryStack,
@@ -22,6 +30,7 @@ import {
   type ObjectStore,
 } from '../history/command.ts';
 import { useAILifecycle } from '../providers/AILifecycleProvider.tsx';
+import { useMetrics } from '../providers/MetricsProvider.tsx';
 import { DraftCard } from '../components/DraftCard.tsx';
 
 interface PointerRecord {
@@ -45,17 +54,27 @@ export function CanvasViewport() {
   const [selectionBox, setSelectionBox] = useState<BoundingBox | null>(null);
   const [dragOffset, setDragOffset] = useState<{ dx: number; dy: number } | null>(null);
   const [hideTerminalState, setHideTerminalState] = useState(false);
+  const [activeEditor, setActiveEditor] = useState<{ type: 'text' | 'table' | 'image' | 'equation'; bounds: BoundingBox; id: string } | null>(null);
 
   const { askAI, activeRequest, cancelRequest, clearRequest } = useAILifecycle();
+  const { logOutcome } = useMetrics();
+  const loggedRequestIds = useRef(new Set<string>());
 
   useEffect(() => {
-    if (activeRequest && ['error', 'cancelled', 'timeout'].includes(activeRequest.state)) {
-      setHideTerminalState(false);
-      const timer = setTimeout(() => setHideTerminalState(true), 3000);
-      return () => clearTimeout(timer);
+    if (activeRequest && ['error', 'cancelled', 'timeout', 'superseded'].includes(activeRequest.state)) {
+      if (!loggedRequestIds.current.has(activeRequest.id)) {
+        logOutcome(activeRequest, activeRequest.state as any, '', activeRequest.confidenceLevel);
+        loggedRequestIds.current.add(activeRequest.id);
+      }
+      
+      if (['error', 'cancelled', 'timeout'].includes(activeRequest.state)) {
+        setHideTerminalState(false);
+        const timer = setTimeout(() => setHideTerminalState(true), 3000);
+        return () => clearTimeout(timer);
+      }
     }
     return undefined;
-  }, [activeRequest?.state, activeRequest?.id]);
+  }, [activeRequest, logOutcome]);
 
   const objectsRef = useRef<CanvasObject[]>(objects);
   objectsRef.current = objects;
@@ -94,7 +113,11 @@ export function CanvasViewport() {
   // Space key toggles pan mode
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
-      if (e.code === 'Space' && !e.repeat) {
+      // Skip canvas keyboard shortcuts when the user is typing in an input or textarea
+      const tag = (e.target as HTMLElement)?.tagName;
+      const isEditing = tag === 'INPUT' || tag === 'TEXTAREA' || (e.target as HTMLElement)?.isContentEditable;
+
+      if (e.code === 'Space' && !e.repeat && !isEditing) {
         e.preventDefault();
         spaceHeld.current = true;
         setCursorStyle('grab');
@@ -517,17 +540,35 @@ export function CanvasViewport() {
     // Separate objects by type for rendering
     const strokeObjects = objects.filter((o) => o.type === 'stroke') as Stroke[];
     const draftObjects = objects.filter((o) => o.type === 'draft') as DraftObject[];
-    const unselectedStrokes = strokeObjects.filter((s) => !selection.ids.includes(s.id));
-    const selectedStrokes = strokeObjects.filter((s) => selection.ids.includes(s.id));
-    const unselectedDrafts = draftObjects.filter((d) => !selection.ids.includes(d.id));
-    const selectedDrafts = draftObjects.filter((d) => selection.ids.includes(d.id));
+    const textObjects = objects.filter((o) => o.type === 'text') as TextObject[];
+    const tableObjects = objects.filter((o) => o.type === 'table') as Table[];
+    const equationObjects = objects.filter((o) => o.type === 'equation') as EquationObject[];
+    const imageObjects = objects.filter((o) => o.type === 'image') as ImageObject[];
+
+    const isSelected = (id: string) => selection.ids.includes(id);
+    const unselectedStrokes = strokeObjects.filter((s) => !isSelected(s.id));
+    const selectedStrokes = strokeObjects.filter((s) => isSelected(s.id));
+    const unselectedDrafts = draftObjects.filter((d) => !isSelected(d.id));
+    const selectedDrafts = draftObjects.filter((d) => isSelected(d.id));
+    const unselectedTexts = textObjects.filter((t) => !isSelected(t.id));
+    const selectedTexts = textObjects.filter((t) => isSelected(t.id));
+    const unselectedTables = tableObjects.filter((t) => !isSelected(t.id));
+    const selectedTables = tableObjects.filter((t) => isSelected(t.id));
+    const unselectedEquations = equationObjects.filter((e) => !isSelected(e.id));
+    const selectedEquations = equationObjects.filter((e) => isSelected(e.id));
+    const unselectedImages = imageObjects.filter((i) => !isSelected(i.id));
+    const selectedImages = imageObjects.filter((i) => isSelected(i.id));
 
     // Get selected objects of all types (for selection highlight rectangles)
-    const selectedObjects = objects.filter((o) => selection.ids.includes(o.id));
+    const selectedObjects = objects.filter((o) => isSelected(o.id));
 
     // Render unselected objects
     renderStrokes(ctx, unselectedStrokes, viewport);
     renderDraftObjects(ctx, unselectedDrafts, viewport);
+    renderTextObjects(ctx, unselectedTexts, viewport);
+    renderTableObjects(ctx, unselectedTables, viewport);
+    renderEquationObjects(ctx, unselectedEquations, viewport);
+    renderImageObjects(ctx, unselectedImages, viewport);
     if (activeStroke) {
       renderStrokes(ctx, [activeStroke], viewport);
     }
@@ -541,6 +582,10 @@ export function CanvasViewport() {
       
       renderStrokes(ctx, selectedStrokes, viewport);
       renderDraftObjects(ctx, selectedDrafts, viewport);
+      renderTextObjects(ctx, selectedTexts, viewport);
+      renderTableObjects(ctx, selectedTables, viewport);
+      renderEquationObjects(ctx, selectedEquations, viewport);
+      renderImageObjects(ctx, selectedImages, viewport);
       
       ctx.strokeStyle = 'rgba(13, 110, 253, 0.5)';
       ctx.lineWidth = 2;
@@ -579,8 +624,31 @@ export function CanvasViewport() {
       setViewport((vp) => ({ ...vp }));
     });
     observer.observe(canvas);
-    return () => observer.disconnect();
+
+    const handleForceRender = () => setViewport((vp) => ({ ...vp }));
+    window.addEventListener('force-render', handleForceRender);
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('force-render', handleForceRender);
+    };
   }, []);
+
+  const openEditorAtCenter = useCallback((type: 'text' | 'table' | 'image' | 'equation') => {
+    const centerScreen = {
+      x: window.innerWidth / 2,
+      y: window.innerHeight / 2
+    };
+    const centerWorld = screenToWorld(centerScreen, viewport);
+    const bounds = {
+      minX: centerWorld.x - 100,
+      minY: centerWorld.y - 50,
+      maxX: centerWorld.x + 100,
+      maxY: centerWorld.y + 50
+    };
+    setActiveEditor({ type, bounds, id: Date.now().toString(36) });
+  }, [viewport]);
+
   return (
     <div style={{ position: 'relative', width: '100%', height: '100%' }}>
       <canvas
@@ -599,6 +667,12 @@ export function CanvasViewport() {
         onPointerUp={handlePointerUp}
         onPointerCancel={handlePointerUp}
       />
+      <div style={{ position: 'absolute', top: 20, left: 20, zIndex: 100, display: 'flex', gap: 8 }}>
+        <button onClick={() => openEditorAtCenter('text')} style={{ padding: '6px 12px', background: '#fff', border: '1px solid #ced4da', borderRadius: '4px', cursor: 'pointer' }}>Insert Text</button>
+        <button onClick={() => openEditorAtCenter('table')} style={{ padding: '6px 12px', background: '#fff', border: '1px solid #ced4da', borderRadius: '4px', cursor: 'pointer' }}>Insert Table</button>
+        <button onClick={() => openEditorAtCenter('image')} style={{ padding: '6px 12px', background: '#fff', border: '1px solid #ced4da', borderRadius: '4px', cursor: 'pointer' }}>Insert Image</button>
+        <button onClick={() => openEditorAtCenter('equation')} style={{ padding: '6px 12px', background: '#fff', border: '1px solid #ced4da', borderRadius: '4px', cursor: 'pointer' }}>Insert Equation</button>
+      </div>
       <div style={{ position: 'absolute', top: 20, right: 20, zIndex: 100, display: 'flex', flexDirection: 'column', gap: 8 }}>
         {activeRequest && activeRequest.state !== 'completed' && !(hideTerminalState && ['error', 'cancelled', 'timeout'].includes(activeRequest.state)) ? (
           <div style={{ background: 'white', padding: '10px', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
@@ -634,11 +708,57 @@ export function CanvasViewport() {
             } else {
               console.warn("Draft Accept skipped: missing parsedData or contextBounds", { activeRequest });
             }
+            logOutcome(activeRequest, 'accepted', JSON.stringify(activeRequest.parsedData), activeRequest.confidenceLevel);
+            loggedRequestIds.current.add(activeRequest.id);
             clearRequest();
           }}
           onDiscard={() => {
+            logOutcome(
+              activeRequest, 
+              activeRequest.state === 'error' ? 'error' : 'discarded', 
+              activeRequest.parsedData ? JSON.stringify(activeRequest.parsedData) : '', 
+              activeRequest.confidenceLevel
+            );
+            loggedRequestIds.current.add(activeRequest.id);
             clearRequest();
           }}
+        />
+      )}
+      
+      {activeEditor?.type === 'text' && (
+        <TextEditor 
+          id={activeEditor.id}
+          initialBounds={activeEditor.bounds}
+          viewport={viewport}
+          onComplete={(obj) => { history.execute(new AddObjectCommand(store, obj)); setActiveEditor(null); }}
+          onCancel={() => setActiveEditor(null)}
+        />
+      )}
+      {activeEditor?.type === 'table' && (
+        <TableEditor 
+          id={activeEditor.id}
+          initialBounds={activeEditor.bounds}
+          viewport={viewport}
+          onComplete={(obj) => { history.execute(new AddObjectCommand(store, obj)); setActiveEditor(null); }}
+          onCancel={() => setActiveEditor(null)}
+        />
+      )}
+      {activeEditor?.type === 'image' && (
+        <ImageEditor 
+          id={activeEditor.id}
+          initialBounds={activeEditor.bounds}
+          viewport={viewport}
+          onComplete={(obj) => { history.execute(new AddObjectCommand(store, obj)); setActiveEditor(null); }}
+          onCancel={() => setActiveEditor(null)}
+        />
+      )}
+      {activeEditor?.type === 'equation' && (
+        <EquationEditor 
+          id={activeEditor.id}
+          initialBounds={activeEditor.bounds}
+          viewport={viewport}
+          onComplete={(obj) => { history.execute(new AddObjectCommand(store, obj)); setActiveEditor(null); }}
+          onCancel={() => setActiveEditor(null)}
         />
       )}
     </div>

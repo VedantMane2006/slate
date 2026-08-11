@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import type { BoundingBox } from '../utils/geometry.ts';
 import type { Viewport } from '../canvas/coordinates.ts';
 import { worldToScreen } from '../canvas/coordinates.ts';

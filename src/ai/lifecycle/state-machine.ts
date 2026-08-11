@@ -1,6 +1,7 @@
 import type { MultimodalRequestPayload } from '../composition.ts';
 import { validateAIOutput, type AIOutputSchema } from '../rendering/schema.ts';
 import { CURRENT_EXPERIMENT_CONFIG } from '../../config/experiment.ts';
+import type { ConfidenceLevel } from '../../metrics/aggregate.ts';
 
 export type RequestState =
   | 'encoding'
@@ -25,6 +26,7 @@ export interface AIRequest {
   contextBounds?: import('../../utils/geometry.ts').BoundingBox | null;
   configId: string;
   promptVersion: string;
+  confidenceLevel: ConfidenceLevel;
 }
 
 export class RequestLifecycleManager {
@@ -37,7 +39,12 @@ export class RequestLifecycleManager {
     this.timeoutDuration = timeoutDurationMs;
   }
 
-  createRequest(id: string, payload: MultimodalRequestPayload, contextBounds?: import('../../utils/geometry.ts').BoundingBox | null): AIRequest {
+  createRequest(
+    id: string, 
+    payload: MultimodalRequestPayload, 
+    contextBounds?: import('../../utils/geometry.ts').BoundingBox | null,
+    confidenceLevel: ConfidenceLevel = 'high'
+  ): AIRequest {
     if (this.activeRequest && !this.isTerminalState(this.activeRequest.state)) {
       this.transition(this.activeRequest.id, 'superseded');
     }
@@ -49,6 +56,7 @@ export class RequestLifecycleManager {
       contextBounds,
       configId: CURRENT_EXPERIMENT_CONFIG.configId,
       promptVersion: CURRENT_EXPERIMENT_CONFIG.promptVersion,
+      confidenceLevel,
       timestamps: {
         encoding: Date.now()
       }

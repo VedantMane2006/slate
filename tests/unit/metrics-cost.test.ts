@@ -14,6 +14,9 @@ describe('Metrics Cost Derivation', () => {
         { kind: 'json', data: { a: 1 } } // {"a":1} -> 7 chars
       ]
     },
+    configId: 'test',
+    promptVersion: '1.0',
+    confidenceLevel: 'high',
     timestamps: {}
   };
 

@@ -42,7 +42,7 @@ export function AILifecycleProvider({ children }: { children: React.ReactNode })
     
     // 3. Create request in 'encoding' state
     const id = Date.now().toString();
-    const req = manager.createRequest(id, payload, result.bounds);
+    const req = manager.createRequest(id, payload, result.bounds, result.confidence.level);
     sync();
 
     // The prompt requires we transition through these specific states:

@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import type { BoundingBox } from '../utils/geometry.ts';
 import type { Viewport } from '../canvas/coordinates.ts';
 import { worldToScreen } from '../canvas/coordinates.ts';
 import { createEquation, type EquationObject } from '../objects/equation.ts';
+import { renderLatex } from '../ai/rendering/renderers.tsx';
 
 interface EquationEditorProps {
   id?: string;
@@ -24,7 +25,6 @@ export function EquationEditor({
   const [latex, setLatex] = useState(initialLatex);
 
   const screenMin = worldToScreen({ x: initialBounds.minX, y: initialBounds.minY }, viewport);
-  const screenMax = worldToScreen({ x: initialBounds.maxX, y: initialBounds.maxY }, viewport);
 
   const handleSave = () => {
     const eqId = id || Math.random().toString(36).substring(2);
@@ -37,19 +37,39 @@ export function EquationEditor({
         position: 'absolute',
         left: screenMin.x,
         top: screenMin.y,
-        width: Math.max(200, screenMax.x - screenMin.x),
+        minWidth: 300,
+        maxWidth: 600,
         background: 'white',
         border: '1px solid black',
         padding: '8px',
-        zIndex: 10
+        zIndex: 10,
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '8px'
       }}
     >
-      <input
-        type="text"
+      <div 
+        style={{ 
+          padding: '8px', 
+          background: '#f8f9fa', 
+          border: '1px solid #ced4da', 
+          borderRadius: '4px',
+          overflowX: 'auto',
+          minHeight: '40px'
+        }}
+      >
+        {latex ? renderLatex(latex) : <span style={{ color: '#adb5bd' }}>Preview...</span>}
+      </div>
+      <textarea
         value={latex}
         onChange={(e) => setLatex(e.target.value)}
         placeholder="Enter LaTeX..."
-        style={{ width: '100%', marginBottom: '8px' }}
+        style={{ 
+          width: '100%', 
+          minHeight: '60px',
+          resize: 'vertical',
+          fontFamily: 'monospace'
+        }}
       />
       <div style={{ display: 'flex', gap: '4px' }}>
         <button onClick={handleSave}>Save</button>

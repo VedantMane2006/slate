@@ -1,6 +1,9 @@
 import { worldToScreen, type Viewport } from './coordinates.ts';
 import type { Stroke } from '../objects/stroke.ts';
 import type { ImageObject } from '../objects/image.ts';
+import type { TextObject } from '../objects/text.ts';
+import type { Table } from '../objects/table.ts';
+import type { EquationObject } from '../objects/equation.ts';
 import type { DraftObject } from '../objects/draft-object.ts';
 import type { CanvasObject } from '../objects/canvas-object.ts';
 import type { BoundingBox } from '../utils/geometry.ts';
@@ -94,6 +97,210 @@ export function renderDraftObjects(ctx: CanvasRenderingContext2D, drafts: DraftO
     }
     if (line && textY <= y + h - padding) {
       ctx.fillText(line, x + padding, textY);
+    }
+  }
+}
+
+/** Renders text objects as labelled boxes with word-wrapped text. */
+export function renderTextObjects(ctx: CanvasRenderingContext2D, texts: TextObject[], viewport: Viewport) {
+  for (const textObj of texts) {
+    const topLeft = worldToScreen({ x: textObj.bounds.minX, y: textObj.bounds.minY }, viewport);
+    const bottomRight = worldToScreen({ x: textObj.bounds.maxX, y: textObj.bounds.maxY }, viewport);
+
+    const x = topLeft.x;
+    const y = topLeft.y;
+    const w = Math.max(bottomRight.x - topLeft.x, 100);
+    const h = Math.max(bottomRight.y - topLeft.y, 40);
+
+    // Background
+    ctx.fillStyle = '#fffde7';
+    ctx.fillRect(x, y, w, h);
+    ctx.strokeStyle = '#f9a825';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(x, y, w, h);
+
+    // Label
+    ctx.fillStyle = '#f9a825';
+    ctx.fillRect(x, y, w, 16);
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 10px sans-serif';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('Text', x + 4, y + 8);
+
+    // Word-wrapped body text
+    ctx.fillStyle = '#333';
+    ctx.font = '12px sans-serif';
+    ctx.textBaseline = 'top';
+    const padding = 4;
+    const lineHeight = 15;
+    const maxW = w - padding * 2;
+    const words = textObj.text.split(' ');
+    let line = '';
+    let textY = y + 16 + padding;
+
+    for (const word of words) {
+      const test = line ? `${line} ${word}` : word;
+      if (ctx.measureText(test).width > maxW && line) {
+        ctx.fillText(line, x + padding, textY);
+        line = word;
+        textY += lineHeight;
+        if (textY > y + h - padding) break;
+      } else {
+        line = test;
+      }
+    }
+    if (line && textY <= y + h - padding) {
+      ctx.fillText(line, x + padding, textY);
+    }
+  }
+}
+
+/** Renders table objects as a grid of cells. */
+export function renderTableObjects(ctx: CanvasRenderingContext2D, tables: Table[], viewport: Viewport) {
+  for (const table of tables) {
+    const topLeft = worldToScreen({ x: table.bounds.minX, y: table.bounds.minY }, viewport);
+    const bottomRight = worldToScreen({ x: table.bounds.maxX, y: table.bounds.maxY }, viewport);
+
+    const x = topLeft.x;
+    const y = topLeft.y;
+    const rows = table.cells.length;
+    const cols = table.cells[0]?.length || 1;
+    const cellW = Math.max((bottomRight.x - topLeft.x) / cols, 40);
+    const cellH = Math.max((bottomRight.y - topLeft.y) / rows, 24);
+    const w = cellW * cols;
+    const h = cellH * rows;
+
+    // Background
+    ctx.fillStyle = '#e8f5e9';
+    ctx.fillRect(x, y, w, h);
+
+    // Grid lines and cell text
+    ctx.strokeStyle = '#4caf50';
+    ctx.lineWidth = 1;
+    ctx.fillStyle = '#333';
+    ctx.font = '11px sans-serif';
+    ctx.textBaseline = 'middle';
+
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        const cx = x + c * cellW;
+        const cy = y + r * cellH;
+        ctx.strokeRect(cx, cy, cellW, cellH);
+        const cellText = table.cells[r]?.[c] || '';
+        ctx.fillText(cellText, cx + 4, cy + cellH / 2, cellW - 8);
+      }
+    }
+  }
+}
+
+import katex from 'katex';
+
+const equationCache = new Map<string, HTMLImageElement>();
+
+/** Renders equation objects showing LaTeX source. */
+export function renderEquationObjects(ctx: CanvasRenderingContext2D, equations: EquationObject[], viewport: Viewport) {
+  for (const eq of equations) {
+    const topLeft = worldToScreen({ x: eq.bounds.minX, y: eq.bounds.minY }, viewport);
+    const bottomRight = worldToScreen({ x: eq.bounds.maxX, y: eq.bounds.maxY }, viewport);
+
+    const x = topLeft.x;
+    const y = topLeft.y;
+    const w = Math.max(bottomRight.x - topLeft.x, 100);
+    const h = Math.max(bottomRight.y - topLeft.y, 40);
+
+    let img = equationCache.get(eq.latex);
+    if (!img) {
+      let html = '';
+      try {
+        html = katex.renderToString(eq.latex, { throwOnError: false });
+      } catch (err) {
+        html = `<span style="color:red">Error</span>`;
+      }
+
+      // We must embed KaTeX styles inside the SVG so it renders correctly
+      const svg = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}">
+          <foreignObject width="100%" height="100%">
+            <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 16px; padding: 4px; display: flex; align-items: center; justify-content: center; height: 100%; box-sizing: border-box;">
+              <!-- Injecting basic KaTeX CSS to ensure math renders reasonably without external stylesheet requests failing in data URIs -->
+              <style>
+                .katex { font-family: KaTeX_Main, 'Times New Roman', serif; line-height: 1.2; text-rendering: auto; font-size: 1.1em; }
+                .katex .mathdefault { font-family: KaTeX_Math, italic; }
+              </style>
+              ${html}
+            </div>
+          </foreignObject>
+        </svg>
+      `;
+
+      const dataUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg.trim());
+      img = new Image();
+      img.src = dataUrl;
+      equationCache.set(eq.latex, img);
+      
+      img.onload = () => {
+        window.dispatchEvent(new CustomEvent('force-render'));
+      };
+    }
+
+    if (img.complete) {
+      ctx.drawImage(img, x, y, w, h);
+    } else {
+      // Background placeholder while loading
+      ctx.fillStyle = '#f3e5f5';
+      ctx.fillRect(x, y, w, h);
+      ctx.strokeStyle = '#ab47bc';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(x, y, w, h);
+      ctx.fillStyle = '#ab47bc';
+      ctx.font = 'italic 12px serif';
+      ctx.fillText('Rendering...', x + 8, y + h / 2);
+    }
+  }
+}
+
+// Cache loaded HTMLImageElements so we can draw them synchronously in the render loop
+const imageCache = new Map<string, HTMLImageElement>();
+
+/** Renders image objects by drawing their dataUrl. */
+export function renderImageObjects(ctx: CanvasRenderingContext2D, images: ImageObject[], viewport: Viewport) {
+  for (const imgObj of images) {
+    const topLeft = worldToScreen({ x: imgObj.bounds.minX, y: imgObj.bounds.minY }, viewport);
+    const bottomRight = worldToScreen({ x: imgObj.bounds.maxX, y: imgObj.bounds.maxY }, viewport);
+
+    const x = topLeft.x;
+    const y = topLeft.y;
+    const w = Math.max(bottomRight.x - topLeft.x, 60);
+    const h = Math.max(bottomRight.y - topLeft.y, 60);
+
+    let img = imageCache.get(imgObj.dataUrl);
+    if (!img) {
+      img = new Image();
+      img.src = imgObj.dataUrl;
+      imageCache.set(imgObj.dataUrl, img);
+      
+      // When it finishes loading, trigger a re-render
+      img.onload = () => {
+        window.dispatchEvent(new CustomEvent('force-render'));
+      };
+    }
+
+    if (img.complete) {
+      // Image is loaded, draw it
+      ctx.drawImage(img, x, y, w, h);
+      
+      // Optional subtle border
+      ctx.strokeStyle = 'rgba(0,0,0,0.1)';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(x, y, w, h);
+    } else {
+      // Placeholder while loading
+      ctx.fillStyle = '#f5f5f5';
+      ctx.fillRect(x, y, w, h);
+      ctx.fillStyle = '#666';
+      ctx.font = '11px sans-serif';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('Loading...', x + w / 2 - 25, y + h / 2);
     }
   }
 }

@@ -5,10 +5,10 @@
 > from scratch, and don't re-litigate anything marked DECIDED below.
 
 ## Current status
-Phase: **Phase 9 — IN PROGRESS** (Metrics / Instrumentation Wrapper + Live Metrics Panel)
-Last updated: 2026-08-10
+Phase: **Phase 9 — COMPLETE** (Metrics / Instrumentation Wrapper + Live Metrics Panel)
+Last updated: 2026-08-11
 Branch: master
-`main` state: Phase 1-8 features complete (AI Output Schema, JSON prompt, Validation wiring, Renderers, DraftCard component, DraftObject undo/redo wiring and canvas rendering) — builds, lints, and tests clean (100 tests)
+`main` state: Phase 1-9 features complete (Derive Metrics, Token Usage & Cost Estimation, Metrics Aggregation, Config Traceability Tagging, MetricsProvider & Live MetricsPanel, Manual Toolbar UI Editors) — builds, lints, and tests clean
 
 ## Decisions already made (DECIDED — do not re-open without a strong reason)
 - Stack: Vite + React + TypeScript, strict mode, Vitest, ESLint + Prettier — DECIDED
@@ -37,6 +37,9 @@ Branch: master
   — decide in Phase 12
 
 ## Log (append one entry per session, most recent on top)
+- 2026-08-10 — Phase 9, part 5 complete. Built `MetricsProvider` and `MetricsPanel` components in `src/providers/MetricsProvider.tsx` and `src/components/MetricsPanel.tsx`. Hooked into terminal request states (error, timeout, superseded, cancelled) natively in `CanvasViewport`, alongside accepted/discarded outcomes in `DraftCard`, routing all finalized telemetry to `MetricsProvider`. `MetricsPanel` renders a live, auto-updating dashboard of all aggregated metrics (average latency, average cost, acceptance rate, wasted token ratio, confidence distribution, configId, promptVersion) without page refreshes. Component-tested using RTL and mocked fixture drivers (`tests/unit/MetricsPanel.test.tsx`). **Definition of Done met**: Live metrics panel reflects real, wrapper-derived telemetry numbers, fully unit-tested against fixture data. Phase 9 is COMPLETE.
+- 2026-08-10 — Toolbar UI Fixes. Investigated missing objects after Save: root cause was `renderer.ts` previously lacking functions to draw the new Table/Text/Image/Equation types. Added render functions. Fixed Image/Equation renderers to properly draw async `HTMLImageElement`s (SVG for equations via KaTeX) by loading them into a cache and dispatching a `force-render` event when complete. Fixed `TableEditor` to support custom row/col sizing on the fly. Fixed `EquationEditor` to show a live math preview while typing, and allowed it to dynamically size up to 600px width.
+- 2026-08-10 — Phase 4 UI update complete. Added a minimal toolbar to `CanvasViewport.tsx` to expose the Phase 4 structured object editors (Table, Text, Image, Equation). These buttons mount the respective editors as overlay components on the canvas, which upon save, immediately commit a new blank object via the `HistoryStack` (making manual creation fully undoable). Added component tests verifying the UI triggers correctly.
 - 2026-08-10 — Phase 9, part 4 complete. Added traceability tagging to every AIRequest. Created `src/config/experiment.ts` with hardcoded defaults (`configId: 'default'`, `promptVersion: '1.0.0'`). Updated `AIRequest` interface and `RequestLifecycleManager.createRequest` in `state-machine.ts` to automatically stamp these config tags onto every new request. Added unit test verifying fields are correctly populated upon request creation. No live API calls used. Verification passed via `vitest` unit tests.
 - 2026-08-10 — Phase 9, part 3 complete. Implemented `aggregate(records: MetricsRecord[])` in `src/metrics/aggregate.ts`. This pure function takes a list of finalized request metrics and computes overall telemetry: average latency, average cost, acceptance rate, wasted token ratio, and confidence-level distributions. Added robust unit tests verifying correct fractional and aggregated computations across mixed-outcome and mixed-confidence fixture lists, including a zero-records fallback check. Verification passed via `vitest` unit tests.
 - 2026-08-10 — Phase 9, part 2 complete. Implemented `deriveTokenUsageAndCost` in `src/metrics/cost.ts`. This computes token usage and exact USD cost based on `gemini-2.5-flash` rates. It parses actual `usageMetadata` if provided by the SDK (setting `estimated: false`). If missing, it falls back to a deterministic text length and crop-resolution estimation heuristic (setting `estimated: true`). Added unit tests for exact counts, estimated fallback, and cost calculation correctness without live API calls. Verification passed via `vitest` unit tests.
@@ -92,4 +95,4 @@ Branch: master
   Next action: start Phase 0 (scaffolding) using the Phase 0 prompt from the roadmap.
 
 ## Next action
-Continue Phase 9 — Metrics (Part 5: Live Metrics Panel).
+Start Phase 10 — Request Gating + SHA-256 Dedup + Cost Preview.

@@ -8,6 +8,9 @@ describe('Metrics Derivation', () => {
       id: 'test-1',
       state: 'completed',
       payload: { image: '', fragments: [] },
+      configId: 'test',
+      promptVersion: '1.0',
+      confidenceLevel: 'high',
       timestamps: {
         encoding: 1000,
         context_extraction: 1050,
@@ -37,6 +40,9 @@ describe('Metrics Derivation', () => {
       id: 'test-2',
       state: 'error',
       payload: { image: '', fragments: [] },
+      configId: 'test',
+      promptVersion: '1.0',
+      confidenceLevel: 'low',
       timestamps: {
         encoding: 1000,
         // missing context_extraction
