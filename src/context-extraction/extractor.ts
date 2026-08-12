@@ -39,7 +39,6 @@ export function writeExtractionTrace(result: ExtractionResult, confidence: Conte
 
 const DEFAULT_RECENT_WINDOW_MS = 10000;
 const DEFAULT_PROXIMITY_THRESHOLD = 5;
-const DEFAULT_EXPANSION_CAP = 5;
 
 export function extractContext(
   objects: CanvasObject[],
@@ -103,35 +102,74 @@ export function extractContext(
     return finalResult;
   }
 
-  // 4. Cluster expansion
-  // NOTE: this is a SIMPLE bounding-box proximity version; Phase 11 will replace this 
-  // with true connected-component graph analysis — the public extractContext signature 
-  // must not change when that happens.
+  // 4. Cluster expansion (Union-Find Connected Components)
   
   let currentBounds = initialBounds;
   const currentObjectIds = new Set(initialObjectIds);
   let expanded = false;
-  
-  for (let iteration = 0; iteration < DEFAULT_EXPANSION_CAP; iteration++) {
-    const proximityBox: BoundingBox = {
-      minX: currentBounds.minX - DEFAULT_PROXIMITY_THRESHOLD,
-      minY: currentBounds.minY - DEFAULT_PROXIMITY_THRESHOLD,
-      maxX: currentBounds.maxX + DEFAULT_PROXIMITY_THRESHOLD,
-      maxY: currentBounds.maxY + DEFAULT_PROXIMITY_THRESHOLD,
-    };
-    
-    let addedInThisIteration = false;
-    for (const obj of objects) {
-      if (!currentObjectIds.has(obj.id) && boxesIntersect(obj.bounds, proximityBox)) {
-        currentObjectIds.add(obj.id);
-        currentBounds = unionBoundingBoxes(currentBounds, obj.bounds);
-        addedInThisIteration = true;
-        expanded = true;
+
+  const n = objects.length;
+  const parent = new Int32Array(n);
+  for (let i = 0; i < n; i++) {
+    parent[i] = i;
+  }
+
+  function find(i: number): number {
+    let root = i;
+    while (root !== parent[root]) {
+      root = parent[root];
+    }
+    let curr = i;
+    while (curr !== root) {
+      const nxt = parent[curr];
+      parent[curr] = root;
+      curr = nxt;
+    }
+    return root;
+  }
+
+  function union(i: number, j: number) {
+    const rootI = find(i);
+    const rootJ = find(j);
+    if (rootI !== rootJ) {
+      parent[rootI] = rootJ;
+    }
+  }
+
+  const expandBox = (box: BoundingBox) => ({
+    minX: box.minX - DEFAULT_PROXIMITY_THRESHOLD,
+    minY: box.minY - DEFAULT_PROXIMITY_THRESHOLD,
+    maxX: box.maxX + DEFAULT_PROXIMITY_THRESHOLD,
+    maxY: box.maxY + DEFAULT_PROXIMITY_THRESHOLD,
+  });
+
+  // O(N^2) pairwise proximity/overlap check
+  for (let i = 0; i < n; i++) {
+    const expandedI = expandBox(objects[i].bounds);
+    for (let j = i + 1; j < n; j++) {
+      if (boxesIntersect(expandedI, objects[j].bounds)) {
+        union(i, j);
       }
     }
-    
-    if (!addedInThisIteration) {
-      break;
+  }
+
+  // Identify roots corresponding to the initial working set
+  const targetRoots = new Set<number>();
+  for (let i = 0; i < n; i++) {
+    if (currentObjectIds.has(objects[i].id)) {
+      targetRoots.add(find(i));
+    }
+  }
+
+  // Expand working set to include the full connected components
+  for (let i = 0; i < n; i++) {
+    if (targetRoots.has(find(i))) {
+      const obj = objects[i];
+      if (!currentObjectIds.has(obj.id)) {
+        currentObjectIds.add(obj.id);
+        currentBounds = unionBoundingBoxes(currentBounds, obj.bounds);
+        expanded = true;
+      }
     }
   }
 

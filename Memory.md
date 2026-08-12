@@ -5,7 +5,7 @@
 > from scratch, and don't re-litigate anything marked DECIDED below.
 
 ## Current status
-Phase: **Phase 11 — IN PROGRESS** (Clustering/Adaptive Res)
+Phase: **Phase 12 — IN PROGRESS** (Persistence/Export)
 Last updated: 2026-08-11
 Branch: master
 `main` state: Phase 1-9 features complete (Derive Metrics, Token Usage & Cost Estimation, Metrics Aggregation, Config Traceability Tagging, MetricsProvider & Live MetricsPanel, Manual Toolbar UI Editors) — builds, lints, and tests clean
@@ -37,6 +37,7 @@ Branch: master
   — decide in Phase 12
 
 ## Log (append one entry per session, most recent on top)
+- 2026-08-12 — Phase 11, part 2 complete. Replaced simple proximity expansion in `src/context-extraction/extractor.ts` with true connected-component clustering using the Union-Find (Disjoint Set) algorithm. This evaluates cluster membership globally (O(N^2) pairwise box intersections), preventing edge cases where long "chains" of strokes were artificially truncated by iteration limits. Ensured `extractContext`'s signature and `ExtractionResult` shape remained perfectly unchanged. Removed unused `DEFAULT_EXPANSION_CAP`. Added pure unit tests verifying separation of disjoint components and grouping of long object chains. Verified 100% regression test pass-rate against all Phase 5 context extraction tests.
 - 2026-08-12 — Phase 11, part 1 complete. Implemented adaptive crop resolution based on scene density and object count in `/src/context-extraction/resolution.ts`. Created `computeInkDensity` to measure spatial density (total object area / crop area) and `chooseResolution` to dynamically select between 512, 1024, or 1536 based on documented thresholds. Wired `chooseResolution` into `renderCrop` and `composeMultimodalRequest` so that dense scenes receive higher resolution crops and sparse scenes use smaller crops to save tokens. Wrote unit tests confirming heuristic branching logic and density computation. Test suite passes successfully.
 - 2026-08-11 — Phase 10, part 2 complete. Built `computeRequestHash` using SubtleCrypto SHA-256 for deterministic hashing of canonical request data. Built `DedupCache` implementing an LRU-ish eviction strategy (capped max size) and time-based TTL cache for AI request deduplication. Wrote unit tests confirming hash determinism, cache hits/misses, TTL expiration, and correct oldest-item eviction. Fixed a Typescript module export error by correctly mapping to the `AIOutputSchema` interface instead of `AIOutput`. Tests pass without any live API calls.
 - 2026-08-11 — Phase 10, part 1 complete. Implemented pure gating heuristics in `src/ai/gating/gate.ts`. `evaluateGate` checks that extraction working set length > 15, extraction bounds area > 100px, idle time > 2000ms, and canvas is not completely empty. Accumulates reasons for failures, but immediately bypasses checking if `isManualTrigger` is true, resolving to `{ allowed: true, reasons: ['manual override'] }`. Created unit tests verifying individual failures and manual overrides without side-effects or network calls.
@@ -98,4 +99,4 @@ Branch: master
   Next action: start Phase 0 (scaffolding) using the Phase 0 prompt from the roadmap.
 
 ## Next action
-Continue Phase 11 — Clustering/Adaptive Res (Part 2).
+Start Phase 12 — Persistence/Export.
