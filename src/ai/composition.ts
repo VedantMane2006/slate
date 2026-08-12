@@ -1,6 +1,7 @@
 import type { CanvasObject, AIPayloadFragment, Serializable } from '../objects/canvas-object.ts';
 import type { ExtractionResult } from '../context-extraction/extractor.ts';
 import { renderCrop } from '../canvas/renderer.ts';
+import { chooseResolution, computeInkDensity } from '../context-extraction/resolution.ts';
 
 export interface MultimodalRequestPayload {
   image: string;
@@ -29,7 +30,9 @@ export function composeMultimodalRequest(
   
   let image = '';
   if (imageObjects.length > 0 && result.bounds) {
-    image = renderCrop(imageObjects, result.bounds);
+    const inkDensity = computeInkDensity(imageObjects, result.bounds);
+    const resolution = chooseResolution(imageObjects.length, inkDensity);
+    image = renderCrop(imageObjects, result.bounds, resolution);
   }
   
   return { image, fragments };

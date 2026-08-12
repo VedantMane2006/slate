@@ -5,7 +5,7 @@
 > from scratch, and don't re-litigate anything marked DECIDED below.
 
 ## Current status
-Phase: **Phase 10 — IN PROGRESS** (Request Gating + SHA-256 Dedup + Cost Preview)
+Phase: **Phase 11 — IN PROGRESS** (Clustering/Adaptive Res)
 Last updated: 2026-08-11
 Branch: master
 `main` state: Phase 1-9 features complete (Derive Metrics, Token Usage & Cost Estimation, Metrics Aggregation, Config Traceability Tagging, MetricsProvider & Live MetricsPanel, Manual Toolbar UI Editors) — builds, lints, and tests clean
@@ -37,6 +37,7 @@ Branch: master
   — decide in Phase 12
 
 ## Log (append one entry per session, most recent on top)
+- 2026-08-12 — Phase 11, part 1 complete. Implemented adaptive crop resolution based on scene density and object count in `/src/context-extraction/resolution.ts`. Created `computeInkDensity` to measure spatial density (total object area / crop area) and `chooseResolution` to dynamically select between 512, 1024, or 1536 based on documented thresholds. Wired `chooseResolution` into `renderCrop` and `composeMultimodalRequest` so that dense scenes receive higher resolution crops and sparse scenes use smaller crops to save tokens. Wrote unit tests confirming heuristic branching logic and density computation. Test suite passes successfully.
 - 2026-08-11 — Phase 10, part 2 complete. Built `computeRequestHash` using SubtleCrypto SHA-256 for deterministic hashing of canonical request data. Built `DedupCache` implementing an LRU-ish eviction strategy (capped max size) and time-based TTL cache for AI request deduplication. Wrote unit tests confirming hash determinism, cache hits/misses, TTL expiration, and correct oldest-item eviction. Fixed a Typescript module export error by correctly mapping to the `AIOutputSchema` interface instead of `AIOutput`. Tests pass without any live API calls.
 - 2026-08-11 — Phase 10, part 1 complete. Implemented pure gating heuristics in `src/ai/gating/gate.ts`. `evaluateGate` checks that extraction working set length > 15, extraction bounds area > 100px, idle time > 2000ms, and canvas is not completely empty. Accumulates reasons for failures, but immediately bypasses checking if `isManualTrigger` is true, resolving to `{ allowed: true, reasons: ['manual override'] }`. Created unit tests verifying individual failures and manual overrides without side-effects or network calls.
 - 2026-08-10 — Phase 9, part 5 complete. Built `MetricsProvider` and `MetricsPanel` components in `src/providers/MetricsProvider.tsx` and `src/components/MetricsPanel.tsx`. Hooked into terminal request states (error, timeout, superseded, cancelled) natively in `CanvasViewport`, alongside accepted/discarded outcomes in `DraftCard`, routing all finalized telemetry to `MetricsProvider`. `MetricsPanel` renders a live, auto-updating dashboard of all aggregated metrics (average latency, average cost, acceptance rate, wasted token ratio, confidence distribution, configId, promptVersion) without page refreshes. Component-tested using RTL and mocked fixture drivers (`tests/unit/MetricsPanel.test.tsx`). **Definition of Done met**: Live metrics panel reflects real, wrapper-derived telemetry numbers, fully unit-tested against fixture data. Phase 9 is COMPLETE.
@@ -97,4 +98,4 @@ Branch: master
   Next action: start Phase 0 (scaffolding) using the Phase 0 prompt from the roadmap.
 
 ## Next action
-Continue Phase 10 — Request Gating + SHA-256 Dedup (Part 3: Cost preview and wiring into lifecycle).
+Continue Phase 11 — Clustering/Adaptive Res (Part 2).

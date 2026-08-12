@@ -305,12 +305,18 @@ export function renderImageObjects(ctx: CanvasRenderingContext2D, images: ImageO
   }
 }
 
-export function renderCrop(objects: CanvasObject[], bounds: BoundingBox): string {
+export function renderCrop(objects: CanvasObject[], bounds: BoundingBox, targetResolution: number = 1024): string {
+  const worldWidth = Math.max(1, bounds.maxX - bounds.minX);
+  const worldHeight = Math.max(1, bounds.maxY - bounds.minY);
+  
+  const scale = targetResolution / Math.max(worldWidth, worldHeight);
+  
+  const width = Math.round(worldWidth * scale);
+  const height = Math.round(worldHeight * scale);
+  
   const canvas = document.createElement('canvas');
-  const width = Math.max(1, bounds.maxX - bounds.minX);
-  const height = Math.max(1, bounds.maxY - bounds.minY);
-  canvas.width = width;
-  canvas.height = height;
+  canvas.width = Math.max(1, width);
+  canvas.height = Math.max(1, height);
 
   const ctx = canvas.getContext('2d');
   if (!ctx) return '';
@@ -318,7 +324,7 @@ export function renderCrop(objects: CanvasObject[], bounds: BoundingBox): string
   const viewport: Viewport = {
     offsetX: -bounds.minX,
     offsetY: -bounds.minY,
-    zoom: 1
+    zoom: scale
   };
 
   const strokes: Stroke[] = [];
