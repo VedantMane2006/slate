@@ -33,6 +33,9 @@ export function EquationEditor({
 
   return (
     <div
+      onPointerDown={(e) => e.stopPropagation()}
+      onPointerMove={(e) => e.stopPropagation()}
+      onPointerUp={(e) => e.stopPropagation()}
       style={{
         position: 'absolute',
         left: screenMin.x,

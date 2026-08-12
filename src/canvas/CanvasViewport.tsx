@@ -32,6 +32,7 @@ import {
 import { useAILifecycle } from '../providers/AILifecycleProvider.tsx';
 import { useMetrics } from '../providers/MetricsProvider.tsx';
 import { DraftCard } from '../components/DraftCard.tsx';
+import { CostPreview } from '../components/CostPreview.tsx';
 
 interface PointerRecord {
   x: number;
@@ -117,7 +118,9 @@ export function CanvasViewport() {
       const tag = (e.target as HTMLElement)?.tagName;
       const isEditing = tag === 'INPUT' || tag === 'TEXTAREA' || (e.target as HTMLElement)?.isContentEditable;
 
-      if (e.code === 'Space' && !e.repeat && !isEditing) {
+      if (isEditing) return;
+
+      if (e.code === 'Space' && !e.repeat) {
         e.preventDefault();
         spaceHeld.current = true;
         setCursorStyle('grab');
@@ -690,6 +693,8 @@ export function CanvasViewport() {
           </button>
         )}
       </div>
+      
+      <CostPreview request={activeRequest} />
       
       {activeRequest && (activeRequest.state === 'completed' || activeRequest.state === 'error') && (
         <DraftCard

@@ -24,7 +24,7 @@ export function renderMarkdown(text: string): React.ReactNode {
  */
 export function renderLatex(latex: string): React.ReactNode {
   try {
-    const html = katex.renderToString(latex, { throwOnError: true });
+    const html = katex.renderToString(latex, { throwOnError: true, output: 'html' });
     // KaTeX output is generally safe, but we can sanitize it if we want to be paranoid.
     // However, KaTeX is designed to be XSS-safe out of the box when used properly.
     return <span dangerouslySetInnerHTML={{ __html: html }} />;

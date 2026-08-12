@@ -79,7 +79,13 @@ export function DraftCard({ request, roiBounds, viewport, onAccept, onDiscard }:
   const isError = request.state === 'error' || !request.parsedData;
 
   return (
-    <div style={style} data-testid="draft-card">
+    <div 
+      style={style} 
+      data-testid="draft-card"
+      onPointerDown={(e) => e.stopPropagation()}
+      onPointerMove={(e) => e.stopPropagation()}
+      onPointerUp={(e) => e.stopPropagation()}
+    >
       <div style={{ flexGrow: 1 }}>
         {isError ? (
           <div style={{ color: '#dc3545', fontWeight: 'bold' }}>
