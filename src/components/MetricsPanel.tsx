@@ -1,5 +1,6 @@
 import { useMetrics } from '../providers/MetricsProvider.tsx';
 import { CURRENT_EXPERIMENT_CONFIG } from '../config/experiment.ts';
+import { traceWriter } from '../metrics/trace-writer.ts';
 
 export function MetricsPanel() {
   const { aggregated, records } = useMetrics();
@@ -79,6 +80,15 @@ export function MetricsPanel() {
             <div className="font-bold text-gray-900">{aggregated.confidenceDistribution.low.count}</div>
           </div>
         </div>
+      </div>
+
+      <div className="mt-2">
+        <button 
+          onClick={() => traceWriter.downloadTraces()}
+          className="w-full bg-blue-50 hover:bg-blue-100 text-blue-700 font-semibold py-1.5 px-3 rounded border border-blue-200 transition-colors"
+        >
+          Download Traces
+        </button>
       </div>
     </div>
   );

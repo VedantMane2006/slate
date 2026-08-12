@@ -3,6 +3,7 @@ import type { AIRequest } from '../ai/lifecycle/state-machine.ts';
 import { deriveMetrics } from '../metrics/derive.ts';
 import { deriveTokenUsageAndCost } from '../metrics/cost.ts';
 import { aggregate, type MetricsRecord, type AggregatedMetrics, type RequestOutcome, type ConfidenceLevel } from '../metrics/aggregate.ts';
+import { traceWriter } from '../metrics/trace-writer.ts';
 
 interface MetricsContextValue {
   records: MetricsRecord[];
@@ -36,6 +37,8 @@ export function MetricsProvider({ children }: { children: React.ReactNode }) {
       outcome,
       confidenceLevel
     };
+
+    traceWriter.logOutcome(request, outcome, latencyMetrics);
 
     setRecords((prev) => [...prev, record]);
   }, []);

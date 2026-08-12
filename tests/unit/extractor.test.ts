@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { extractContext, __EXTRACTION_TRACES } from '../../src/context-extraction/extractor.ts';
+import { extractContext } from '../../src/context-extraction/extractor.ts';
+import { traceWriter } from '../../src/metrics/trace-writer.ts';
 import type { CanvasObject } from '../../src/objects/canvas-object.ts';
 
 // Mock CanvasObject that also includes a timestamp for testing purposes
@@ -32,7 +33,7 @@ import { beforeEach } from 'vitest';
 
 describe('Context Extraction Strategies', () => {
   beforeEach(() => {
-    __EXTRACTION_TRACES.length = 0;
+    traceWriter.clear();
   });
   it('selection present -> strategy is "selection", bounds match selection exactly', () => {
     const objects = [obj1, obj2, obj3];
@@ -195,14 +196,15 @@ describe('Context Extraction Strategies', () => {
     const objects = [obj1, obj2];
     const selection = { ids: ['obj-1'] };
     
-    // We expect __EXTRACTION_TRACES to be empty before the call (due to beforeEach)
-    expect(__EXTRACTION_TRACES.length).toBe(0);
+    // We expect traceWriter to be empty before the call (due to beforeEach)
+    expect(traceWriter.getPendingExtractions().length).toBe(0);
 
     const result = extractContext(objects, selection, Date.now());
 
-    expect(__EXTRACTION_TRACES.length).toBe(1);
+    const pending = traceWriter.getPendingExtractions();
+    expect(pending.length).toBe(1);
     
-    const trace = __EXTRACTION_TRACES[0];
+    const trace = pending[0];
     expect(typeof trace.timestamp).toBe('number');
     expect(trace.strategy).toBe(result.strategy);
     expect(trace.confidence).toEqual(result.confidence);

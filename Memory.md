@@ -5,7 +5,7 @@
 > from scratch, and don't re-litigate anything marked DECIDED below.
 
 ## Current status
-Phase: **Phase 12 — COMPLETE**
+Phase: **Phase 13 — IN PROGRESS** (Experiments)
 Last updated: 2026-08-12
 Branch: master
 `main` state: Phase 1-12 features complete (including Save/Load persistence and PNG export) — builds, lints, and tests clean
@@ -37,6 +37,7 @@ Branch: master
   — decide in Phase 12
 
 ## Log (append one entry per session, most recent on top)
+- 2026-08-12 — Phase 13, part 1 complete. Upgraded the in-memory trace stub from Phase 5 into a fully functional `TraceWriter` in `src/metrics/trace-writer.ts`. It intelligently merges pre-request extraction logs (`strategy`, `objectCount`, `bounds`) with post-request outcome logs (`endToEndLatency`, `outcome`, `configId`, `promptVersion`) to form a complete `FullTraceRecord`. Added a "Download Traces" button to `MetricsPanel.tsx` that triggers a local `.json` file download matching the Save behavior. Updated `extractor.ts` to push to the real `traceWriter` instead of the local stub array. Wired the outcome logger into `MetricsProvider.tsx`. Added pure unit tests verifying the merging logic and default fallback values. Test suite passes and all trace requirements are cleanly separated across modules.
 - 2026-08-12 — Phase 12 COMPLETE. Built `exportPNG` in `src/persistence/export.ts` to render the canvas to an off-screen canvas and trigger a PNG download. Decided to export the FULL CONTENT BOUNDS instead of just the viewport, padding the union of all object bounds, for a more predictable and robust export feature. Reused existing renderer functions perfectly. Added Export PNG button to `SaveLoadControls.tsx`. Added unit tests verifying bounding box computation and correct image dimensions mapping. Definition of Done met: save → reload in a fresh session reproduces the canvas exactly; PNG export works and matches on-screen rendering; malformed files fail honestly. Test suite compiles cleanly and passes.
 - 2026-08-12 — Phase 12, part 2 complete. Built `SaveLoadControls` in `src/components/SaveLoadControls.tsx` to handle canvas persistence UI. Wired it into `CanvasViewport.tsx`. The Save button cleanly triggers a local file download of `slate-save.json`. The Load button reads an uploaded JSON file, rigorously validates it, and replaces the entire canvas state on success. Added a `clear()` method to `HistoryStack` to correctly wipe undo/redo history on load. Added pure unit tests verifying the browser download simulation, successful load state replacement (with history clear), and defensive failure modes where malformed files safely abort without touching the existing canvas state. Test suite compiles cleanly and passes.
 - 2026-08-12 — Phase 12, part 1 complete. Implemented canvas serialization in `src/persistence/serialization.ts`. Added `serializeCanvas` that tags raw data with version `1.0.0` and strips non-enumerable methods. Added `deserializeCanvas` that reconstructs the structured `CanvasObject` instances, manually re-binding their `toAIPayload` methods via the respective factory functions, and rigorously validates missing fields or unknown versions with specific error messages. Added pure unit tests verifying exact lossless round-tripping for all six core object types and ensuring malformed inputs throw appropriate descriptive errors rather than crashing silently. Test suite compiles cleanly and passes.
@@ -102,4 +103,4 @@ Branch: master
   Next action: start Phase 0 (scaffolding) using the Phase 0 prompt from the roadmap.
 
 ## Next action
-Start Phase 13 — Experiments, Benchmarks & Report Generation (scoped down per time constraints).
+Continue Phase 13 (Experiments, Benchmarks & Report Generation).

@@ -1,6 +1,7 @@
-import type { BoundingBox } from '../utils/geometry.ts';
-import { unionBoundingBoxes, boxesIntersect } from '../utils/geometry.ts';
-import type { CanvasObject } from '../objects/canvas-object.ts';
+import { traceWriter } from '../metrics/trace-writer';
+import type { BoundingBox } from '../utils/geometry';
+import { unionBoundingBoxes, boxesIntersect } from '../utils/geometry';
+import type { CanvasObject } from '../objects/canvas-object';
 
 export interface ContextConfidence {
   level: 'high' | 'medium' | 'low';
@@ -23,12 +24,9 @@ export interface TraceEntry {
   bounds: BoundingBox | null;
 }
 
-// NOTE: This is an in-memory stub only; real file/local persistence for 
-// traces is built later (Phase 13, per Architecture.md) — do not implement file I/O here.
-export const __EXTRACTION_TRACES: TraceEntry[] = [];
 
 export function writeExtractionTrace(result: ExtractionResult, confidence: ContextConfidence): void {
-  __EXTRACTION_TRACES.push({
+  traceWriter.logExtraction({
     timestamp: Date.now(),
     strategy: result.strategy,
     confidence,
