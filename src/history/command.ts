@@ -66,6 +66,11 @@ export class HistoryStack {
     this.redoStack = []; // Clear redo stack on new action
   }
 
+  clear() {
+    this.undoStack = [];
+    this.redoStack = [];
+  }
+
   undo(): boolean {
     const command = this.undoStack.pop();
     if (!command) return false;

@@ -33,6 +33,7 @@ import { useAILifecycle } from '../providers/AILifecycleProvider.tsx';
 import { useMetrics } from '../providers/MetricsProvider.tsx';
 import { DraftCard } from '../components/DraftCard.tsx';
 import { CostPreview } from '../components/CostPreview.tsx';
+import { SaveLoadControls } from '../components/SaveLoadControls.tsx';
 
 interface PointerRecord {
   x: number;
@@ -671,6 +672,16 @@ export function CanvasViewport() {
         onPointerCancel={handlePointerUp}
       />
       <div style={{ position: 'absolute', top: 20, left: 20, zIndex: 100, display: 'flex', gap: 8 }}>
+        <SaveLoadControls 
+          objects={objects} 
+          viewport={viewport}
+          onLoadSuccess={(newObjects) => {
+            objectsRef.current = newObjects;
+            setObjects(newObjects);
+            setSelection({ ids: [] });
+            history.clear();
+          }}
+        />
         <button onClick={() => openEditorAtCenter('text')} style={{ padding: '6px 12px', background: '#fff', border: '1px solid #ced4da', borderRadius: '4px', cursor: 'pointer' }}>Insert Text</button>
         <button onClick={() => openEditorAtCenter('table')} style={{ padding: '6px 12px', background: '#fff', border: '1px solid #ced4da', borderRadius: '4px', cursor: 'pointer' }}>Insert Table</button>
         <button onClick={() => openEditorAtCenter('image')} style={{ padding: '6px 12px', background: '#fff', border: '1px solid #ced4da', borderRadius: '4px', cursor: 'pointer' }}>Insert Image</button>

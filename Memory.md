@@ -5,10 +5,10 @@
 > from scratch, and don't re-litigate anything marked DECIDED below.
 
 ## Current status
-Phase: **Phase 12 — IN PROGRESS** (Persistence/Export)
-Last updated: 2026-08-11
+Phase: **Phase 12 — COMPLETE**
+Last updated: 2026-08-12
 Branch: master
-`main` state: Phase 1-9 features complete (Derive Metrics, Token Usage & Cost Estimation, Metrics Aggregation, Config Traceability Tagging, MetricsProvider & Live MetricsPanel, Manual Toolbar UI Editors) — builds, lints, and tests clean
+`main` state: Phase 1-12 features complete (including Save/Load persistence and PNG export) — builds, lints, and tests clean
 
 ## Decisions already made (DECIDED — do not re-open without a strong reason)
 - Stack: Vite + React + TypeScript, strict mode, Vitest, ESLint + Prettier — DECIDED
@@ -37,6 +37,9 @@ Branch: master
   — decide in Phase 12
 
 ## Log (append one entry per session, most recent on top)
+- 2026-08-12 — Phase 12 COMPLETE. Built `exportPNG` in `src/persistence/export.ts` to render the canvas to an off-screen canvas and trigger a PNG download. Decided to export the FULL CONTENT BOUNDS instead of just the viewport, padding the union of all object bounds, for a more predictable and robust export feature. Reused existing renderer functions perfectly. Added Export PNG button to `SaveLoadControls.tsx`. Added unit tests verifying bounding box computation and correct image dimensions mapping. Definition of Done met: save → reload in a fresh session reproduces the canvas exactly; PNG export works and matches on-screen rendering; malformed files fail honestly. Test suite compiles cleanly and passes.
+- 2026-08-12 — Phase 12, part 2 complete. Built `SaveLoadControls` in `src/components/SaveLoadControls.tsx` to handle canvas persistence UI. Wired it into `CanvasViewport.tsx`. The Save button cleanly triggers a local file download of `slate-save.json`. The Load button reads an uploaded JSON file, rigorously validates it, and replaces the entire canvas state on success. Added a `clear()` method to `HistoryStack` to correctly wipe undo/redo history on load. Added pure unit tests verifying the browser download simulation, successful load state replacement (with history clear), and defensive failure modes where malformed files safely abort without touching the existing canvas state. Test suite compiles cleanly and passes.
+- 2026-08-12 — Phase 12, part 1 complete. Implemented canvas serialization in `src/persistence/serialization.ts`. Added `serializeCanvas` that tags raw data with version `1.0.0` and strips non-enumerable methods. Added `deserializeCanvas` that reconstructs the structured `CanvasObject` instances, manually re-binding their `toAIPayload` methods via the respective factory functions, and rigorously validates missing fields or unknown versions with specific error messages. Added pure unit tests verifying exact lossless round-tripping for all six core object types and ensuring malformed inputs throw appropriate descriptive errors rather than crashing silently. Test suite compiles cleanly and passes.
 - 2026-08-12 — Phase 11, part 2 complete. Replaced simple proximity expansion in `src/context-extraction/extractor.ts` with true connected-component clustering using the Union-Find (Disjoint Set) algorithm. This evaluates cluster membership globally (O(N^2) pairwise box intersections), preventing edge cases where long "chains" of strokes were artificially truncated by iteration limits. Ensured `extractContext`'s signature and `ExtractionResult` shape remained perfectly unchanged. Removed unused `DEFAULT_EXPANSION_CAP`. Added pure unit tests verifying separation of disjoint components and grouping of long object chains. Verified 100% regression test pass-rate against all Phase 5 context extraction tests.
 - 2026-08-12 — Phase 11, part 1 complete. Implemented adaptive crop resolution based on scene density and object count in `/src/context-extraction/resolution.ts`. Created `computeInkDensity` to measure spatial density (total object area / crop area) and `chooseResolution` to dynamically select between 512, 1024, or 1536 based on documented thresholds. Wired `chooseResolution` into `renderCrop` and `composeMultimodalRequest` so that dense scenes receive higher resolution crops and sparse scenes use smaller crops to save tokens. Wrote unit tests confirming heuristic branching logic and density computation. Test suite passes successfully.
 - 2026-08-11 — Phase 10, part 2 complete. Built `computeRequestHash` using SubtleCrypto SHA-256 for deterministic hashing of canonical request data. Built `DedupCache` implementing an LRU-ish eviction strategy (capped max size) and time-based TTL cache for AI request deduplication. Wrote unit tests confirming hash determinism, cache hits/misses, TTL expiration, and correct oldest-item eviction. Fixed a Typescript module export error by correctly mapping to the `AIOutputSchema` interface instead of `AIOutput`. Tests pass without any live API calls.
@@ -99,4 +102,4 @@ Branch: master
   Next action: start Phase 0 (scaffolding) using the Phase 0 prompt from the roadmap.
 
 ## Next action
-Start Phase 12 — Persistence/Export.
+Start Phase 13 — Experiments, Benchmarks & Report Generation (scoped down per time constraints).
