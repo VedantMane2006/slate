@@ -5,10 +5,10 @@
 > from scratch, and don't re-litigate anything marked DECIDED below.
 
 ## Current status
-Phase: **Phase 13 — IN PROGRESS** (Experiments)
-Last updated: 2026-08-12
+Phase: **Phase 14 — IN PROGRESS** (Docs/Attribution/Video)
+Last updated: 2026-08-13
 Branch: master
-`main` state: Phase 1-12 features complete (including Save/Load persistence and PNG export) — builds, lints, and tests clean
+`main` state: Phase 1-13 features complete — builds, lints, and tests clean
 
 ## Decisions already made (DECIDED — do not re-open without a strong reason)
 - Stack: Vite + React + TypeScript, strict mode, Vitest, ESLint + Prettier — DECIDED
@@ -37,6 +37,7 @@ Branch: master
   — decide in Phase 12
 
 ## Log (append one entry per session, most recent on top)
+- 2026-08-13 — Phase 14, part 1 COMPLETE. Finalized `docs/ARCHITECTURE.md`. Consolidated architecture documentation piecemeal from past phases into a single, comprehensive document covering the actual implementation of the object model, coordinate system, Command/HistoryStack pattern, context extraction (with Phase 11's connected-component clustering), request lifecycle, AI schema and rendering, exact/estimated metrics, dedup strategy, and persistence format.
 - 2026-08-13 — Phase 13, part 3 COMPLETE. Wrote `docs/EXPERIMENTS.md` summarizing the results from `experiments/results.json`. Documented the two benchmark scenes (sparse vs. dense) and honestly reported that the adaptive resolution heuristic performed strictly worse in terms of latency compared to the fixed 1024px baseline (e.g., 3.4x slower on the dense scene). Noted that full cost/token metrics were not captured in this integration harness, and acknowledged the intentional scoping down of the broader planned experiment suite.
 - 2026-08-13 — Phase 13, part 2 COMPLETE. Built the experiment infrastructure for adaptive-vs-fixed resolution comparison. Added `FORCE_FIXED_RESOLUTION` override flag to `src/config/experiment.ts` and wired it into `composeMultimodalRequest` in `composition.ts` (now returns `{ payload, metadata }` with resolution/density info). Updated all downstream call sites (`AILifecycleProvider`, composition tests). Created `tests/unit/benchmark-load.test.ts` verifying both benchmark canvases (`/benchmarks/sparse.json` with 2 strokes, `/benchmarks/dense.json` with 50 strokes) load and round-trip correctly via `deserializeCanvas`/`serializeCanvas`. Added override bypass tests to `tests/unit/resolution.test.ts` confirming `FORCE_FIXED_RESOLUTION` correctly overrides adaptive logic. Built `tests/integration/experiment-runner.test.ts` — a real experiment runner that made exactly 4 live Gemini API calls (sparse×adaptive=512px/3027ms, sparse×fixed=1024px/2057ms, dense×adaptive=1536px/14108ms, dense×fixed=1024px/4089ms). Results written to `/experiments/results.json` with real numbers. All 18 new+modified unit tests pass (benchmark-load: 5, resolution: 8, composition: 5). Scoped down from original 4-benchmark plan to 2 benchmarks per roadmap Part 5 time constraint guidance.
 - 2026-08-12 — Phase 13, part 1 complete. Upgraded the in-memory trace stub from Phase 5 into a fully functional `TraceWriter` in `src/metrics/trace-writer.ts`. It intelligently merges pre-request extraction logs (`strategy`, `objectCount`, `bounds`) with post-request outcome logs (`endToEndLatency`, `outcome`, `configId`, `promptVersion`) to form a complete `FullTraceRecord`. Added a "Download Traces" button to `MetricsPanel.tsx` that triggers a local `.json` file download matching the Save behavior. Updated `extractor.ts` to push to the real `traceWriter` instead of the local stub array. Wired the outcome logger into `MetricsProvider.tsx`. Added pure unit tests verifying the merging logic and default fallback values. Test suite passes and all trace requirements are cleanly separated across modules.
@@ -105,4 +106,4 @@ Branch: master
   Next action: start Phase 0 (scaffolding) using the Phase 0 prompt from the roadmap.
 
 ## Next action
-Continue Phase 13 (Experiments, Benchmarks & Report Generation).
+Continue Phase 14 (Attribution, Video Prep, Final Polish).

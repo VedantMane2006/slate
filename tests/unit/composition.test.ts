@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi } from 'vitest';
 import { composeMultimodalRequest, canonicalSerialize } from '../../src/ai/composition.ts';
-import type { CanvasObject, Serializable, AIPayloadFragment } from '../../src/objects/canvas-object.ts';
+import type { CanvasObject, Serializable/*, AIPayloadFragment*/ } from '../../src/objects/canvas-object.ts';
 import type { ExtractionResult } from '../../src/context-extraction/extractor.ts';
 import type { Stroke } from '../../src/objects/stroke.ts';
 
@@ -45,7 +45,7 @@ describe('composeMultimodalRequest', () => {
     };
 
     const { payload } = composeMultimodalRequest(result, allObjects);
-    
+
     expect(payload.image).toBe('mock-data-url');
     expect(payload.fragments).toHaveLength(1);
     expect(payload.fragments[0]).toEqual({ kind: 'text', data: 'hello' });
@@ -55,7 +55,7 @@ describe('composeMultimodalRequest', () => {
     const stroke1 = { id: 's1', type: 'stroke', bounds: { minX: 0, minY: 0, maxX: 5, maxY: 5 } } as CanvasObject;
     const stroke2 = { id: 's2', type: 'stroke', bounds: { minX: 5, minY: 5, maxX: 10, maxY: 10 } } as CanvasObject;
     const imageObj = { id: 'img1', type: 'image', bounds: { minX: 0, minY: 0, maxX: 2, maxY: 2 } } as CanvasObject;
-    
+
     const tableObj = {
       id: 't1',
       type: 'table',
@@ -80,10 +80,10 @@ describe('composeMultimodalRequest', () => {
     };
 
     const { payload } = composeMultimodalRequest(result, allObjects);
-    
+
     expect(payload.image).toBe('mock-data-url');
     expect(payload.fragments).toHaveLength(2);
-    
+
     const payloadTypes = payload.fragments.map(f => f.kind);
     expect(payloadTypes).toContain('json');
     expect(payloadTypes).toContain('text');
@@ -112,7 +112,7 @@ describe('canonicalSerialize', () => {
   it('changes when object data changes (e.g. one stroke moved)', () => {
     const stroke1 = { id: 's1', type: 'stroke', bounds: { minX: 0, minY: 0, maxX: 5, maxY: 5 } } as CanvasObject;
     const allObjects1 = [stroke1];
-    
+
     // Create a modified copy (e.g., moved stroke)
     const stroke1Moved = { id: 's1', type: 'stroke', bounds: { minX: 10, minY: 10, maxX: 15, maxY: 15 } } as CanvasObject;
     const allObjects2 = [stroke1Moved];
@@ -135,7 +135,7 @@ describe('canonicalSerialize', () => {
     const stroke1 = { id: 'a-stroke', type: 'stroke', bounds: { minX: 0, minY: 0, maxX: 5, maxY: 5 } } as CanvasObject;
     const stroke2 = { id: 'z-stroke', type: 'stroke', bounds: { minX: 5, minY: 5, maxX: 10, maxY: 10 } } as CanvasObject;
     const stroke3 = { id: 'm-stroke', type: 'stroke', bounds: { minX: 15, minY: 15, maxX: 20, maxY: 20 } } as CanvasObject;
-    
+
     const allObjectsOrder1 = [stroke1, stroke2, stroke3];
     const allObjectsOrder2 = [stroke3, stroke2, stroke1];
     const allObjectsOrder3 = [stroke2, stroke1, stroke3];
