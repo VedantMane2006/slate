@@ -1,6 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import React from 'react';
 import { DraftCard } from '../../src/components/DraftCard.tsx';
 import type { AIRequest } from '../../src/ai/lifecycle/state-machine.ts';
 
@@ -21,6 +20,9 @@ describe('DraftCard', () => {
     state: 'completed',
     payload: { image: '', fragments: [] },
     timestamps: {},
+    configId: 'default',
+    promptVersion: '1.0.0',
+    confidenceLevel: 'high',
     parsedData: {
       explanation: 'Test Explanation',
       latex: 'E=mc^2',
@@ -34,6 +36,9 @@ describe('DraftCard', () => {
     state: 'error',
     payload: { image: '', fragments: [] },
     timestamps: {},
+    configId: 'default',
+    promptVersion: '1.0.0',
+    confidenceLevel: 'high',
     error: 'Simulated failure'
   };
 

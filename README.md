@@ -4,10 +4,17 @@ AI-augmented infinite canvas for handwritten and structured work (math, notes, d
 
 ## Quick start
 
-```bash
-npm install
-npm run dev
-```
+1. **Environment Setup**:
+   Create a `.env` file in the project root and add your Gemini API key:
+   ```env
+   VITE_GEMINI_API_KEY="your_api_key_here"
+   ```
+
+2. **Install and Run**:
+   ```bash
+   npm install
+   npm run dev
+   ```
 
 ## Scripts
 

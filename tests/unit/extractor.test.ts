@@ -125,9 +125,8 @@ describe('Context Extraction Strategies', () => {
     });
   });
 
-  it('expansion cap prevents runaway growth on a dense synthetic scene', () => {
+  it('true connected-component clustering groups all intersecting/nearby objects in a dense chain', () => {
     // Create a chain of objects, each 2px apart.
-    // If cap is 5, it should only expand 5 times.
     const objects: TestObject[] = [];
     
     // First object is recent
@@ -149,17 +148,11 @@ describe('Context Extraction Strategies', () => {
     const now = 20000;
     const result = extractContext(objects, null, now);
     
-    // It starts with 'chain-0'.
-    // Iteration 1 pulls in 'chain-1' (minX: 12, maxX: 22), bounds become minX: 0, maxX: 22
-    // Iteration 2 pulls in 'chain-2' (minX: 24, maxX: 34), bounds become minX: 0, maxX: 34
-    // Iteration 3 pulls in 'chain-3' ... maxX: 46
-    // Iteration 4 pulls in 'chain-4' ... maxX: 58
-    // Iteration 5 pulls in 'chain-5' ... maxX: 70
-    // Then cap is hit. So total 6 objects (chain-0 to chain-5).
+    // Since Phase 11 implemented true Union-Find clustering without an arbitrary cap,
+    // it should successfully group all 11 objects in this connected chain.
     expect(result.expanded).toBe(true);
-    expect(result.objectIds.length).toBe(6);
-    expect(result.objectIds.includes('chain-5')).toBe(true);
-    expect(result.objectIds.includes('chain-6')).toBe(false);
+    expect(result.objectIds.length).toBe(11);
+    expect(result.objectIds.includes('chain-10')).toBe(true);
   });
 
   it('confidence is "high" for a clean, real selection', () => {
