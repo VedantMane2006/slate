@@ -1,6 +1,15 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, afterEach } from 'vitest';
 import { chooseResolution, computeInkDensity } from '../../src/context-extraction/resolution.ts';
+import { setForceFixedResolution } from '../../src/config/experiment.ts';
+import { composeMultimodalRequest } from '../../src/ai/composition.ts';
 import type { CanvasObject } from '../../src/objects/canvas-object.ts';
+import type { ExtractionResult } from '../../src/context-extraction/extractor.ts';
+
+vi.mock('../../src/canvas/renderer.ts', () => ({
+  renderCrop: vi.fn((_objects: CanvasObject[], _bounds: unknown, resolution: number) =>
+    `mock-crop-${resolution}`
+  )
+}));
 
 describe('Adaptive Crop Resolution', () => {
   describe('chooseResolution', () => {
@@ -32,15 +41,13 @@ describe('Adaptive Crop Resolution', () => {
       
       const objects: CanvasObject[] = [
         {
-          id: '1', type: 'stroke', color: '#000', timestamp: 0, width: 1, points: [],
-          // 10x10 object (area 100)
+          id: '1', type: 'stroke',
           bounds: { minX: 10, minY: 10, maxX: 20, maxY: 20 }
-        } as any,
+        } as CanvasObject,
         {
-          id: '2', type: 'stroke', color: '#000', timestamp: 0, width: 1, points: [],
-          // 20x20 object (area 400)
+          id: '2', type: 'stroke',
           bounds: { minX: 30, minY: 30, maxX: 50, maxY: 50 }
-        } as any,
+        } as CanvasObject,
       ];
       
       const density = computeInkDensity(objects, bounds);
@@ -55,15 +62,13 @@ describe('Adaptive Crop Resolution', () => {
       
       const objects: CanvasObject[] = [
         {
-          id: '1', type: 'stroke', color: '#000', timestamp: 0, width: 1, points: [],
-          // Full bounds (area 10000)
+          id: '1', type: 'stroke',
           bounds: { minX: 0, minY: 0, maxX: 100, maxY: 100 }
-        } as any,
+        } as CanvasObject,
         {
-          id: '2', type: 'stroke', color: '#000', timestamp: 0, width: 1, points: [],
-          // Full bounds (area 10000)
+          id: '2', type: 'stroke',
           bounds: { minX: 0, minY: 0, maxX: 100, maxY: 100 }
-        } as any,
+        } as CanvasObject,
       ];
       
       const density = computeInkDensity(objects, bounds);
@@ -77,11 +82,69 @@ describe('Adaptive Crop Resolution', () => {
       const bounds = { minX: 0, minY: 0, maxX: 0, maxY: 100 };
       const objects: CanvasObject[] = [
         {
-          id: '1', type: 'stroke', color: '#000', timestamp: 0, width: 1, points: [],
+          id: '1', type: 'stroke',
           bounds: { minX: 0, minY: 0, maxX: 100, maxY: 100 }
-        } as any
+        } as CanvasObject
       ];
       expect(computeInkDensity(objects, bounds)).toBe(0);
     });
   });
+
+  describe('FORCE_FIXED_RESOLUTION override', () => {
+    afterEach(() => {
+      setForceFixedResolution(null);
+    });
+
+    it('bypasses chooseResolution when set to 1024', () => {
+      // Set up a dense scene that would normally produce 1536
+      const objects: CanvasObject[] = [];
+      for (let i = 0; i < 40; i++) {
+        objects.push({
+          id: `s-${i}`,
+          type: 'stroke',
+          bounds: { minX: i * 5, minY: i * 5, maxX: i * 5 + 50, maxY: i * 5 + 50 }
+        } as CanvasObject);
+      }
+
+      const result: ExtractionResult = {
+        objectIds: objects.map(o => o.id),
+        bounds: { minX: 0, minY: 0, maxX: 250, maxY: 250 },
+        strategy: 'selection',
+        confidence: { level: 'high', reasons: [] },
+        expanded: false
+      };
+
+      // Without override: adaptive should NOT pick 1024 for 40 dense objects
+      setForceFixedResolution(null);
+      const adaptiveResult = composeMultimodalRequest(result, objects);
+      expect(adaptiveResult.metadata.resolution).not.toBe(1024);
+
+      // With override: should force 1024 regardless
+      setForceFixedResolution(1024);
+      const fixedResult = composeMultimodalRequest(result, objects);
+      expect(fixedResult.metadata.resolution).toBe(1024);
+      expect(fixedResult.payload.image).toBe('mock-crop-1024');
+    });
+
+    it('uses adaptive resolution when override is null', () => {
+      setForceFixedResolution(null);
+
+      // Sparse scene: 2 objects, low density → should get 512
+      const objects: CanvasObject[] = [
+        { id: 'a', type: 'stroke', bounds: { minX: 0, minY: 0, maxX: 10, maxY: 10 } } as CanvasObject,
+        { id: 'b', type: 'stroke', bounds: { minX: 500, minY: 500, maxX: 510, maxY: 510 } } as CanvasObject
+      ];
+      const result: ExtractionResult = {
+        objectIds: ['a', 'b'],
+        bounds: { minX: 0, minY: 0, maxX: 510, maxY: 510 },
+        strategy: 'selection',
+        confidence: { level: 'high', reasons: [] },
+        expanded: false
+      };
+
+      const { metadata } = composeMultimodalRequest(result, objects);
+      expect(metadata.resolution).toBe(512);
+    });
+  });
 });
+

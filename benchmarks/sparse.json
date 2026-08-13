@@ -1,0 +1,63 @@
+{
+  "version": "1.0.0",
+  "objects": [
+    {
+      "id": "sparse-1",
+      "type": "stroke",
+      "points": [
+        {
+          "x": 0,
+          "y": 0,
+          "pressure": 0.5,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 100,
+          "y": 100,
+          "pressure": 0.5,
+          "tiltX": 0,
+          "tiltY": 0
+        }
+      ],
+      "timestamp": 1786641036308,
+      "width": 5,
+      "color": "#000000",
+      "bounds": {
+        "minX": -2.5,
+        "minY": -2.5,
+        "maxX": 102.5,
+        "maxY": 102.5
+      }
+    },
+    {
+      "id": "sparse-2",
+      "type": "stroke",
+      "points": [
+        {
+          "x": 300,
+          "y": 300,
+          "pressure": 0.5,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 400,
+          "y": 400,
+          "pressure": 0.5,
+          "tiltX": 0,
+          "tiltY": 0
+        }
+      ],
+      "timestamp": 1786641036309,
+      "width": 5,
+      "color": "#ff0000",
+      "bounds": {
+        "minX": 297.5,
+        "minY": 297.5,
+        "maxX": 402.5,
+        "maxY": 402.5
+      }
+    }
+  ]
+}

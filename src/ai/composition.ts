@@ -2,16 +2,23 @@ import type { CanvasObject, AIPayloadFragment, Serializable } from '../objects/c
 import type { ExtractionResult } from '../context-extraction/extractor.ts';
 import { renderCrop } from '../canvas/renderer.ts';
 import { chooseResolution, computeInkDensity } from '../context-extraction/resolution.ts';
+import { FORCE_FIXED_RESOLUTION } from '../config/experiment.ts';
 
 export interface MultimodalRequestPayload {
   image: string;
   fragments: AIPayloadFragment[];
 }
 
+export interface CompositionMetadata {
+  resolution: number;
+  inkDensity: number;
+  imageObjectCount: number;
+}
+
 export function composeMultimodalRequest(
   result: ExtractionResult,
   allObjects: CanvasObject[]
-): MultimodalRequestPayload {
+): { payload: MultimodalRequestPayload; metadata: CompositionMetadata } {
   const extractedObjects = allObjects.filter((obj) => result.objectIds.includes(obj.id));
   
   const imageObjects: CanvasObject[] = [];
@@ -29,13 +36,20 @@ export function composeMultimodalRequest(
   }
   
   let image = '';
+  let resolution = 1024;
+  let inkDensity = 0;
   if (imageObjects.length > 0 && result.bounds) {
-    const inkDensity = computeInkDensity(imageObjects, result.bounds);
-    const resolution = chooseResolution(imageObjects.length, inkDensity);
+    inkDensity = computeInkDensity(imageObjects, result.bounds);
+    resolution = FORCE_FIXED_RESOLUTION !== null
+      ? FORCE_FIXED_RESOLUTION
+      : chooseResolution(imageObjects.length, inkDensity);
     image = renderCrop(imageObjects, result.bounds, resolution);
   }
   
-  return { image, fragments };
+  return {
+    payload: { image, fragments },
+    metadata: { resolution, inkDensity, imageObjectCount: imageObjects.length }
+  };
 }
 
 export function canonicalSerialize(

@@ -44,7 +44,7 @@ describe('composeMultimodalRequest', () => {
       expanded: false
     };
 
-    const payload = composeMultimodalRequest(result, allObjects);
+    const { payload } = composeMultimodalRequest(result, allObjects);
     
     expect(payload.image).toBe('mock-data-url');
     expect(payload.fragments).toHaveLength(1);
@@ -79,7 +79,7 @@ describe('composeMultimodalRequest', () => {
       expanded: false
     };
 
-    const payload = composeMultimodalRequest(result, allObjects);
+    const { payload } = composeMultimodalRequest(result, allObjects);
     
     expect(payload.image).toBe('mock-data-url');
     expect(payload.fragments).toHaveLength(2);

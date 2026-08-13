@@ -1,0 +1,55 @@
+{
+  "experiment": "adaptive-vs-fixed-resolution",
+  "timestamp": "2026-08-13T17:25:57.496Z",
+  "apiCallCount": 4,
+  "runs": [
+    {
+      "benchmark": "sparse",
+      "config": "adaptive",
+      "resolution": 512,
+      "objectCount": 2,
+      "inkDensity": 0.1344,
+      "endToEndLatencyMs": 3027,
+      "responseLength": 73,
+      "apiCallSuccess": true,
+      "configId": "default",
+      "promptVersion": "1.0.0"
+    },
+    {
+      "benchmark": "sparse",
+      "config": "fixed-1024",
+      "resolution": 1024,
+      "objectCount": 2,
+      "inkDensity": 0.1344,
+      "endToEndLatencyMs": 2057,
+      "responseLength": 72,
+      "apiCallSuccess": true,
+      "configId": "default",
+      "promptVersion": "1.0.0"
+    },
+    {
+      "benchmark": "dense",
+      "config": "adaptive",
+      "resolution": 1536,
+      "objectCount": 50,
+      "inkDensity": 1,
+      "endToEndLatencyMs": 14108,
+      "responseLength": 64,
+      "apiCallSuccess": true,
+      "configId": "default",
+      "promptVersion": "1.0.0"
+    },
+    {
+      "benchmark": "dense",
+      "config": "fixed-1024",
+      "resolution": 1024,
+      "objectCount": 50,
+      "inkDensity": 1,
+      "endToEndLatencyMs": 4089,
+      "responseLength": 89,
+      "apiCallSuccess": true,
+      "configId": "default",
+      "promptVersion": "1.0.0"
+    }
+  ]
+}

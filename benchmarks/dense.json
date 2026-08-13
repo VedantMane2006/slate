@@ -1,0 +1,2155 @@
+{
+  "version": "1.0.0",
+  "objects": [
+    {
+      "id": "dense-0",
+      "type": "stroke",
+      "points": [
+        {
+          "x": 50,
+          "y": 50,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 100,
+          "y": 100,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 100,
+          "y": 50,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 50,
+          "y": 100,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        }
+      ],
+      "timestamp": 1786641036309,
+      "width": 10,
+      "color": "#0000ff",
+      "bounds": {
+        "minX": 45,
+        "minY": 45,
+        "maxX": 105,
+        "maxY": 105
+      }
+    },
+    {
+      "id": "dense-1",
+      "type": "stroke",
+      "points": [
+        {
+          "x": 60,
+          "y": 60,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 110,
+          "y": 110,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 110,
+          "y": 60,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 60,
+          "y": 110,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        }
+      ],
+      "timestamp": 1786641036309,
+      "width": 10,
+      "color": "#0000ff",
+      "bounds": {
+        "minX": 55,
+        "minY": 55,
+        "maxX": 115,
+        "maxY": 115
+      }
+    },
+    {
+      "id": "dense-2",
+      "type": "stroke",
+      "points": [
+        {
+          "x": 70,
+          "y": 70,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 120,
+          "y": 120,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 120,
+          "y": 70,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 70,
+          "y": 120,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        }
+      ],
+      "timestamp": 1786641036309,
+      "width": 10,
+      "color": "#0000ff",
+      "bounds": {
+        "minX": 65,
+        "minY": 65,
+        "maxX": 125,
+        "maxY": 125
+      }
+    },
+    {
+      "id": "dense-3",
+      "type": "stroke",
+      "points": [
+        {
+          "x": 80,
+          "y": 80,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 130,
+          "y": 130,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 130,
+          "y": 80,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 80,
+          "y": 130,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        }
+      ],
+      "timestamp": 1786641036309,
+      "width": 10,
+      "color": "#0000ff",
+      "bounds": {
+        "minX": 75,
+        "minY": 75,
+        "maxX": 135,
+        "maxY": 135
+      }
+    },
+    {
+      "id": "dense-4",
+      "type": "stroke",
+      "points": [
+        {
+          "x": 90,
+          "y": 90,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 140,
+          "y": 140,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 140,
+          "y": 90,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 90,
+          "y": 140,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        }
+      ],
+      "timestamp": 1786641036309,
+      "width": 10,
+      "color": "#0000ff",
+      "bounds": {
+        "minX": 85,
+        "minY": 85,
+        "maxX": 145,
+        "maxY": 145
+      }
+    },
+    {
+      "id": "dense-5",
+      "type": "stroke",
+      "points": [
+        {
+          "x": 100,
+          "y": 100,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 150,
+          "y": 150,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 150,
+          "y": 100,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 100,
+          "y": 150,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        }
+      ],
+      "timestamp": 1786641036309,
+      "width": 10,
+      "color": "#0000ff",
+      "bounds": {
+        "minX": 95,
+        "minY": 95,
+        "maxX": 155,
+        "maxY": 155
+      }
+    },
+    {
+      "id": "dense-6",
+      "type": "stroke",
+      "points": [
+        {
+          "x": 110,
+          "y": 110,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 160,
+          "y": 160,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 160,
+          "y": 110,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 110,
+          "y": 160,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        }
+      ],
+      "timestamp": 1786641036309,
+      "width": 10,
+      "color": "#0000ff",
+      "bounds": {
+        "minX": 105,
+        "minY": 105,
+        "maxX": 165,
+        "maxY": 165
+      }
+    },
+    {
+      "id": "dense-7",
+      "type": "stroke",
+      "points": [
+        {
+          "x": 120,
+          "y": 120,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 170,
+          "y": 170,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 170,
+          "y": 120,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 120,
+          "y": 170,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        }
+      ],
+      "timestamp": 1786641036309,
+      "width": 10,
+      "color": "#0000ff",
+      "bounds": {
+        "minX": 115,
+        "minY": 115,
+        "maxX": 175,
+        "maxY": 175
+      }
+    },
+    {
+      "id": "dense-8",
+      "type": "stroke",
+      "points": [
+        {
+          "x": 130,
+          "y": 130,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 180,
+          "y": 180,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 180,
+          "y": 130,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 130,
+          "y": 180,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        }
+      ],
+      "timestamp": 1786641036309,
+      "width": 10,
+      "color": "#0000ff",
+      "bounds": {
+        "minX": 125,
+        "minY": 125,
+        "maxX": 185,
+        "maxY": 185
+      }
+    },
+    {
+      "id": "dense-9",
+      "type": "stroke",
+      "points": [
+        {
+          "x": 140,
+          "y": 140,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 190,
+          "y": 190,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 190,
+          "y": 140,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 140,
+          "y": 190,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        }
+      ],
+      "timestamp": 1786641036309,
+      "width": 10,
+      "color": "#0000ff",
+      "bounds": {
+        "minX": 135,
+        "minY": 135,
+        "maxX": 195,
+        "maxY": 195
+      }
+    },
+    {
+      "id": "dense-10",
+      "type": "stroke",
+      "points": [
+        {
+          "x": 50,
+          "y": 50,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 100,
+          "y": 100,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 100,
+          "y": 50,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 50,
+          "y": 100,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        }
+      ],
+      "timestamp": 1786641036309,
+      "width": 10,
+      "color": "#0000ff",
+      "bounds": {
+        "minX": 45,
+        "minY": 45,
+        "maxX": 105,
+        "maxY": 105
+      }
+    },
+    {
+      "id": "dense-11",
+      "type": "stroke",
+      "points": [
+        {
+          "x": 60,
+          "y": 60,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 110,
+          "y": 110,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 110,
+          "y": 60,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 60,
+          "y": 110,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        }
+      ],
+      "timestamp": 1786641036309,
+      "width": 10,
+      "color": "#0000ff",
+      "bounds": {
+        "minX": 55,
+        "minY": 55,
+        "maxX": 115,
+        "maxY": 115
+      }
+    },
+    {
+      "id": "dense-12",
+      "type": "stroke",
+      "points": [
+        {
+          "x": 70,
+          "y": 70,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 120,
+          "y": 120,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 120,
+          "y": 70,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 70,
+          "y": 120,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        }
+      ],
+      "timestamp": 1786641036309,
+      "width": 10,
+      "color": "#0000ff",
+      "bounds": {
+        "minX": 65,
+        "minY": 65,
+        "maxX": 125,
+        "maxY": 125
+      }
+    },
+    {
+      "id": "dense-13",
+      "type": "stroke",
+      "points": [
+        {
+          "x": 80,
+          "y": 80,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 130,
+          "y": 130,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 130,
+          "y": 80,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 80,
+          "y": 130,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        }
+      ],
+      "timestamp": 1786641036309,
+      "width": 10,
+      "color": "#0000ff",
+      "bounds": {
+        "minX": 75,
+        "minY": 75,
+        "maxX": 135,
+        "maxY": 135
+      }
+    },
+    {
+      "id": "dense-14",
+      "type": "stroke",
+      "points": [
+        {
+          "x": 90,
+          "y": 90,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 140,
+          "y": 140,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 140,
+          "y": 90,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 90,
+          "y": 140,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        }
+      ],
+      "timestamp": 1786641036309,
+      "width": 10,
+      "color": "#0000ff",
+      "bounds": {
+        "minX": 85,
+        "minY": 85,
+        "maxX": 145,
+        "maxY": 145
+      }
+    },
+    {
+      "id": "dense-15",
+      "type": "stroke",
+      "points": [
+        {
+          "x": 100,
+          "y": 100,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 150,
+          "y": 150,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 150,
+          "y": 100,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 100,
+          "y": 150,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        }
+      ],
+      "timestamp": 1786641036309,
+      "width": 10,
+      "color": "#0000ff",
+      "bounds": {
+        "minX": 95,
+        "minY": 95,
+        "maxX": 155,
+        "maxY": 155
+      }
+    },
+    {
+      "id": "dense-16",
+      "type": "stroke",
+      "points": [
+        {
+          "x": 110,
+          "y": 110,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 160,
+          "y": 160,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 160,
+          "y": 110,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 110,
+          "y": 160,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        }
+      ],
+      "timestamp": 1786641036309,
+      "width": 10,
+      "color": "#0000ff",
+      "bounds": {
+        "minX": 105,
+        "minY": 105,
+        "maxX": 165,
+        "maxY": 165
+      }
+    },
+    {
+      "id": "dense-17",
+      "type": "stroke",
+      "points": [
+        {
+          "x": 120,
+          "y": 120,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 170,
+          "y": 170,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 170,
+          "y": 120,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 120,
+          "y": 170,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        }
+      ],
+      "timestamp": 1786641036309,
+      "width": 10,
+      "color": "#0000ff",
+      "bounds": {
+        "minX": 115,
+        "minY": 115,
+        "maxX": 175,
+        "maxY": 175
+      }
+    },
+    {
+      "id": "dense-18",
+      "type": "stroke",
+      "points": [
+        {
+          "x": 130,
+          "y": 130,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 180,
+          "y": 180,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 180,
+          "y": 130,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 130,
+          "y": 180,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        }
+      ],
+      "timestamp": 1786641036309,
+      "width": 10,
+      "color": "#0000ff",
+      "bounds": {
+        "minX": 125,
+        "minY": 125,
+        "maxX": 185,
+        "maxY": 185
+      }
+    },
+    {
+      "id": "dense-19",
+      "type": "stroke",
+      "points": [
+        {
+          "x": 140,
+          "y": 140,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 190,
+          "y": 190,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 190,
+          "y": 140,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 140,
+          "y": 190,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        }
+      ],
+      "timestamp": 1786641036309,
+      "width": 10,
+      "color": "#0000ff",
+      "bounds": {
+        "minX": 135,
+        "minY": 135,
+        "maxX": 195,
+        "maxY": 195
+      }
+    },
+    {
+      "id": "dense-20",
+      "type": "stroke",
+      "points": [
+        {
+          "x": 50,
+          "y": 50,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 100,
+          "y": 100,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 100,
+          "y": 50,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 50,
+          "y": 100,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        }
+      ],
+      "timestamp": 1786641036309,
+      "width": 10,
+      "color": "#0000ff",
+      "bounds": {
+        "minX": 45,
+        "minY": 45,
+        "maxX": 105,
+        "maxY": 105
+      }
+    },
+    {
+      "id": "dense-21",
+      "type": "stroke",
+      "points": [
+        {
+          "x": 60,
+          "y": 60,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 110,
+          "y": 110,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 110,
+          "y": 60,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 60,
+          "y": 110,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        }
+      ],
+      "timestamp": 1786641036309,
+      "width": 10,
+      "color": "#0000ff",
+      "bounds": {
+        "minX": 55,
+        "minY": 55,
+        "maxX": 115,
+        "maxY": 115
+      }
+    },
+    {
+      "id": "dense-22",
+      "type": "stroke",
+      "points": [
+        {
+          "x": 70,
+          "y": 70,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 120,
+          "y": 120,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 120,
+          "y": 70,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 70,
+          "y": 120,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        }
+      ],
+      "timestamp": 1786641036309,
+      "width": 10,
+      "color": "#0000ff",
+      "bounds": {
+        "minX": 65,
+        "minY": 65,
+        "maxX": 125,
+        "maxY": 125
+      }
+    },
+    {
+      "id": "dense-23",
+      "type": "stroke",
+      "points": [
+        {
+          "x": 80,
+          "y": 80,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 130,
+          "y": 130,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 130,
+          "y": 80,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 80,
+          "y": 130,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        }
+      ],
+      "timestamp": 1786641036309,
+      "width": 10,
+      "color": "#0000ff",
+      "bounds": {
+        "minX": 75,
+        "minY": 75,
+        "maxX": 135,
+        "maxY": 135
+      }
+    },
+    {
+      "id": "dense-24",
+      "type": "stroke",
+      "points": [
+        {
+          "x": 90,
+          "y": 90,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 140,
+          "y": 140,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 140,
+          "y": 90,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 90,
+          "y": 140,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        }
+      ],
+      "timestamp": 1786641036309,
+      "width": 10,
+      "color": "#0000ff",
+      "bounds": {
+        "minX": 85,
+        "minY": 85,
+        "maxX": 145,
+        "maxY": 145
+      }
+    },
+    {
+      "id": "dense-25",
+      "type": "stroke",
+      "points": [
+        {
+          "x": 100,
+          "y": 100,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 150,
+          "y": 150,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 150,
+          "y": 100,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 100,
+          "y": 150,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        }
+      ],
+      "timestamp": 1786641036309,
+      "width": 10,
+      "color": "#0000ff",
+      "bounds": {
+        "minX": 95,
+        "minY": 95,
+        "maxX": 155,
+        "maxY": 155
+      }
+    },
+    {
+      "id": "dense-26",
+      "type": "stroke",
+      "points": [
+        {
+          "x": 110,
+          "y": 110,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 160,
+          "y": 160,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 160,
+          "y": 110,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 110,
+          "y": 160,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        }
+      ],
+      "timestamp": 1786641036309,
+      "width": 10,
+      "color": "#0000ff",
+      "bounds": {
+        "minX": 105,
+        "minY": 105,
+        "maxX": 165,
+        "maxY": 165
+      }
+    },
+    {
+      "id": "dense-27",
+      "type": "stroke",
+      "points": [
+        {
+          "x": 120,
+          "y": 120,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 170,
+          "y": 170,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 170,
+          "y": 120,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 120,
+          "y": 170,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        }
+      ],
+      "timestamp": 1786641036309,
+      "width": 10,
+      "color": "#0000ff",
+      "bounds": {
+        "minX": 115,
+        "minY": 115,
+        "maxX": 175,
+        "maxY": 175
+      }
+    },
+    {
+      "id": "dense-28",
+      "type": "stroke",
+      "points": [
+        {
+          "x": 130,
+          "y": 130,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 180,
+          "y": 180,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 180,
+          "y": 130,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 130,
+          "y": 180,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        }
+      ],
+      "timestamp": 1786641036309,
+      "width": 10,
+      "color": "#0000ff",
+      "bounds": {
+        "minX": 125,
+        "minY": 125,
+        "maxX": 185,
+        "maxY": 185
+      }
+    },
+    {
+      "id": "dense-29",
+      "type": "stroke",
+      "points": [
+        {
+          "x": 140,
+          "y": 140,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 190,
+          "y": 190,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 190,
+          "y": 140,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 140,
+          "y": 190,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        }
+      ],
+      "timestamp": 1786641036309,
+      "width": 10,
+      "color": "#0000ff",
+      "bounds": {
+        "minX": 135,
+        "minY": 135,
+        "maxX": 195,
+        "maxY": 195
+      }
+    },
+    {
+      "id": "dense-30",
+      "type": "stroke",
+      "points": [
+        {
+          "x": 50,
+          "y": 50,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 100,
+          "y": 100,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 100,
+          "y": 50,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 50,
+          "y": 100,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        }
+      ],
+      "timestamp": 1786641036309,
+      "width": 10,
+      "color": "#0000ff",
+      "bounds": {
+        "minX": 45,
+        "minY": 45,
+        "maxX": 105,
+        "maxY": 105
+      }
+    },
+    {
+      "id": "dense-31",
+      "type": "stroke",
+      "points": [
+        {
+          "x": 60,
+          "y": 60,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 110,
+          "y": 110,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 110,
+          "y": 60,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 60,
+          "y": 110,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        }
+      ],
+      "timestamp": 1786641036309,
+      "width": 10,
+      "color": "#0000ff",
+      "bounds": {
+        "minX": 55,
+        "minY": 55,
+        "maxX": 115,
+        "maxY": 115
+      }
+    },
+    {
+      "id": "dense-32",
+      "type": "stroke",
+      "points": [
+        {
+          "x": 70,
+          "y": 70,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 120,
+          "y": 120,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 120,
+          "y": 70,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 70,
+          "y": 120,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        }
+      ],
+      "timestamp": 1786641036309,
+      "width": 10,
+      "color": "#0000ff",
+      "bounds": {
+        "minX": 65,
+        "minY": 65,
+        "maxX": 125,
+        "maxY": 125
+      }
+    },
+    {
+      "id": "dense-33",
+      "type": "stroke",
+      "points": [
+        {
+          "x": 80,
+          "y": 80,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 130,
+          "y": 130,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 130,
+          "y": 80,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 80,
+          "y": 130,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        }
+      ],
+      "timestamp": 1786641036309,
+      "width": 10,
+      "color": "#0000ff",
+      "bounds": {
+        "minX": 75,
+        "minY": 75,
+        "maxX": 135,
+        "maxY": 135
+      }
+    },
+    {
+      "id": "dense-34",
+      "type": "stroke",
+      "points": [
+        {
+          "x": 90,
+          "y": 90,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 140,
+          "y": 140,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 140,
+          "y": 90,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 90,
+          "y": 140,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        }
+      ],
+      "timestamp": 1786641036309,
+      "width": 10,
+      "color": "#0000ff",
+      "bounds": {
+        "minX": 85,
+        "minY": 85,
+        "maxX": 145,
+        "maxY": 145
+      }
+    },
+    {
+      "id": "dense-35",
+      "type": "stroke",
+      "points": [
+        {
+          "x": 100,
+          "y": 100,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 150,
+          "y": 150,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 150,
+          "y": 100,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 100,
+          "y": 150,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        }
+      ],
+      "timestamp": 1786641036309,
+      "width": 10,
+      "color": "#0000ff",
+      "bounds": {
+        "minX": 95,
+        "minY": 95,
+        "maxX": 155,
+        "maxY": 155
+      }
+    },
+    {
+      "id": "dense-36",
+      "type": "stroke",
+      "points": [
+        {
+          "x": 110,
+          "y": 110,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 160,
+          "y": 160,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 160,
+          "y": 110,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 110,
+          "y": 160,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        }
+      ],
+      "timestamp": 1786641036309,
+      "width": 10,
+      "color": "#0000ff",
+      "bounds": {
+        "minX": 105,
+        "minY": 105,
+        "maxX": 165,
+        "maxY": 165
+      }
+    },
+    {
+      "id": "dense-37",
+      "type": "stroke",
+      "points": [
+        {
+          "x": 120,
+          "y": 120,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 170,
+          "y": 170,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 170,
+          "y": 120,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 120,
+          "y": 170,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        }
+      ],
+      "timestamp": 1786641036309,
+      "width": 10,
+      "color": "#0000ff",
+      "bounds": {
+        "minX": 115,
+        "minY": 115,
+        "maxX": 175,
+        "maxY": 175
+      }
+    },
+    {
+      "id": "dense-38",
+      "type": "stroke",
+      "points": [
+        {
+          "x": 130,
+          "y": 130,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 180,
+          "y": 180,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 180,
+          "y": 130,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 130,
+          "y": 180,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        }
+      ],
+      "timestamp": 1786641036309,
+      "width": 10,
+      "color": "#0000ff",
+      "bounds": {
+        "minX": 125,
+        "minY": 125,
+        "maxX": 185,
+        "maxY": 185
+      }
+    },
+    {
+      "id": "dense-39",
+      "type": "stroke",
+      "points": [
+        {
+          "x": 140,
+          "y": 140,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 190,
+          "y": 190,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 190,
+          "y": 140,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 140,
+          "y": 190,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        }
+      ],
+      "timestamp": 1786641036309,
+      "width": 10,
+      "color": "#0000ff",
+      "bounds": {
+        "minX": 135,
+        "minY": 135,
+        "maxX": 195,
+        "maxY": 195
+      }
+    },
+    {
+      "id": "dense-40",
+      "type": "stroke",
+      "points": [
+        {
+          "x": 50,
+          "y": 50,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 100,
+          "y": 100,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 100,
+          "y": 50,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 50,
+          "y": 100,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        }
+      ],
+      "timestamp": 1786641036309,
+      "width": 10,
+      "color": "#0000ff",
+      "bounds": {
+        "minX": 45,
+        "minY": 45,
+        "maxX": 105,
+        "maxY": 105
+      }
+    },
+    {
+      "id": "dense-41",
+      "type": "stroke",
+      "points": [
+        {
+          "x": 60,
+          "y": 60,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 110,
+          "y": 110,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 110,
+          "y": 60,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 60,
+          "y": 110,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        }
+      ],
+      "timestamp": 1786641036309,
+      "width": 10,
+      "color": "#0000ff",
+      "bounds": {
+        "minX": 55,
+        "minY": 55,
+        "maxX": 115,
+        "maxY": 115
+      }
+    },
+    {
+      "id": "dense-42",
+      "type": "stroke",
+      "points": [
+        {
+          "x": 70,
+          "y": 70,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 120,
+          "y": 120,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 120,
+          "y": 70,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 70,
+          "y": 120,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        }
+      ],
+      "timestamp": 1786641036309,
+      "width": 10,
+      "color": "#0000ff",
+      "bounds": {
+        "minX": 65,
+        "minY": 65,
+        "maxX": 125,
+        "maxY": 125
+      }
+    },
+    {
+      "id": "dense-43",
+      "type": "stroke",
+      "points": [
+        {
+          "x": 80,
+          "y": 80,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 130,
+          "y": 130,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 130,
+          "y": 80,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 80,
+          "y": 130,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        }
+      ],
+      "timestamp": 1786641036309,
+      "width": 10,
+      "color": "#0000ff",
+      "bounds": {
+        "minX": 75,
+        "minY": 75,
+        "maxX": 135,
+        "maxY": 135
+      }
+    },
+    {
+      "id": "dense-44",
+      "type": "stroke",
+      "points": [
+        {
+          "x": 90,
+          "y": 90,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 140,
+          "y": 140,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 140,
+          "y": 90,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 90,
+          "y": 140,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        }
+      ],
+      "timestamp": 1786641036309,
+      "width": 10,
+      "color": "#0000ff",
+      "bounds": {
+        "minX": 85,
+        "minY": 85,
+        "maxX": 145,
+        "maxY": 145
+      }
+    },
+    {
+      "id": "dense-45",
+      "type": "stroke",
+      "points": [
+        {
+          "x": 100,
+          "y": 100,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 150,
+          "y": 150,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 150,
+          "y": 100,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 100,
+          "y": 150,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        }
+      ],
+      "timestamp": 1786641036309,
+      "width": 10,
+      "color": "#0000ff",
+      "bounds": {
+        "minX": 95,
+        "minY": 95,
+        "maxX": 155,
+        "maxY": 155
+      }
+    },
+    {
+      "id": "dense-46",
+      "type": "stroke",
+      "points": [
+        {
+          "x": 110,
+          "y": 110,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 160,
+          "y": 160,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 160,
+          "y": 110,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 110,
+          "y": 160,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        }
+      ],
+      "timestamp": 1786641036309,
+      "width": 10,
+      "color": "#0000ff",
+      "bounds": {
+        "minX": 105,
+        "minY": 105,
+        "maxX": 165,
+        "maxY": 165
+      }
+    },
+    {
+      "id": "dense-47",
+      "type": "stroke",
+      "points": [
+        {
+          "x": 120,
+          "y": 120,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 170,
+          "y": 170,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 170,
+          "y": 120,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 120,
+          "y": 170,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        }
+      ],
+      "timestamp": 1786641036309,
+      "width": 10,
+      "color": "#0000ff",
+      "bounds": {
+        "minX": 115,
+        "minY": 115,
+        "maxX": 175,
+        "maxY": 175
+      }
+    },
+    {
+      "id": "dense-48",
+      "type": "stroke",
+      "points": [
+        {
+          "x": 130,
+          "y": 130,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 180,
+          "y": 180,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 180,
+          "y": 130,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 130,
+          "y": 180,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        }
+      ],
+      "timestamp": 1786641036309,
+      "width": 10,
+      "color": "#0000ff",
+      "bounds": {
+        "minX": 125,
+        "minY": 125,
+        "maxX": 185,
+        "maxY": 185
+      }
+    },
+    {
+      "id": "dense-49",
+      "type": "stroke",
+      "points": [
+        {
+          "x": 140,
+          "y": 140,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 190,
+          "y": 190,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 190,
+          "y": 140,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        },
+        {
+          "x": 140,
+          "y": 190,
+          "pressure": 0.8,
+          "tiltX": 0,
+          "tiltY": 0
+        }
+      ],
+      "timestamp": 1786641036309,
+      "width": 10,
+      "color": "#0000ff",
+      "bounds": {
+        "minX": 135,
+        "minY": 135,
+        "maxX": 195,
+        "maxY": 195
+      }
+    }
+  ]
+}
