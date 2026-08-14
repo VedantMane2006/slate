@@ -671,21 +671,58 @@ export function CanvasViewport() {
         onPointerUp={handlePointerUp}
         onPointerCancel={handlePointerUp}
       />
-      <div style={{ position: 'absolute', top: 20, left: 20, zIndex: 100, display: 'flex', gap: 8 }}>
-        <SaveLoadControls 
-          objects={objects} 
-          viewport={viewport}
-          onLoadSuccess={(newObjects) => {
-            objectsRef.current = newObjects;
-            setObjects(newObjects);
-            setSelection({ ids: [] });
-            history.clear();
-          }}
-        />
-        <button onClick={() => openEditorAtCenter('text')} style={{ padding: '6px 12px', background: '#fff', border: '1px solid #ced4da', borderRadius: '4px', cursor: 'pointer' }}>Insert Text</button>
-        <button onClick={() => openEditorAtCenter('table')} style={{ padding: '6px 12px', background: '#fff', border: '1px solid #ced4da', borderRadius: '4px', cursor: 'pointer' }}>Insert Table</button>
-        <button onClick={() => openEditorAtCenter('image')} style={{ padding: '6px 12px', background: '#fff', border: '1px solid #ced4da', borderRadius: '4px', cursor: 'pointer' }}>Insert Image</button>
-        <button onClick={() => openEditorAtCenter('equation')} style={{ padding: '6px 12px', background: '#fff', border: '1px solid #ced4da', borderRadius: '4px', cursor: 'pointer' }}>Insert Equation</button>
+      <div 
+        style={{ 
+          position: 'absolute', 
+          top: 20, 
+          left: 20, 
+          zIndex: 100, 
+          display: 'flex', 
+          flexDirection: 'column', 
+          gap: 8,
+          background: 'white',
+          padding: '12px',
+          borderRadius: '8px',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+          border: '1px solid #dee2e6',
+          width: 'max-content'
+        }}
+      >
+        <button title="Draw (D)" onClick={() => { setIsEraserMode(false); setIsSelectMode(false); }} style={{ padding: '8px', background: (!isEraserMode && !isSelectMode) ? '#e9ecef' : '#fff', border: '1px solid #ced4da', borderRadius: '4px', cursor: 'pointer', fontSize: '16px' }}>✏️ Draw</button>
+        <button title="Erase (E)" onClick={() => { setIsEraserMode(true); setIsSelectMode(false); }} style={{ padding: '8px', background: isEraserMode ? '#e9ecef' : '#fff', border: '1px solid #ced4da', borderRadius: '4px', cursor: 'pointer', fontSize: '16px' }}>🧹 Erase</button>
+        <button title="Select (V)" onClick={() => { setIsSelectMode(true); setIsEraserMode(false); }} style={{ padding: '8px', background: isSelectMode ? '#e9ecef' : '#fff', border: '1px solid #ced4da', borderRadius: '4px', cursor: 'pointer', fontSize: '16px' }}>↖️ Select</button>
+        
+        <div style={{ height: 1, background: '#dee2e6', margin: '4px 0' }} />
+        
+        <button title="Undo (Ctrl+Z)" onClick={() => history.undo()} style={{ padding: '8px', background: '#fff', border: '1px solid #ced4da', borderRadius: '4px', cursor: 'pointer', fontSize: '16px' }}>↩️ Undo</button>
+        <button title="Redo (Ctrl+Shift+Z)" onClick={() => history.redo()} style={{ padding: '8px', background: '#fff', border: '1px solid #ced4da', borderRadius: '4px', cursor: 'pointer', fontSize: '16px' }}>↪️ Redo</button>
+        
+        <div style={{ height: 1, background: '#dee2e6', margin: '4px 0' }} />
+        
+        <button title="Zoom In (Wheel Up)" onClick={() => setViewport(vp => zoomAtPoint(vp, {x: window.innerWidth/2, y: window.innerHeight/2}, 1.2))} style={{ padding: '8px', background: '#fff', border: '1px solid #ced4da', borderRadius: '4px', cursor: 'pointer', fontSize: '16px' }}>➕ Zoom In</button>
+        <button title="Zoom Out (Wheel Down)" onClick={() => setViewport(vp => zoomAtPoint(vp, {x: window.innerWidth/2, y: window.innerHeight/2}, 1/1.2))} style={{ padding: '8px', background: '#fff', border: '1px solid #ced4da', borderRadius: '4px', cursor: 'pointer', fontSize: '16px' }}>➖ Zoom Out</button>
+        
+        <div style={{ height: 1, background: '#dee2e6', margin: '4px 0' }} />
+        
+        <button title="Insert Text" onClick={() => openEditorAtCenter('text')} style={{ padding: '8px', background: '#fff', border: '1px solid #ced4da', borderRadius: '4px', cursor: 'pointer', fontSize: '16px' }}>📝 Text</button>
+        <button title="Insert Table" onClick={() => openEditorAtCenter('table')} style={{ padding: '8px', background: '#fff', border: '1px solid #ced4da', borderRadius: '4px', cursor: 'pointer', fontSize: '16px' }}>📊 Table</button>
+        <button title="Insert Image" onClick={() => openEditorAtCenter('image')} style={{ padding: '8px', background: '#fff', border: '1px solid #ced4da', borderRadius: '4px', cursor: 'pointer', fontSize: '16px' }}>🖼️ Image</button>
+        <button title="Insert Equation" onClick={() => openEditorAtCenter('equation')} style={{ padding: '8px', background: '#fff', border: '1px solid #ced4da', borderRadius: '4px', cursor: 'pointer', fontSize: '16px' }}>∑ Equation</button>
+        
+        <div style={{ height: 1, background: '#dee2e6', margin: '4px 0' }} />
+        
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <SaveLoadControls 
+            objects={objects} 
+            viewport={viewport}
+            onLoadSuccess={(newObjects) => {
+              objectsRef.current = newObjects;
+              setObjects(newObjects);
+              setSelection({ ids: [] });
+              history.clear();
+            }}
+          />
+        </div>
       </div>
       <div style={{ position: 'absolute', top: 20, right: 20, zIndex: 100, display: 'flex', flexDirection: 'column', gap: 8 }}>
         {activeRequest && activeRequest.state !== 'completed' && !(hideTerminalState && ['error', 'cancelled', 'timeout'].includes(activeRequest.state)) ? (

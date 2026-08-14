@@ -1,6 +1,6 @@
 import React from 'react';
 import { describe, it, expect } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { MetricsPanel } from '../../src/components/MetricsPanel.tsx';
 import { MetricsProvider, useMetrics } from '../../src/providers/MetricsProvider.tsx';
 import type { AIRequest } from '../../src/ai/lifecycle/state-machine.ts';
@@ -53,6 +53,10 @@ describe('MetricsPanel', () => {
     );
 
     expect(screen.getByText('n=1')).toBeInTheDocument();
+    
+    // Expand to see inner metrics
+    fireEvent.click(screen.getByTestId('metrics-header'));
+
     expect(screen.getByText('0.0%')).toBeInTheDocument(); // Acceptance rate
     expect(screen.getByText('100.0%')).toBeInTheDocument(); // Wasted Tokens
     expect(screen.getByText('1000ms')).toBeInTheDocument(); // Avg Latency
@@ -73,10 +77,34 @@ describe('MetricsPanel', () => {
       </MetricsProvider>
     );
 
-    // It should now have n=1 and updated latency
+    // It should now have n=1
     expect(screen.getByText('n=1')).toBeInTheDocument();
+
+    // Expand to see inner metrics
+    fireEvent.click(screen.getByTestId('metrics-header'));
+
     expect(screen.getByText('100.0%')).toBeInTheDocument(); // Acceptance rate for 1 accepted
     expect(screen.getByText('0.0%')).toBeInTheDocument(); // Wasted token for 1 accepted
     expect(screen.getByText('2000ms')).toBeInTheDocument(); // latency of 2000
+  });
+  it('starts collapsed and toggles full metrics when header is clicked', () => {
+    render(
+      <MetricsProvider>
+        <MetricsPanel />
+      </MetricsProvider>
+    );
+
+    // Should be collapsed by default
+    expect(screen.queryByText('Avg Latency:')).not.toBeInTheDocument();
+
+    // Click header
+    fireEvent.click(screen.getByTestId('metrics-header'));
+    
+    // Should be expanded
+    expect(screen.getByText('Avg Latency:')).toBeInTheDocument();
+    
+    // Click again to collapse
+    fireEvent.click(screen.getByTestId('metrics-header'));
+    expect(screen.queryByText('Avg Latency:')).not.toBeInTheDocument();
   });
 });

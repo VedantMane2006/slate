@@ -1,6 +1,6 @@
 {
   "experiment": "adaptive-vs-fixed-resolution",
-  "timestamp": "2026-08-14T15:06:51.385Z",
+  "timestamp": "2026-08-14T15:34:52.015Z",
   "apiCallCount": 4,
   "runs": [
     {
@@ -27,14 +27,14 @@
       "resolution": 1024,
       "objectCount": 2,
       "inkDensity": 0.1344,
-      "endToEndLatencyMs": 24292,
-      "responseLength": 73,
+      "endToEndLatencyMs": 13839,
+      "responseLength": 72,
       "apiCallSuccess": true,
       "configId": "default",
       "promptVersion": "1.0.0",
       "estimatedPromptTokens": 439,
       "estimatedResponseTokens": 19,
-      "estimatedTotalTokens": 477,
+      "estimatedTotalTokens": 496,
       "estimatedCostUsd": 0.000038625000000000004,
       "tokenEstimationMethod": "sdk"
     },
@@ -44,15 +44,15 @@
       "resolution": 1536,
       "objectCount": 50,
       "inkDensity": 1,
-      "endToEndLatencyMs": 53911,
+      "endToEndLatencyMs": 4063,
       "responseLength": 72,
       "apiCallSuccess": true,
       "configId": "default",
       "promptVersion": "1.0.0",
       "estimatedPromptTokens": 439,
-      "estimatedResponseTokens": 18,
-      "estimatedTotalTokens": 495,
-      "estimatedCostUsd": 0.000038325,
+      "estimatedResponseTokens": 19,
+      "estimatedTotalTokens": 510,
+      "estimatedCostUsd": 0.000038625000000000004,
       "tokenEstimationMethod": "sdk"
     },
     {
@@ -61,16 +61,17 @@
       "resolution": 1024,
       "objectCount": 50,
       "inkDensity": 1,
-      "endToEndLatencyMs": 30450,
-      "responseLength": 72,
-      "apiCallSuccess": true,
+      "endToEndLatencyMs": 0,
+      "responseLength": 0,
+      "apiCallSuccess": false,
       "configId": "default",
       "promptVersion": "1.0.0",
-      "estimatedPromptTokens": 439,
-      "estimatedResponseTokens": 19,
-      "estimatedTotalTokens": 514,
-      "estimatedCostUsd": 0.000038625000000000004,
-      "tokenEstimationMethod": "sdk"
+      "estimatedPromptTokens": 0,
+      "estimatedResponseTokens": 0,
+      "estimatedTotalTokens": 0,
+      "estimatedCostUsd": 0,
+      "tokenEstimationMethod": "heuristic",
+      "error": "[GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [503 Service Unavailable] This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later."
     }
   ]
 }
