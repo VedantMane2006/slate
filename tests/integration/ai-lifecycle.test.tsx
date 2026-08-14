@@ -11,7 +11,7 @@ vi.mock('@google/generative-ai', () => {
       return {
         getGenerativeModel: vi.fn().mockReturnValue({
           generateContentStream: vi.fn().mockImplementation(async () => {
-            const chunks = ['mocked', ' AI', ' response'];
+            const chunks = ['{"explanation":', '"mocked', ' AI', ' response"}'];
             async function* mockStream() {
               for (const chunk of chunks) {
                 // Simulate network delay
@@ -29,7 +29,7 @@ vi.mock('@google/generative-ai', () => {
 
 // Mock Canvas objects
 const mockObjects: CanvasObject[] = [
-  { id: '1', bounds: { minX: 0, minY: 0, maxX: 100, maxY: 100 }, timestamp: Date.now(), type: 'stroke' } as any
+  { id: '1', bounds: { minX: 0, minY: 0, maxX: 100, maxY: 100 }, timestamp: Date.now(), type: 'stroke', points: [] } as any
 ];
 
 function TestComponent() {
@@ -68,7 +68,7 @@ describe('AI Lifecycle Integration', () => {
       expect(screen.getByTestId('status').textContent).toBe('completed');
     }, { timeout: 2000 });
 
-    expect(consoleSpy).toHaveBeenCalledWith('AI Response:', 'mocked AI response');
+    expect(consoleSpy).toHaveBeenCalledWith('AI Response:', '{"explanation":"mocked AI response"}');
     
     consoleSpy.mockRestore();
   });
@@ -140,9 +140,13 @@ describe('AI Lifecycle Integration', () => {
       translate: vi.fn(),
     } as unknown as CanvasRenderingContext2D);
 
+    const { MetricsProvider } = await import('../../src/providers/MetricsProvider.tsx');
+
     const { container } = render(
       <AILifecycleProvider>
-        <CanvasViewport />
+        <MetricsProvider>
+          <CanvasViewport />
+        </MetricsProvider>
       </AILifecycleProvider>
     );
 
@@ -175,5 +179,63 @@ describe('AI Lifecycle Integration', () => {
     await waitFor(() => {
       expect(strokeSpy).toHaveBeenCalled();
     });
+  });
+
+  it('dedup cache skips network call for identical repeated request', async () => {
+    const { GoogleGenerativeAI } = await import('@google/generative-ai');
+    const mockGenerateContentStream = vi.fn().mockImplementation(async () => {
+      const chunks = ['{"explanation":', '"cached', ' response"}'];
+      async function* mockStream() {
+        for (const chunk of chunks) {
+          yield { text: () => chunk };
+        }
+      }
+      return { stream: mockStream() };
+    });
+
+    (GoogleGenerativeAI as any).mockImplementation(() => ({
+      getGenerativeModel: vi.fn().mockReturnValue({
+        generateContentStream: mockGenerateContentStream
+      })
+    }));
+
+    // We will use a wrapper around TestComponent that also allows clearing the request
+    function DedupTestComponent() {
+      const { askAI, clearRequest, activeRequest } = useAILifecycle();
+      return (
+        <div>
+          <div data-testid="status">{activeRequest?.state || 'idle'}</div>
+          <button onClick={() => askAI(mockObjects, { ids: ['1'] })}>Ask AI</button>
+          <button onClick={clearRequest}>Clear</button>
+        </div>
+      );
+    }
+
+    render(
+      <AILifecycleProvider>
+        <DedupTestComponent />
+      </AILifecycleProvider>
+    );
+
+    // 1st request
+    fireEvent.click(screen.getByText('Ask AI'));
+    await vi.waitFor(() => {
+      expect(screen.getByTestId('status').textContent).toBe('completed');
+    });
+
+    expect(mockGenerateContentStream).toHaveBeenCalledTimes(1);
+
+    // Clear request state to allow a new one
+    fireEvent.click(screen.getByText('Clear'));
+    expect(screen.getByTestId('status').textContent).toBe('idle');
+
+    // 2nd request (exact same objects)
+    fireEvent.click(screen.getByText('Ask AI'));
+    await vi.waitFor(() => {
+      expect(screen.getByTestId('status').textContent).toBe('completed');
+    });
+
+    // Network call should NOT have been made again
+    expect(mockGenerateContentStream).toHaveBeenCalledTimes(1);
   });
 });
