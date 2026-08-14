@@ -8,6 +8,9 @@
  *
  * Total: 4 real Gemini API calls.
  * Results are written to /experiments/results.json.
+ *
+ * Phase 13 Part 2 captured latency only.
+ * This update adds token/cost estimation via Phase 9's deriveTokenUsageAndCost.
  */
 import { describe, it, expect, vi, afterAll } from 'vitest';
 import * as fs from 'node:fs';
@@ -18,7 +21,12 @@ import { composeMultimodalRequest } from '../../src/ai/composition.ts';
 import { setForceFixedResolution } from '../../src/config/experiment.ts';
 import { CURRENT_EXPERIMENT_CONFIG } from '../../src/config/experiment.ts';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import type { UsageMetadata } from '@google/generative-ai';
 import type { CanvasObject } from '../../src/objects/canvas-object.ts';
+import { deriveTokenUsageAndCost } from '../../src/metrics/cost.ts';
+import type { AIRequest } from '../../src/ai/lifecycle/state-machine.ts';
+import type { MultimodalRequestPayload } from '../../src/ai/composition.ts';
+import type { BoundingBox } from '../../src/utils/geometry.ts';
 
 // Mock renderCrop — we need a small but valid base64 PNG for Gemini to accept
 // We produce a tiny 1x1 white pixel PNG as a data URL
@@ -44,6 +52,11 @@ interface ExperimentRun {
   apiCallSuccess: boolean;
   configId: string;
   promptVersion: string;
+  estimatedPromptTokens: number;
+  estimatedResponseTokens: number;
+  estimatedTotalTokens: number;
+  estimatedCostUsd: number;
+  tokenEstimationMethod: 'sdk' | 'heuristic';
   error?: string;
 }
 
@@ -54,7 +67,13 @@ interface ExperimentResults {
   runs: ExperimentRun[];
 }
 
-async function sendToGemini(imageDataUrl: string, fragments: Array<{ kind: string; data: string }>): Promise<{ text: string; latencyMs: number }> {
+interface GeminiResponse {
+  text: string;
+  latencyMs: number;
+  usageMetadata?: UsageMetadata;
+}
+
+async function sendToGemini(imageDataUrl: string, fragments: Array<{ kind: string; data: string }>): Promise<GeminiResponse> {
   const ai = new GoogleGenerativeAI(API_KEY);
   const model = ai.getGenerativeModel({
     model: 'gemini-2.5-flash',
@@ -104,8 +123,29 @@ Schema:
   const result = await model.generateContent(parts);
   const latencyMs = Date.now() - startMs;
   const text = result.response.text();
+  const usageMetadata = result.response.usageMetadata;
 
-  return { text, latencyMs };
+  return { text, latencyMs, usageMetadata };
+}
+
+/**
+ * Constructs a minimal AIRequest sufficient for deriveTokenUsageAndCost's estimation path.
+ * Only the fields accessed by the cost function are populated.
+ */
+function buildMinimalAIRequest(
+  payload: MultimodalRequestPayload,
+  contextBounds: BoundingBox | null
+): AIRequest {
+  return {
+    id: 'experiment-run',
+    state: 'completed',
+    payload,
+    timestamps: {},
+    configId: CURRENT_EXPERIMENT_CONFIG.configId,
+    promptVersion: CURRENT_EXPERIMENT_CONFIG.promptVersion,
+    confidenceLevel: 'high',
+    contextBounds
+  };
 }
 
 async function runSingleBenchmark(
@@ -137,17 +177,32 @@ async function runSingleBenchmark(
     responseLength: 0,
     apiCallSuccess: false,
     configId: CURRENT_EXPERIMENT_CONFIG.configId,
-    promptVersion: CURRENT_EXPERIMENT_CONFIG.promptVersion
+    promptVersion: CURRENT_EXPERIMENT_CONFIG.promptVersion,
+    estimatedPromptTokens: 0,
+    estimatedResponseTokens: 0,
+    estimatedTotalTokens: 0,
+    estimatedCostUsd: 0,
+    tokenEstimationMethod: 'heuristic'
   };
 
   try {
-    const { text, latencyMs } = await sendToGemini(
+    const { text, latencyMs, usageMetadata } = await sendToGemini(
       payload.image,
       payload.fragments as Array<{ kind: string; data: string }>
     );
     run.endToEndLatencyMs = latencyMs;
     run.responseLength = text.length;
     run.apiCallSuccess = true;
+
+    // Derive token/cost metrics using Phase 9's deriveTokenUsageAndCost
+    const minimalRequest = buildMinimalAIRequest(payload, extraction.bounds);
+    const costMetrics = deriveTokenUsageAndCost(minimalRequest, text, usageMetadata);
+
+    run.estimatedPromptTokens = costMetrics.promptTokens;
+    run.estimatedResponseTokens = costMetrics.responseTokens;
+    run.estimatedTotalTokens = costMetrics.totalTokens;
+    run.estimatedCostUsd = costMetrics.costUsd;
+    run.tokenEstimationMethod = costMetrics.estimated ? 'heuristic' : 'sdk';
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : String(err);
     run.error = message;
@@ -157,7 +212,7 @@ async function runSingleBenchmark(
   return run;
 }
 
-describe('Experiment: Adaptive vs Fixed Resolution', () => {
+describe('Experiment: Adaptive vs Fixed Resolution (with token/cost)', () => {
   const benchmarkDir = path.resolve(__dirname, '../../benchmarks');
   const resultsDir = path.resolve(__dirname, '../../experiments');
   const resultsPath = path.join(resultsDir, 'results.json');
@@ -178,6 +233,9 @@ describe('Experiment: Adaptive vs Fixed Resolution', () => {
     expect(run.apiCallSuccess).toBe(true);
     // Sparse + adaptive should NOT pick 1024 (should pick 512)
     expect(run.resolution).toBe(512);
+    // Token/cost fields must be populated
+    expect(run.estimatedTotalTokens).toBeGreaterThan(0);
+    expect(run.estimatedCostUsd).toBeGreaterThan(0);
   }, 60000);
 
   it('runs sparse benchmark with fixed-1024 resolution', async () => {
@@ -188,6 +246,8 @@ describe('Experiment: Adaptive vs Fixed Resolution', () => {
     apiCallCount++;
     expect(run.apiCallSuccess).toBe(true);
     expect(run.resolution).toBe(1024);
+    expect(run.estimatedTotalTokens).toBeGreaterThan(0);
+    expect(run.estimatedCostUsd).toBeGreaterThan(0);
   }, 60000);
 
   it('runs dense benchmark with adaptive resolution', async () => {
@@ -199,6 +259,8 @@ describe('Experiment: Adaptive vs Fixed Resolution', () => {
     expect(run.apiCallSuccess).toBe(true);
     // Dense + adaptive should pick 1536 (many overlapping objects, high density)
     expect(run.resolution).toBe(1536);
+    expect(run.estimatedTotalTokens).toBeGreaterThan(0);
+    expect(run.estimatedCostUsd).toBeGreaterThan(0);
   }, 60000);
 
   it('runs dense benchmark with fixed-1024 resolution', async () => {
@@ -209,13 +271,15 @@ describe('Experiment: Adaptive vs Fixed Resolution', () => {
     apiCallCount++;
     expect(run.apiCallSuccess).toBe(true);
     expect(run.resolution).toBe(1024);
+    expect(run.estimatedTotalTokens).toBeGreaterThan(0);
+    expect(run.estimatedCostUsd).toBeGreaterThan(0);
   }, 60000);
 
   afterAll(() => {
     // Reset override
     setForceFixedResolution(null);
 
-    // Write results
+    // Write results — extend existing records with new token/cost fields
     if (allRuns.length === 4) {
       const results: ExperimentResults = {
         experiment: 'adaptive-vs-fixed-resolution',
@@ -231,7 +295,7 @@ describe('Experiment: Adaptive vs Fixed Resolution', () => {
       console.log(`\n✅ Experiment results written to ${resultsPath}`);
       console.log(`   Total API calls: ${apiCallCount}`);
       for (const run of allRuns) {
-        console.log(`   ${run.benchmark}/${run.config}: ${run.resolution}px, ${run.endToEndLatencyMs}ms, success=${run.apiCallSuccess}`);
+        console.log(`   ${run.benchmark}/${run.config}: ${run.resolution}px, ${run.endToEndLatencyMs}ms, ${run.estimatedTotalTokens} tokens, $${run.estimatedCostUsd.toFixed(6)}, method=${run.tokenEstimationMethod}`);
       }
     }
   });
