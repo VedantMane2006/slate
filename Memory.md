@@ -5,10 +5,10 @@
 > from scratch, and don't re-litigate anything marked DECIDED below.
 
 ## Current status
-Phase: **Phase 14 — IN PROGRESS** (Docs/Attribution/Video)
-Last updated: 2026-08-13
+Phase: **ALL PHASES COMPLETE** (Docs/Attribution/Video)
+Last updated: 2026-08-15
 Branch: master
-`main` state: Phase 1-13 features complete — builds, lints, and tests clean
+`main` state: Phase 1-14 features complete — builds, lints, and tests clean
 
 ## Decisions already made (DECIDED — do not re-open without a strong reason)
 - Stack: Vite + React + TypeScript, strict mode, Vitest, ESLint + Prettier — DECIDED

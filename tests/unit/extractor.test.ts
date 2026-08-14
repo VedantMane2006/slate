@@ -155,34 +155,81 @@ describe('Context Extraction Strategies', () => {
     expect(result.objectIds.includes('chain-10')).toBe(true);
   });
 
-  it('confidence is "high" for a clean, real selection', () => {
-    const objects = [obj1, obj2];
-    const selection = { ids: ['obj-1'] };
+  it('confidence is "high" for a real, dense, non-expanded selection', () => {
+    // We need objectCount >= 30, inkDensity >= 0.4, area > 100, strategy = 'selection', expanded = false
+    const objects: TestObject[] = [];
+    for (let i = 0; i < 35; i++) {
+      // 35 overlapping objects of 10x10 -> area is 100 per object.
+      // But bounds will be [0,0] to [10,10], area = 100.
+      // Wait, area must be > 100 to clear the TRIVIAL_AREA_FLOOR (<=100 is low).
+      // Let's use 20x20 -> area 400.
+      objects.push({
+        id: `dense-${i}`,
+        type: 'stroke',
+        bounds: { minX: 0, minY: 0, maxX: 20, maxY: 20 },
+        timestamp: Date.now()
+      });
+    }
+    const selection = { ids: objects.map(o => o.id) };
     const result = extractContext(objects, selection, Date.now());
     
     expect(result.confidence.level).toBe('high');
-    expect(result.confidence.reasons.length).toBeGreaterThan(0);
-    expect(result.confidence.reasons).toContain('Extraction derived from explicit user selection');
+    expect(result.confidence.reasons).toContain('explicit selection with rich content and no expansion needed');
   });
 
-  it('confidence is "low" for a sparse, heavily-expanded recent-fallback case', () => {
-    // Only 1 object (sparse), and it causes an expansion (so expanded is true)
-    const objects: TestObject[] = [
-      { id: '1', type: 'stroke', bounds: { minX: 0, minY: 0, maxX: 10, maxY: 10 }, timestamp: 20000 },
-      { id: '2', type: 'stroke', bounds: { minX: 12, minY: 0, maxX: 20, maxY: 10 }, timestamp: 0 },
-    ];
-    // Uses recent fallback, then expands to include '2'
-    const result = extractContext(objects, null, 20000);
+  it('confidence is "low" for a trivial/near-empty scene (regression)', () => {
+    // Only 2 objects, fails SPARSE_FLOOR (<= 15)
+    const objects = [obj1, obj2];
+    const selection = { ids: ['obj-1', 'obj-2'] };
+    const result = extractContext(objects, selection, Date.now());
+    
+    expect(result.confidence.level).toBe('low');
+    expect(result.confidence.reasons).toContain('object count below the sparse floor');
+  });
+
+  it('confidence is "medium" for a real selection with SPARSE content', () => {
+    // Object count = 20 (> 15 sparse floor), area > 100, but fails RICH_DENSITY_THRESHOLD (0.4) or RICH_OBJ_THRESHOLD (30)
+    // 20 objects, each 1x1 scattered, bounding box 100x100 (area=10000). Ink area = 20. Density = 20/10000 = 0.002
+    // Oh wait, ink density < 0.15 is SPARSE_DENSITY_FLOOR, which triggers 'low'.
+    // To clear the low floor, density must be >= 0.15.
+    // 20 objects, each 10x10 (area=100). Bounding box 100x100 (area=10000). Ink area = 2000. Density = 0.2
+    // object count = 20 (clears 15). area = 10000 (clears 100). density = 0.2 (clears 0.15).
+    // Fails high because objectCount (20) < 30.
+    const objects: TestObject[] = [];
+    for (let i = 0; i < 20; i++) {
+      // position objects diagonally to expand the bounding box
+      objects.push({
+        id: `sparse-${i}`,
+        type: 'stroke',
+        bounds: { minX: i*5, minY: i*5, maxX: i*5 + 10, maxY: i*5 + 10 },
+        timestamp: Date.now()
+      });
+    }
+    const selection = { ids: objects.map(o => o.id) };
+    const result = extractContext(objects, selection, Date.now());
+    
+    expect(result.confidence.level).toBe('medium');
+    expect(result.confidence.reasons).toContain('cleared low floor, but content is sparse/not rich enough for high confidence');
+  });
+
+  it('confidence is "medium" for a recent-fallback with decent density', () => {
+    // Clears all floors, has rich content, but uses recent-fallback instead of explicit selection
+    const objects: TestObject[] = [];
+    const now = Date.now();
+    for (let i = 0; i < 35; i++) {
+      objects.push({
+        id: `recent-${i}`,
+        type: 'stroke',
+        bounds: { minX: 0, minY: 0, maxX: 20, maxY: 20 },
+        timestamp: now // within recent window
+      });
+    }
+    // No explicit selection
+    const result = extractContext(objects, null, now);
     
     expect(result.strategy).toBe('recent');
-    expect(result.expanded).toBe(true);
-    // Sparse (2 objects <= 5), recent (20 - 10 = 10, plus 10 = 20 score). 20 means 'medium' or 'low'?
-    // Wait, recent (20) + sparse (10) = 30. But expanded (-10) = 20.
-    // Score 20 is < 30, so level is 'low'.
-    expect(result.confidence.level).toBe('low');
-    expect(result.confidence.reasons).toContain('Extraction derived from recent activity fallback');
-    expect(result.confidence.reasons).toContain('Context contains some objects');
-    expect(result.confidence.reasons).toContain('Cluster expansion required (confidence reduced due to distance)');
+    expect(result.confidence.level).toBe('medium');
+    expect(result.confidence.reasons).toContain('recent-fallback used instead of explicit selection');
   });
 
   it('calling extractContext appends a correctly-shaped trace entry to the in-memory array', () => {

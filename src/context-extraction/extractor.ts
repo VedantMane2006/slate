@@ -2,6 +2,7 @@ import { traceWriter } from '../metrics/trace-writer';
 import type { BoundingBox } from '../utils/geometry';
 import { unionBoundingBoxes, boxesIntersect } from '../utils/geometry';
 import type { CanvasObject } from '../objects/canvas-object';
+import { computeInkDensity } from './resolution';
 
 export interface ContextConfidence {
   level: 'high' | 'medium' | 'low';
@@ -94,7 +95,7 @@ export function extractContext(
     };
     const finalResult = {
       ...partial,
-      confidence: computeConfidence(partial),
+      confidence: computeConfidence(partial, objects),
     };
     writeExtractionTrace(finalResult, finalResult.confidence);
     return finalResult;
@@ -180,7 +181,7 @@ export function extractContext(
 
   const finalResult = {
     ...partialResult,
-    confidence: computeConfidence(partialResult),
+    confidence: computeConfidence(partialResult, objects),
   };
 
   writeExtractionTrace(finalResult, finalResult.confidence);
@@ -188,43 +189,73 @@ export function extractContext(
   return finalResult;
 }
 
+/**
+ * Determines the confidence tier of an extraction using explicit, deterministic rules:
+ * 
+ * - 'low': Triggers if ANY floor condition is failed. The floors are:
+ *          1. Object count below the sparse floor (<= 15)
+ *          2. Bounding-box area below the trivial-content floor (<= 100)
+ *          3. Ink density near zero (< 0.15)
+ * 
+ * - 'high': Triggers ONLY if ALL of the following are met:
+ *           1. Extraction came from a real user selection (strategy === 'selection')
+ *           2. Object count and density are both above a defined "rich content" threshold (>= 30 objects and >= 0.4 density)
+ *           3. No cluster expansion was needed (expanded === false)
+ * 
+ * - 'medium': The explicit default/fallback. Anything that clears the 'low' floor but does NOT
+ *             meet ALL of the 'high' conditions. (e.g. real selection but sparse content, OR 
+ *             recent-fallback/expanded result with decent density).
+ */
 export function computeConfidence(
-  result: Omit<ExtractionResult, 'confidence'>
+  result: Omit<ExtractionResult, 'confidence'>,
+  objects: CanvasObject[]
 ): ContextConfidence {
-  if (result.strategy === 'none') {
+  if (result.strategy === 'none' || !result.bounds) {
     return { level: 'low', reasons: ['No context found'] };
   }
 
-  let score = 0;
   const reasons: string[] = [];
+  const objectCount = result.objectIds.length;
+  const area = (result.bounds.maxX - result.bounds.minX) * (result.bounds.maxY - result.bounds.minY);
+  
+  const resultObjects = objects.filter(o => result.objectIds.includes(o.id));
+  const inkDensity = computeInkDensity(resultObjects, result.bounds);
 
-  if (result.strategy === 'selection') {
-    score += 50;
-    reasons.push('Extraction derived from explicit user selection');
-  } else if (result.strategy === 'recent') {
-    score += 20;
-    reasons.push('Extraction derived from recent activity fallback');
+  const SPARSE_FLOOR = 15;
+  const TRIVIAL_AREA_FLOOR = 100;
+  const SPARSE_DENSITY_FLOOR = 0.15;
+
+  // low: triggers if ANY floor condition fails
+  if (objectCount <= SPARSE_FLOOR || area <= TRIVIAL_AREA_FLOOR || inkDensity < SPARSE_DENSITY_FLOOR) {
+    if (objectCount <= SPARSE_FLOOR) reasons.push('object count below the sparse floor');
+    if (area <= TRIVIAL_AREA_FLOOR) reasons.push('bounding-box area below the trivial-content floor');
+    if (inkDensity < SPARSE_DENSITY_FLOOR) reasons.push('ink density near zero');
+    return { level: 'low', reasons };
   }
 
-  if (result.objectIds.length > 5) {
-    score += 20;
-    reasons.push('High density of objects within context bounds');
-  } else if (result.objectIds.length > 0) {
-    score += 10;
-    reasons.push('Context contains some objects');
+  const RICH_OBJ_THRESHOLD = 30;
+  const RICH_DENSITY_THRESHOLD = 0.4;
+
+  const isSelection = result.strategy === 'selection';
+  const isRichContent = objectCount >= RICH_OBJ_THRESHOLD && inkDensity >= RICH_DENSITY_THRESHOLD;
+  const isNotExpanded = !result.expanded;
+
+  // high: triggers ONLY if ALL high conditions are met
+  if (isSelection && isRichContent && isNotExpanded) {
+    reasons.push('explicit selection with rich content and no expansion needed');
+    return { level: 'high', reasons };
   }
 
-  if (result.expanded) {
-    score -= 10;
-    reasons.push('Cluster expansion required (confidence reduced due to distance)');
+  // medium: the explicit default/fallback — cleared the low floor, but did not meet every high-confidence condition
+  if (!isSelection) {
+    reasons.push('recent-fallback used instead of explicit selection');
+  } else if (!isRichContent) {
+    reasons.push('cleared low floor, but content is sparse/not rich enough for high confidence');
+  } else if (!isNotExpanded) {
+    reasons.push('expansion was required to find content');
+  } else {
+    reasons.push('cleared the low floor, but did not meet every high-confidence condition');
   }
 
-  let level: 'high' | 'medium' | 'low' = 'low';
-  if (score >= 50) {
-    level = 'high';
-  } else if (score >= 30) {
-    level = 'medium';
-  }
-
-  return { level, reasons };
+  return { level: 'medium', reasons };
 }

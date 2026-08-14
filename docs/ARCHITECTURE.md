@@ -29,9 +29,14 @@ Undo/redo functionality is implemented via the Command pattern (`Command` interf
 
 ## 4. Context Extraction Strategy
 When a user asks the AI a question, `extractContext` determines which objects to include. It returns an `ExtractionResult` containing bounds, object IDs, and a `confidence` metric (`{ level: 'high'|'medium'|'low', reasons: string[] }`). The strategy evaluates in this priority:
-1. **Selection-first**: If the user has manually selected objects, they are used exclusively (High confidence).
+1. **Selection-first**: If the user has manually selected objects, they are used exclusively.
 2. **Recent-fallback**: Uses objects modified within the last 10 seconds.
 3. **Cluster expansion**: Starting from the initial working set, the system expands to include nearby context. In Phase 11, the simple proximity expansion was fully upgraded to a **true connected-component clustering algorithm using Union-Find (Disjoint Set)**. This evaluates cluster membership globally (O(N^2) pairwise box intersections), solving edge cases with long chains of strokes.
+
+The output `confidence` is determined by strict, deterministic rules:
+- **Low**: Triggers if ANY floor condition fails (object count <= 15, area <= 100px, or ink density < 0.15).
+- **High**: Triggers ONLY if ALL of: derived from explicit selection, object count >= 30, density >= 0.4, and no cluster expansion was needed.
+- **Medium**: Explicit fallback when the low floor is cleared, but not all high conditions are met.
 
 ## 5. Request Lifecycle State Diagram
 The `RequestLifecycleManager` tracks every AI request through an explicit, 11-state machine:
