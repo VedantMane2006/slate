@@ -16,7 +16,10 @@ export interface ConfidenceStats {
 
 export interface AggregatedMetrics {
   averageLatencyMs: number;
+  p50LatencyMs: number;
+  p95LatencyMs: number;
   averageCostUsd: number;
+  cpadUsd: number;
   acceptanceRate: number;
   wastedTokenRatio: number;
   confidenceDistribution: {
@@ -30,7 +33,10 @@ export function aggregate(records: MetricsRecord[]): AggregatedMetrics {
   if (records.length === 0) {
     return {
       averageLatencyMs: 0,
+      p50LatencyMs: 0,
+      p95LatencyMs: 0,
       averageCostUsd: 0,
+      cpadUsd: 0,
       acceptanceRate: 0,
       wastedTokenRatio: 0,
       confidenceDistribution: {
@@ -42,12 +48,13 @@ export function aggregate(records: MetricsRecord[]): AggregatedMetrics {
   }
 
   let totalLatency = 0;
-  let latencyCount = 0;
   let totalCost = 0;
   
   let acceptedCount = 0;
   let totalTokens = 0;
   let wastedTokens = 0;
+
+  const latencies: number[] = [];
 
   const confCount = {
     high: 0,
@@ -58,7 +65,7 @@ export function aggregate(records: MetricsRecord[]): AggregatedMetrics {
   for (const record of records) {
     if (record.endToEndLatency !== undefined) {
       totalLatency += record.endToEndLatency;
-      latencyCount++;
+      latencies.push(record.endToEndLatency);
     }
 
     totalCost += record.costUsd;
@@ -79,10 +86,18 @@ export function aggregate(records: MetricsRecord[]): AggregatedMetrics {
   }
 
   const totalRecords = records.length;
+  
+  // Percentile math
+  latencies.sort((a, b) => a - b);
+  const p50 = latencies.length > 0 ? latencies[Math.floor(latencies.length * 0.5)] : 0;
+  const p95 = latencies.length > 0 ? latencies[Math.floor(latencies.length * 0.95)] : 0;
 
   return {
-    averageLatencyMs: latencyCount > 0 ? totalLatency / latencyCount : 0,
+    averageLatencyMs: latencies.length > 0 ? totalLatency / latencies.length : 0,
+    p50LatencyMs: p50,
+    p95LatencyMs: p95,
     averageCostUsd: totalCost / totalRecords,
+    cpadUsd: acceptedCount > 0 ? totalCost / acceptedCount : totalCost,
     acceptanceRate: acceptedCount / totalRecords,
     wastedTokenRatio: totalTokens > 0 ? wastedTokens / totalTokens : 0,
     confidenceDistribution: {
