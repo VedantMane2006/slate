@@ -76,7 +76,7 @@ interface GeminiResponse {
 async function sendToGemini(imageDataUrl: string, fragments: Array<{ kind: string; data: string }>): Promise<GeminiResponse> {
   const ai = new GoogleGenerativeAI(API_KEY);
   const model = ai.getGenerativeModel({
-    model: 'gemini-2.5-flash',
+    model: 'gemini-flash-lite-latest',
     systemInstruction: `You are an AI assistant analyzing a user's canvas.
 Your job is to ANSWER or SOLVE the question, problem, or prompt shown in the image and fragments you receive.
 Do NOT simply describe what the image looks like. If the image shows a math problem, compute and provide the actual answer.
@@ -165,7 +165,7 @@ async function runSingleBenchmark(
   const extraction = extractContext(objects, selection, Date.now());
 
   // Compose the multimodal request
-  const { payload, metadata } = composeMultimodalRequest(extraction, objects);
+  const { payload, metadata } = await composeMultimodalRequest(extraction, objects);
 
   const run: ExperimentRun = {
     benchmark: benchmarkName,

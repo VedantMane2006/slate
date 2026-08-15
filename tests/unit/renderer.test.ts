@@ -4,7 +4,7 @@ import { renderCrop } from '../../src/canvas/renderer.ts';
 import type { Stroke } from '../../src/objects/stroke.ts';
 
 describe('renderCrop', () => {
-  it('produces an image data URL matching the output dimensions', () => {
+  it('produces an image data URL matching the output dimensions', async () => {
     const stroke: Stroke = {
       id: 'stroke1',
       type: 'stroke',
@@ -30,7 +30,16 @@ describe('renderCrop', () => {
       beginPath: vi.fn(),
       moveTo: vi.fn(),
       lineTo: vi.fn(),
-      stroke: vi.fn()
+      stroke: vi.fn(),
+      strokeRect: vi.fn(),
+      fillRect: vi.fn(),
+      fillText: vi.fn(),
+      measureText: vi.fn().mockReturnValue({ width: 10 }),
+      save: vi.fn(),
+      restore: vi.fn(),
+      translate: vi.fn(),
+      arc: vi.fn(),
+      fill: vi.fn()
     };
     const mockGetContext = vi.fn().mockReturnValue(mockCtx);
     const mockToDataURL = vi.fn().mockReturnValue('data:image/png;mock');
@@ -47,7 +56,7 @@ describe('renderCrop', () => {
       return document.createElement(tagName);
     });
     
-    const dataUrl = renderCrop([stroke], bounds);
+    const dataUrl = await renderCrop([stroke], bounds);
     
     expect(typeof dataUrl).toBe('string');
     expect(dataUrl.startsWith('data:')).toBe(true);
@@ -59,7 +68,7 @@ describe('renderCrop', () => {
     createElementSpy.mockRestore();
   });
 
-  it('filters objects correctly by bounds', () => {
+  it('filters objects correctly by bounds', async () => {
     const strokeInside: Stroke = {
       id: 'inside',
       type: 'stroke',
@@ -95,6 +104,15 @@ describe('renderCrop', () => {
       moveTo: moveToSpy,
       lineTo: lineToSpy,
       stroke: strokeSpy,
+      strokeRect: vi.fn(),
+      fillRect: vi.fn(),
+      fillText: vi.fn(),
+      measureText: vi.fn().mockReturnValue({ width: 10 }),
+      save: vi.fn(),
+      restore: vi.fn(),
+      translate: vi.fn(),
+      arc: vi.fn(),
+      fill: vi.fn()
     };
 
     const createElementSpy = vi.spyOn(document, 'createElement').mockImplementation((tagName: string) => {
@@ -109,7 +127,7 @@ describe('renderCrop', () => {
       return document.createElement(tagName);
     });
     
-    renderCrop([strokeInside, strokeOutside], bounds);
+    await renderCrop([strokeInside, strokeOutside], bounds);
     
     // strokeOutside should be skipped. 
     // Therefore renderStrokes should only process strokeInside.

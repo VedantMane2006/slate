@@ -568,11 +568,11 @@ export function CanvasViewport() {
 
     // Render unselected objects
     renderStrokes(ctx, unselectedStrokes, viewport);
-    renderDraftObjects(ctx, unselectedDrafts, viewport);
     renderTextObjects(ctx, unselectedTexts, viewport);
     renderTableObjects(ctx, unselectedTables, viewport);
     renderEquationObjects(ctx, unselectedEquations, viewport);
     renderImageObjects(ctx, unselectedImages, viewport);
+    renderDraftObjects(ctx, unselectedDrafts, viewport);
     if (activeStroke) {
       renderStrokes(ctx, [activeStroke], viewport);
     }
@@ -585,11 +585,11 @@ export function CanvasViewport() {
       }
       
       renderStrokes(ctx, selectedStrokes, viewport);
-      renderDraftObjects(ctx, selectedDrafts, viewport);
       renderTextObjects(ctx, selectedTexts, viewport);
       renderTableObjects(ctx, selectedTables, viewport);
       renderEquationObjects(ctx, selectedEquations, viewport);
       renderImageObjects(ctx, selectedImages, viewport);
+      renderDraftObjects(ctx, selectedDrafts, viewport);
       
       ctx.strokeStyle = 'rgba(13, 110, 253, 0.5)';
       ctx.lineWidth = 2;

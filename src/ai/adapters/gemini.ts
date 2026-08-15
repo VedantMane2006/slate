@@ -18,8 +18,8 @@ export class GeminiClient {
     console.log(`Initialized GeminiClient with API key: ${maskedKey}`);
     
     this.ai = new GoogleGenerativeAI(apiKey);
-    // Using gemini-2.5-flash as the closest equivalent fast/cheap multimodal model since gemini-1.5-flash is no longer available on v1beta in 2026.
-    this.model = 'gemini-2.5-flash';
+    // Using gemini-flash-lite-latest as the cheapest/latest available multimodal model
+    this.model = 'gemini-flash-lite-latest';
   }
 
   async sendRequest(

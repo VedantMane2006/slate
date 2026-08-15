@@ -305,7 +305,7 @@ export function renderImageObjects(ctx: CanvasRenderingContext2D, images: ImageO
   }
 }
 
-export function renderCrop(objects: CanvasObject[], bounds: BoundingBox, targetResolution: number = 1024): string {
+export async function renderCrop(objects: CanvasObject[], bounds: BoundingBox, targetResolution: number = 1024): Promise<string> {
   const worldWidth = Math.max(1, bounds.maxX - bounds.minX);
   const worldHeight = Math.max(1, bounds.maxY - bounds.minY);
   
@@ -330,6 +330,10 @@ export function renderCrop(objects: CanvasObject[], bounds: BoundingBox, targetR
   const strokes: Stroke[] = [];
   const images: ImageObject[] = [];
 
+  const texts = objects.filter(o => o.type === 'text' && boxesIntersect(o.bounds, bounds)) as any[];
+  const tables = objects.filter(o => o.type === 'table' && boxesIntersect(o.bounds, bounds)) as any[];
+  const equations = objects.filter(o => o.type === 'equation' && boxesIntersect(o.bounds, bounds)) as any[];
+
   for (const obj of objects) {
     if (boxesIntersect(obj.bounds, bounds)) {
       if (obj.type === 'stroke') {
@@ -342,21 +346,29 @@ export function renderCrop(objects: CanvasObject[], bounds: BoundingBox, targetR
 
   renderStrokes(ctx, strokes, viewport);
 
-  for (const imgObj of images) {
-    const img = new Image();
-    img.src = imgObj.dataUrl;
-    
-    const x = imgObj.bounds.minX * viewport.zoom + viewport.offsetX;
-    const y = imgObj.bounds.minY * viewport.zoom + viewport.offsetY;
-    const w = (imgObj.bounds.maxX - imgObj.bounds.minX) * viewport.zoom;
-    const h = (imgObj.bounds.maxY - imgObj.bounds.minY) * viewport.zoom;
-    
-    try {
-      ctx.drawImage(img, x, y, w, h);
-    } catch (e) {
-      // Ignored for synchronous stub
-    }
-  }
+  // Draw structured objects so they appear in the AI crop
+  if (texts.length > 0) renderTextObjects(ctx, texts, viewport);
+  if (tables.length > 0) renderTableObjects(ctx, tables, viewport);
+  if (equations.length > 0) renderEquationObjects(ctx, equations, viewport);
+
+  // Await all images
+  const imagePromises = images.map(imgObj => {
+    return new Promise<void>((resolve) => {
+      const img = new Image();
+      img.onload = () => {
+        const x = imgObj.bounds.minX * viewport.zoom + viewport.offsetX;
+        const y = imgObj.bounds.minY * viewport.zoom + viewport.offsetY;
+        const w = (imgObj.bounds.maxX - imgObj.bounds.minX) * viewport.zoom;
+        const h = (imgObj.bounds.maxY - imgObj.bounds.minY) * viewport.zoom;
+        ctx.drawImage(img, x, y, w, h);
+        resolve();
+      };
+      img.onerror = () => resolve();
+      img.src = imgObj.dataUrl;
+    });
+  });
+
+  await Promise.all(imagePromises);
 
   return canvas.toDataURL('image/png');
 }

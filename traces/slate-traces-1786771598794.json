@@ -1,0 +1,881 @@
+[
+  {
+    "timestamp": 1786768067320,
+    "strategy": "selection",
+    "confidence": {
+      "level": "low",
+      "reasons": [
+        "object count below the sparse floor"
+      ]
+    },
+    "objectCount": 1,
+    "bounds": {
+      "minX": -2.5,
+      "minY": -2.5,
+      "maxX": 102.5,
+      "maxY": 102.5
+    },
+    "requestMetrics": {
+      "estimatedTtft": false,
+      "state": "error",
+      "encodingTime": 0,
+      "captureTime": 0,
+      "dispatchTime": 0,
+      "endToEndLatency": 664
+    },
+    "outcome": "error",
+    "configId": "default",
+    "promptVersion": "1.0.0"
+  },
+  {
+    "timestamp": 1786768124055,
+    "strategy": "unknown",
+    "confidence": {
+      "level": "low",
+      "reasons": []
+    },
+    "objectCount": 0,
+    "bounds": null,
+    "requestMetrics": {
+      "estimatedTtft": false,
+      "state": "error",
+      "encodingTime": 0,
+      "captureTime": 0,
+      "dispatchTime": 0,
+      "endToEndLatency": 664
+    },
+    "outcome": "error",
+    "configId": "default",
+    "promptVersion": "1.0.0"
+  },
+  {
+    "timestamp": 1786768410010,
+    "strategy": "selection",
+    "confidence": {
+      "level": "low",
+      "reasons": [
+        "object count below the sparse floor"
+      ]
+    },
+    "objectCount": 1,
+    "bounds": {
+      "minX": -2.5,
+      "minY": -2.5,
+      "maxX": 102.5,
+      "maxY": 102.5
+    },
+    "requestMetrics": {
+      "estimatedTtft": false,
+      "state": "completed",
+      "encodingTime": 0,
+      "captureTime": 0,
+      "dispatchTime": 0,
+      "ttfb": 6071,
+      "ttft": 6071,
+      "renderingLatency": 1,
+      "endToEndLatency": 6106
+    },
+    "outcome": "accepted",
+    "configId": "default",
+    "promptVersion": "1.0.0"
+  },
+  {
+    "timestamp": 1786768434450,
+    "strategy": "selection",
+    "confidence": {
+      "level": "low",
+      "reasons": [
+        "object count below the sparse floor"
+      ]
+    },
+    "objectCount": 1,
+    "bounds": {
+      "minX": 297.5,
+      "minY": 297.5,
+      "maxX": 402.5,
+      "maxY": 402.5
+    },
+    "requestMetrics": {
+      "estimatedTtft": false,
+      "state": "completed",
+      "encodingTime": 0,
+      "captureTime": 0,
+      "dispatchTime": 0,
+      "ttfb": 4789,
+      "ttft": 4789,
+      "renderingLatency": 0,
+      "endToEndLatency": 4903
+    },
+    "outcome": "accepted",
+    "configId": "default",
+    "promptVersion": "1.0.0"
+  },
+  {
+    "timestamp": 1786768563660,
+    "strategy": "selection",
+    "confidence": {
+      "level": "medium",
+      "reasons": [
+        "expansion was required to find content"
+      ]
+    },
+    "objectCount": 50,
+    "bounds": {
+      "minX": 45,
+      "minY": 45,
+      "maxX": 195,
+      "maxY": 195
+    },
+    "requestMetrics": {
+      "estimatedTtft": false,
+      "state": "completed",
+      "encodingTime": 0,
+      "captureTime": 0,
+      "dispatchTime": 0,
+      "ttfb": 2392,
+      "ttft": 2392,
+      "renderingLatency": 0,
+      "endToEndLatency": 2392
+    },
+    "outcome": "accepted",
+    "configId": "default",
+    "promptVersion": "1.0.0"
+  },
+  {
+    "timestamp": 1786768596027,
+    "strategy": "selection",
+    "confidence": {
+      "level": "high",
+      "reasons": [
+        "explicit selection with rich content and no expansion needed"
+      ]
+    },
+    "objectCount": 50,
+    "bounds": {
+      "minX": 45,
+      "minY": 45,
+      "maxX": 195,
+      "maxY": 195
+    },
+    "requestMetrics": {
+      "estimatedTtft": false,
+      "state": "completed",
+      "encodingTime": 0,
+      "captureTime": 0,
+      "dispatchTime": 0,
+      "ttfb": 0,
+      "ttft": 0,
+      "renderingLatency": 0,
+      "endToEndLatency": 0
+    },
+    "outcome": "accepted",
+    "configId": "default",
+    "promptVersion": "1.0.0"
+  },
+  {
+    "timestamp": 1786768750368,
+    "strategy": "selection",
+    "confidence": {
+      "level": "low",
+      "reasons": [
+        "object count below the sparse floor"
+      ]
+    },
+    "objectCount": 1,
+    "bounds": {
+      "minX": -218.60552937887525,
+      "minY": -117.5186776832732,
+      "maxX": -18.605529378875232,
+      "maxY": -17.518677683273197
+    },
+    "requestMetrics": {
+      "estimatedTtft": false,
+      "state": "completed",
+      "encodingTime": 0,
+      "captureTime": 0,
+      "dispatchTime": 0,
+      "ttfb": 822,
+      "ttft": 822,
+      "renderingLatency": 1,
+      "endToEndLatency": 997
+    },
+    "outcome": "accepted",
+    "configId": "default",
+    "promptVersion": "1.0.0"
+  },
+  {
+    "timestamp": 1786768897111,
+    "strategy": "selection",
+    "confidence": {
+      "level": "low",
+      "reasons": [
+        "object count below the sparse floor"
+      ]
+    },
+    "objectCount": 1,
+    "bounds": {
+      "minX": 154.99326046329793,
+      "minY": -374.1417692041581,
+      "maxX": 354.99326046329793,
+      "maxY": -274.1417692041581
+    },
+    "requestMetrics": {
+      "estimatedTtft": false,
+      "state": "error",
+      "encodingTime": 0,
+      "captureTime": 0,
+      "dispatchTime": 0,
+      "endToEndLatency": 3
+    },
+    "outcome": "error",
+    "configId": "default",
+    "promptVersion": "1.0.0"
+  },
+  {
+    "timestamp": 1786768902788,
+    "strategy": "unknown",
+    "confidence": {
+      "level": "low",
+      "reasons": []
+    },
+    "objectCount": 0,
+    "bounds": null,
+    "requestMetrics": {
+      "estimatedTtft": false,
+      "state": "error",
+      "encodingTime": 0,
+      "captureTime": 0,
+      "dispatchTime": 0,
+      "endToEndLatency": 3
+    },
+    "outcome": "error",
+    "configId": "default",
+    "promptVersion": "1.0.0"
+  },
+  {
+    "timestamp": 1786768906012,
+    "strategy": "selection",
+    "confidence": {
+      "level": "low",
+      "reasons": [
+        "object count below the sparse floor"
+      ]
+    },
+    "objectCount": 1,
+    "bounds": {
+      "minX": 154.99326046329793,
+      "minY": -374.1417692041581,
+      "maxX": 354.99326046329793,
+      "maxY": -274.1417692041581
+    },
+    "requestMetrics": {
+      "estimatedTtft": false,
+      "state": "error",
+      "encodingTime": 0,
+      "captureTime": 0,
+      "dispatchTime": 0,
+      "endToEndLatency": 3
+    },
+    "outcome": "error",
+    "configId": "default",
+    "promptVersion": "1.0.0"
+  },
+  {
+    "timestamp": 1786768907895,
+    "strategy": "unknown",
+    "confidence": {
+      "level": "low",
+      "reasons": []
+    },
+    "objectCount": 0,
+    "bounds": null,
+    "requestMetrics": {
+      "estimatedTtft": false,
+      "state": "error",
+      "encodingTime": 0,
+      "captureTime": 0,
+      "dispatchTime": 0,
+      "endToEndLatency": 3
+    },
+    "outcome": "error",
+    "configId": "default",
+    "promptVersion": "1.0.0"
+  },
+  {
+    "timestamp": 1786768982433,
+    "strategy": "selection",
+    "confidence": {
+      "level": "medium",
+      "reasons": [
+        "cleared low floor, but content is sparse/not rich enough for high confidence"
+      ]
+    },
+    "objectCount": 18,
+    "bounds": {
+      "minX": 111.70577515286124,
+      "minY": -369.463168167934,
+      "maxX": 394.41672259649596,
+      "maxY": -217.6940897316323
+    },
+    "requestMetrics": {
+      "estimatedTtft": false,
+      "state": "completed",
+      "encodingTime": 0,
+      "captureTime": 0,
+      "dispatchTime": 0,
+      "ttfb": 26230,
+      "ttft": 26230,
+      "renderingLatency": 1,
+      "endToEndLatency": 26231
+    },
+    "outcome": "discarded",
+    "configId": "default",
+    "promptVersion": "1.0.0"
+  },
+  {
+    "timestamp": 1786769106999,
+    "strategy": "selection",
+    "confidence": {
+      "level": "medium",
+      "reasons": [
+        "cleared low floor, but content is sparse/not rich enough for high confidence"
+      ]
+    },
+    "objectCount": 18,
+    "bounds": {
+      "minX": 194.58385065168787,
+      "minY": -348.74364929322735,
+      "maxX": 476.62642651871914,
+      "maxY": -182.27039617164994
+    },
+    "requestMetrics": {
+      "estimatedTtft": false,
+      "state": "completed",
+      "encodingTime": 0,
+      "captureTime": 0,
+      "dispatchTime": 0,
+      "ttfb": 22561,
+      "ttft": 22561,
+      "renderingLatency": 0,
+      "endToEndLatency": 22561
+    },
+    "outcome": "accepted",
+    "configId": "default",
+    "promptVersion": "1.0.0"
+  },
+  {
+    "timestamp": 1786769222893,
+    "strategy": "selection",
+    "confidence": {
+      "level": "medium",
+      "reasons": [
+        "cleared low floor, but content is sparse/not rich enough for high confidence"
+      ]
+    },
+    "objectCount": 21,
+    "bounds": {
+      "minX": -481.085921212793,
+      "minY": -846.3972585082305,
+      "maxX": -16.561457118789964,
+      "maxY": -697.2474934014441
+    },
+    "requestMetrics": {
+      "estimatedTtft": false,
+      "state": "timeout",
+      "encodingTime": 0,
+      "captureTime": 0,
+      "dispatchTime": 0,
+      "endToEndLatency": 30007
+    },
+    "outcome": "timeout",
+    "configId": "default",
+    "promptVersion": "1.0.0"
+  },
+  {
+    "timestamp": 1786769324784,
+    "strategy": "selection",
+    "confidence": {
+      "level": "medium",
+      "reasons": [
+        "cleared low floor, but content is sparse/not rich enough for high confidence"
+      ]
+    },
+    "objectCount": 21,
+    "bounds": {
+      "minX": -481.085921212793,
+      "minY": -846.3972585082305,
+      "maxX": -16.561457118789964,
+      "maxY": -697.2474934014441
+    },
+    "requestMetrics": {
+      "estimatedTtft": false,
+      "state": "completed",
+      "encodingTime": 0,
+      "captureTime": 0,
+      "dispatchTime": 0,
+      "ttfb": 2507,
+      "ttft": 2507,
+      "renderingLatency": 0,
+      "endToEndLatency": 2508
+    },
+    "outcome": "discarded",
+    "configId": "default",
+    "promptVersion": "1.0.0"
+  },
+  {
+    "timestamp": 1786769482152,
+    "strategy": "selection",
+    "confidence": {
+      "level": "low",
+      "reasons": [
+        "object count below the sparse floor"
+      ]
+    },
+    "objectCount": 7,
+    "bounds": {
+      "minX": -247.9011726936709,
+      "minY": -452.1049393080463,
+      "maxX": -27.032546996355634,
+      "maxY": -322.2788286686181
+    },
+    "requestMetrics": {
+      "estimatedTtft": false,
+      "state": "completed",
+      "encodingTime": 0,
+      "captureTime": 0,
+      "dispatchTime": 0,
+      "ttfb": 3952,
+      "ttft": 3952,
+      "renderingLatency": 0,
+      "endToEndLatency": 4124
+    },
+    "outcome": "accepted",
+    "configId": "default",
+    "promptVersion": "1.0.0"
+  },
+  {
+    "timestamp": 1786769519250,
+    "strategy": "selection",
+    "confidence": {
+      "level": "low",
+      "reasons": [
+        "object count below the sparse floor"
+      ]
+    },
+    "objectCount": 2,
+    "bounds": {
+      "minX": -210.3199313218078,
+      "minY": -123.59478292512267,
+      "maxX": -10.319931321807772,
+      "maxY": -23.594782925122665
+    },
+    "requestMetrics": {
+      "estimatedTtft": false,
+      "state": "error",
+      "encodingTime": 0,
+      "captureTime": 0,
+      "dispatchTime": 0,
+      "endToEndLatency": 3
+    },
+    "outcome": "error",
+    "configId": "default",
+    "promptVersion": "1.0.0"
+  },
+  {
+    "timestamp": 1786769526609,
+    "strategy": "selection",
+    "confidence": {
+      "level": "low",
+      "reasons": [
+        "object count below the sparse floor"
+      ]
+    },
+    "objectCount": 2,
+    "bounds": {
+      "minX": -210.3199313218078,
+      "minY": -123.59478292512267,
+      "maxX": -10.319931321807772,
+      "maxY": -23.594782925122665
+    },
+    "requestMetrics": {
+      "estimatedTtft": false,
+      "state": "error",
+      "encodingTime": 0,
+      "captureTime": 0,
+      "dispatchTime": 0,
+      "endToEndLatency": 3
+    },
+    "outcome": "error",
+    "configId": "default",
+    "promptVersion": "1.0.0"
+  },
+  {
+    "timestamp": 1786769560775,
+    "strategy": "unknown",
+    "confidence": {
+      "level": "low",
+      "reasons": []
+    },
+    "objectCount": 0,
+    "bounds": null,
+    "requestMetrics": {
+      "estimatedTtft": false,
+      "state": "error",
+      "encodingTime": 0,
+      "captureTime": 0,
+      "dispatchTime": 0,
+      "endToEndLatency": 3
+    },
+    "outcome": "error",
+    "configId": "default",
+    "promptVersion": "1.0.0"
+  },
+  {
+    "timestamp": 1786769592034,
+    "strategy": "selection",
+    "confidence": {
+      "level": "low",
+      "reasons": [
+        "object count below the sparse floor"
+      ]
+    },
+    "objectCount": 2,
+    "bounds": {
+      "minX": 67.93440805369752,
+      "minY": -789.0370753890971,
+      "maxX": 267.93440805369755,
+      "maxY": -689.0370753890971
+    },
+    "requestMetrics": {
+      "estimatedTtft": false,
+      "state": "error",
+      "encodingTime": 0,
+      "captureTime": 0,
+      "dispatchTime": 0,
+      "endToEndLatency": 3
+    },
+    "outcome": "error",
+    "configId": "default",
+    "promptVersion": "1.0.0"
+  },
+  {
+    "timestamp": 1786769600992,
+    "strategy": "unknown",
+    "confidence": {
+      "level": "low",
+      "reasons": []
+    },
+    "objectCount": 0,
+    "bounds": null,
+    "requestMetrics": {
+      "estimatedTtft": false,
+      "state": "error",
+      "encodingTime": 0,
+      "captureTime": 0,
+      "dispatchTime": 0,
+      "endToEndLatency": 3
+    },
+    "outcome": "error",
+    "configId": "default",
+    "promptVersion": "1.0.0"
+  },
+  {
+    "timestamp": 1786769704890,
+    "strategy": "selection",
+    "confidence": {
+      "level": "low",
+      "reasons": [
+        "object count below the sparse floor"
+      ]
+    },
+    "objectCount": 1,
+    "bounds": {
+      "minX": 58.326158490864714,
+      "minY": -802.3624156453722,
+      "maxX": 258.3261584908647,
+      "maxY": -702.3624156453722
+    },
+    "requestMetrics": {
+      "estimatedTtft": false,
+      "state": "completed",
+      "encodingTime": 0,
+      "captureTime": 0,
+      "dispatchTime": 0,
+      "ttfb": 751,
+      "ttft": 751,
+      "renderingLatency": 1,
+      "endToEndLatency": 832
+    },
+    "outcome": "accepted",
+    "configId": "default",
+    "promptVersion": "1.0.0"
+  },
+  {
+    "timestamp": 1786770840606,
+    "strategy": "selection",
+    "confidence": {
+      "level": "low",
+      "reasons": [
+        "object count below the sparse floor"
+      ]
+    },
+    "objectCount": 1,
+    "bounds": {
+      "minX": -2403.0628508816176,
+      "minY": 1222.2639697054337,
+      "maxX": -2203.0628508816176,
+      "maxY": 1322.2639697054337
+    },
+    "requestMetrics": {
+      "estimatedTtft": false,
+      "state": "completed",
+      "encodingTime": 0,
+      "captureTime": 0,
+      "dispatchTime": 0,
+      "ttfb": 1647,
+      "ttft": 1647,
+      "renderingLatency": 1,
+      "endToEndLatency": 1648
+    },
+    "outcome": "accepted",
+    "configId": "default",
+    "promptVersion": "1.0.0"
+  },
+  {
+    "timestamp": 1786770935960,
+    "strategy": "selection",
+    "confidence": {
+      "level": "low",
+      "reasons": [
+        "object count below the sparse floor"
+      ]
+    },
+    "objectCount": 6,
+    "bounds": {
+      "minX": -2063.486502295249,
+      "minY": 818.1271199304641,
+      "maxX": -1863.4865022952492,
+      "maxY": 931.4267771430858
+    },
+    "requestMetrics": {
+      "estimatedTtft": false,
+      "state": "completed",
+      "encodingTime": 0,
+      "captureTime": 0,
+      "dispatchTime": 0,
+      "ttfb": 1793,
+      "ttft": 1793,
+      "renderingLatency": 1,
+      "endToEndLatency": 1794
+    },
+    "outcome": "discarded",
+    "configId": "default",
+    "promptVersion": "1.0.0"
+  },
+  {
+    "timestamp": 1786770952070,
+    "strategy": "selection",
+    "confidence": {
+      "level": "low",
+      "reasons": [
+        "object count below the sparse floor"
+      ]
+    },
+    "objectCount": 1,
+    "bounds": {
+      "minX": -2063.486502295249,
+      "minY": 818.1271199304641,
+      "maxX": -1863.4865022952492,
+      "maxY": 918.1271199304641
+    },
+    "requestMetrics": {
+      "estimatedTtft": false,
+      "state": "error",
+      "encodingTime": 1,
+      "captureTime": 0,
+      "dispatchTime": 0,
+      "endToEndLatency": 5
+    },
+    "outcome": "error",
+    "configId": "default",
+    "promptVersion": "1.0.0"
+  },
+  {
+    "timestamp": 1786770954774,
+    "strategy": "unknown",
+    "confidence": {
+      "level": "low",
+      "reasons": []
+    },
+    "objectCount": 0,
+    "bounds": null,
+    "requestMetrics": {
+      "estimatedTtft": false,
+      "state": "error",
+      "encodingTime": 1,
+      "captureTime": 0,
+      "dispatchTime": 0,
+      "endToEndLatency": 5
+    },
+    "outcome": "error",
+    "configId": "default",
+    "promptVersion": "1.0.0"
+  },
+  {
+    "timestamp": 1786770955950,
+    "strategy": "selection",
+    "confidence": {
+      "level": "low",
+      "reasons": [
+        "object count below the sparse floor"
+      ]
+    },
+    "objectCount": 1,
+    "bounds": {
+      "minX": -2063.486502295249,
+      "minY": 818.1271199304641,
+      "maxX": -1863.4865022952492,
+      "maxY": 918.1271199304641
+    },
+    "requestMetrics": {
+      "estimatedTtft": false,
+      "state": "error",
+      "encodingTime": 0,
+      "captureTime": 0,
+      "dispatchTime": 0,
+      "endToEndLatency": 4
+    },
+    "outcome": "error",
+    "configId": "default",
+    "promptVersion": "1.0.0"
+  },
+  {
+    "timestamp": 1786770962633,
+    "strategy": "unknown",
+    "confidence": {
+      "level": "low",
+      "reasons": []
+    },
+    "objectCount": 0,
+    "bounds": null,
+    "requestMetrics": {
+      "estimatedTtft": false,
+      "state": "error",
+      "encodingTime": 0,
+      "captureTime": 0,
+      "dispatchTime": 0,
+      "endToEndLatency": 4
+    },
+    "outcome": "error",
+    "configId": "default",
+    "promptVersion": "1.0.0"
+  },
+  {
+    "timestamp": 1786770967328,
+    "strategy": "selection",
+    "confidence": {
+      "level": "low",
+      "reasons": [
+        "object count below the sparse floor"
+      ]
+    },
+    "objectCount": 1,
+    "bounds": {
+      "minX": -2063.486502295249,
+      "minY": 818.1271199304641,
+      "maxX": -1863.4865022952492,
+      "maxY": 918.1271199304641
+    },
+    "requestMetrics": {
+      "estimatedTtft": false,
+      "state": "error",
+      "encodingTime": 0,
+      "captureTime": 0,
+      "dispatchTime": 0,
+      "endToEndLatency": 9
+    },
+    "outcome": "error",
+    "configId": "default",
+    "promptVersion": "1.0.0"
+  },
+  {
+    "timestamp": 1786770973674,
+    "strategy": "unknown",
+    "confidence": {
+      "level": "low",
+      "reasons": []
+    },
+    "objectCount": 0,
+    "bounds": null,
+    "requestMetrics": {
+      "estimatedTtft": false,
+      "state": "error",
+      "encodingTime": 0,
+      "captureTime": 0,
+      "dispatchTime": 0,
+      "endToEndLatency": 9
+    },
+    "outcome": "error",
+    "configId": "default",
+    "promptVersion": "1.0.0"
+  },
+  {
+    "timestamp": 1786771494758,
+    "strategy": "selection",
+    "confidence": {
+      "level": "low",
+      "reasons": [
+        "object count below the sparse floor"
+      ]
+    },
+    "objectCount": 1,
+    "bounds": {
+      "minX": 822.5,
+      "minY": 523,
+      "maxX": 1022.5,
+      "maxY": 623
+    },
+    "requestMetrics": {
+      "estimatedTtft": false,
+      "state": "timeout",
+      "encodingTime": 0,
+      "captureTime": 0,
+      "dispatchTime": 0,
+      "endToEndLatency": 30012
+    },
+    "outcome": "timeout",
+    "configId": "default",
+    "promptVersion": "1.0.0"
+  },
+  {
+    "timestamp": 1786771566597,
+    "strategy": "selection",
+    "confidence": {
+      "level": "low",
+      "reasons": [
+        "object count below the sparse floor"
+      ]
+    },
+    "objectCount": 1,
+    "bounds": {
+      "minX": 822.5,
+      "minY": 523,
+      "maxX": 1022.5,
+      "maxY": 623
+    },
+    "requestMetrics": {
+      "estimatedTtft": false,
+      "state": "completed",
+      "encodingTime": 0,
+      "captureTime": 0,
+      "dispatchTime": 0,
+      "ttfb": 1575,
+      "ttft": 1575,
+      "renderingLatency": 0,
+      "endToEndLatency": 1579
+    },
+    "outcome": "accepted",
+    "configId": "default",
+    "promptVersion": "1.0.0"
+  }
+]

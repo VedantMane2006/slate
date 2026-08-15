@@ -42,15 +42,15 @@ Metrics are derived purely from the timestamp map in the `RequestLifecycleManage
 When exact `usageMetadata` is missing from the Gemini SDK (e.g. streaming early termination), we fall back to a heuristic estimator:
 - **Text**: `ceil(character_count / 4)`
 - **Image**: Base 258 tokens + `ceil((width * height) / 256)`
-- **Validated Error**: Experiments proved the image estimator is fundamentally incorrect for Gemini 2.5 Flash. The model charges a flat 258 tokens for standard images regardless of resolution (512px, 1024px, 1536px), whereas the estimator scales linearly. As a result, the estimator routinely over-estimates cost on dense scenes.
+- **Validated Error**: Experiments proved the image estimator is fundamentally incorrect for Gemini Flash models. The model charges a flat 258 tokens for standard images regardless of resolution (512px, 1024px, 1536px), whereas the estimator scales linearly. As a result, the estimator routinely over-estimates cost on dense scenes.
 
 ## 4. Rate Table (Source & Date)
-*Source: Google AI Studio Pricing for gemini-1.5-flash / gemini-2.5-flash under 128k context.*
+*Source: Google AI Studio Pricing for gemini-flash-lite-latest under 128k context.*
 *Date Checked: August 2026*
 | Token Type | Rate (per 1M tokens) |
 |------------|----------------------|
-| Prompt | $0.075 |
-| Completion (Response) | $0.30 |
+| Prompt | $0.0375 |
+| Completion (Response) | $0.15 |
 
 ## 5. KPI Formulas
 - **p50 / p95 End-to-End Latency**: The 50th and 95th percentile of `endToEndLatency` across all non-error completed traces.

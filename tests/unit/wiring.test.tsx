@@ -4,6 +4,10 @@ import { renderHook, act } from '@testing-library/react';
 import { AILifecycleProvider, useAILifecycle } from '../../src/providers/AILifecycleProvider.tsx';
 import * as GateModule from '../../src/ai/gating/gate.ts';
 
+vi.mock('../../src/canvas/renderer.ts', () => ({
+  renderCrop: vi.fn().mockResolvedValue('mock-crop-data-url')
+}));
+
 // We mock GeminiClient to assert call count
 const mockSendRequest = vi.fn();
 vi.mock('../../src/ai/adapters/gemini.ts', () => {

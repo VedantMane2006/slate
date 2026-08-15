@@ -12,23 +12,23 @@ For our initial comparative testing, we constructed two benchmark canvases (Spar
 **Latency (ms)**
 | Arm | p50 Latency | p95 Latency |
 |-----|-------------|-------------|
-| Fixed 1024px | 12,169 | 24,400 |
-| Adaptive | 17,846 | 35,300 |
+| Fixed 1024px | 2508 (N=15) | 30012 (N=15) |
+| Adaptive | N/A (Disabled) | N/A (Disabled) |
 
 **Prompt Token Cost**
 | Arm | p50 Tokens | p95 Tokens |
 |-----|------------|------------|
-| Fixed 1024px | 439 | 439 |
-| Adaptive | 439 | 439 |
+| Fixed 1024px | N/A (N=15) | N/A (N=15) |
+| Adaptive | N/A (Disabled) | N/A (Disabled) |
 
 ## 4. Chart
 
 ```mermaid
 xychart-beta
-    title "End-to-End Latency by Arm"
+    title "End-to-End Latency by Arm (N=15)"
     x-axis ["Fixed 1024px (p50)", "Fixed 1024px (p95)", "Adaptive (p50)", "Adaptive (p95)"]
     y-axis "Latency (ms)" 0 --> 40000
-    bar [12169, 24400, 17846, 35300]
+    bar [2508, 30012, 0, 0]
 ```
 
 ## 5. Two Optimisations (Before/After Deltas)

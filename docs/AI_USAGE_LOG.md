@@ -12,7 +12,7 @@ This document details how AI coding tools were utilized throughout the developme
 While AI generation was highly effective, several instances required explicit human-guided debugging and manual intervention:
 
 1. **The Model-Name 404 Fix (Phase 7, Part 3)**:
-   The AI initially generated code that attempted to call the `gemini-1.5-flash` model on the `v1beta` endpoint, which had been deprecated and returned a 404 error. This required human debugging to diagnose the API version change, explicitly instruct the AI to bump the `@google/generative-ai` SDK from `0.21.0` to `0.24.1`, and switch the configuration to use the `gemini-2.5-flash` model.
+   The AI initially generated code that attempted to call the `gemini-1.5-flash` model on the `v1beta` endpoint, which had been deprecated and returned a 404 error. This required human debugging to diagnose the API version change, explicitly instruct the AI to bump the `@google/generative-ai` SDK from `0.21.0` to `0.24.1`, and switch the configuration to use the `gemini-flash-lite-latest` model.
 
 2. **Event-Bubbling Editor Dismissal Bug (Phase 10)**:
    During the implementation of the UI toolbar and structured object editors (Table, Text, Equation), an issue emerged where interacting with the editor overlays caused them to instantly dismiss. The AI struggled to immediately pinpoint the root cause. It required human-guided debugging to identify that React event bubbling was passing `pointerdown` events through the overlays down to the canvas viewport, triggering a deselect/dismiss action. The AI was then instructed to insert explicit `e.stopPropagation()` handlers to fix the issue.

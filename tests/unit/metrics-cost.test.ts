@@ -37,9 +37,9 @@ describe('Metrics Cost Derivation', () => {
     expect(metrics.totalTokens).toBe(200);
     
     // (150 / 1_000_000) * 0.075 = 0.00001125
-    // (50 / 1_000_000) * 0.30 = 0.000015
-    // Total = 0.00002625
-    expect(metrics.costUsd).toBeCloseTo(0.00002625, 8);
+    // (50 / 1_000_000) * 0.15 = 0.0000075
+    // Total = 0.000013125
+    expect(metrics.costUsd).toBeCloseTo(0.000013125, 8);
   });
 
   it('a fixture response WITHOUT usageMetadata produces estimated: true and a reasonable estimated token count', () => {
@@ -55,9 +55,9 @@ describe('Metrics Cost Derivation', () => {
     expect(metrics.totalTokens).toBe(111);
 
     // Prompt cost: 105 / 1000000 * 0.075 = 0.000007875
-    // Response cost: 6 / 1000000 * 0.30 = 0.0000018
-    // Total = 0.000009675
-    expect(metrics.costUsd).toBeCloseTo(0.000009675, 8);
+    // Response cost: 6 / 1000000 * 0.15 = 0.0000009
+    // Total = 0.0000048375
+    expect(metrics.costUsd).toBeCloseTo(0.0000048375, 8);
   });
 
   it('cost calculation is correct given a known token count and the documented rate', () => {
@@ -72,8 +72,8 @@ describe('Metrics Cost Derivation', () => {
     
     expect(metrics.promptTokens).toBe(1_000_000);
     expect(metrics.responseTokens).toBe(1_000_000);
-    // Cost should be exactly 0.075 + 0.30 = 0.375
-    expect(metrics.costUsd).toBe(0.375);
+    // Cost should be exactly 0.0375 + 0.15 = 0.1875
+    expect(metrics.costUsd).toBe(0.1875);
   });
 
   it('estimates image tokens using crop resolution', () => {

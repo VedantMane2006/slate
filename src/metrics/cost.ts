@@ -9,11 +9,11 @@ export interface CostMetrics {
   costUsd: number;
 }
 
-// Pricing for gemini-2.5-flash (as documented for typical Flash models under 128k context)
-// Prompt: $0.075 per 1 million tokens
-// Completion: $0.30 per 1 million tokens
-const COST_PER_1M_PROMPT_TOKENS = 0.075;
-const COST_PER_1M_RESPONSE_TOKENS = 0.30;
+// Pricing for gemini-flash-lite-latest (typical Flash-Lite models under 128k context)
+// Prompt: $0.0375 per 1 million tokens
+// Completion: $0.15 per 1 million tokens
+const COST_PER_1M_PROMPT_TOKENS = 0.0375;
+const COST_PER_1M_RESPONSE_TOKENS = 0.15;
 
 /**
  * Derives token usage and cost for a completed AI request.

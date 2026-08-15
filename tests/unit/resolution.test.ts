@@ -95,7 +95,7 @@ describe('Adaptive Crop Resolution', () => {
       setForceFixedResolution(null);
     });
 
-    it('bypasses chooseResolution when set to 1024', () => {
+    it('bypasses chooseResolution when set to 1024', async () => {
       // Set up a dense scene that would normally produce 1536
       const objects: CanvasObject[] = [];
       for (let i = 0; i < 40; i++) {
@@ -116,17 +116,17 @@ describe('Adaptive Crop Resolution', () => {
 
       // Without override: adaptive should NOT pick 1024 for 40 dense objects
       setForceFixedResolution(null);
-      const adaptiveResult = composeMultimodalRequest(result, objects);
+      const adaptiveResult = await composeMultimodalRequest(result, objects);
       expect(adaptiveResult.metadata.resolution).not.toBe(1024);
 
       // With override: should force 1024 regardless
       setForceFixedResolution(1024);
-      const fixedResult = composeMultimodalRequest(result, objects);
+      const fixedResult = await composeMultimodalRequest(result, objects);
       expect(fixedResult.metadata.resolution).toBe(1024);
       expect(fixedResult.payload.image).toBe('mock-crop-1024');
     });
 
-    it('uses adaptive resolution when override is null', () => {
+    it('uses adaptive resolution when override is null', async () => {
       setForceFixedResolution(null);
 
       // Sparse scene: 2 objects, low density → should get 512
@@ -142,7 +142,7 @@ describe('Adaptive Crop Resolution', () => {
         expanded: false
       };
 
-      const { metadata } = composeMultimodalRequest(result, objects);
+      const { metadata } = await composeMultimodalRequest(result, objects);
       expect(metadata.resolution).toBe(512);
     });
   });

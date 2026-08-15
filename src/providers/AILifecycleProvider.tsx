@@ -48,7 +48,7 @@ export function AILifecycleProvider({ children }: { children: React.ReactNode })
     }
 
     // 2. Compose payload and compute deterministic hash for dedup
-    const { payload } = composeMultimodalRequest(result, objects);
+    const { payload } = await composeMultimodalRequest(result, objects);
     const canonicalData = canonicalSerialize(result, objects);
     const hash = await computeRequestHash(canonicalData);
     

@@ -19,7 +19,7 @@ describe('Metrics Aggregation', () => {
     expect(result.averageLatencyMs).toBe(1250);
 
     // Average cost: (0.1 + 0.2 + 0.15 + 0.05) / 4 = 0.125
-    expect(result.averageCostUsd).toBe(0.125);
+    expect(result.averageCostUsd).toBeCloseTo(0.125, 8);
   });
 
   it('wastedTokenRatio correctly excludes accepted requests from the wasted numerator', () => {

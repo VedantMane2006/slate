@@ -11,7 +11,7 @@ vi.mock('../../src/canvas/renderer.ts', () => ({
 }));
 
 describe('composeMultimodalRequest', () => {
-  it('correctly separates image-producing object types from fragment-producing types', () => {
+  it('correctly separates image-producing object types from fragment-producing types', async () => {
     const strokeObj: Stroke = {
       id: 'stroke-1',
       type: 'stroke',
@@ -44,14 +44,14 @@ describe('composeMultimodalRequest', () => {
       expanded: false
     };
 
-    const { payload } = composeMultimodalRequest(result, allObjects);
+    const { payload } = await composeMultimodalRequest(result, allObjects);
 
     expect(payload.image).toBe('mock-data-url');
     expect(payload.fragments).toHaveLength(1);
     expect(payload.fragments[0]).toEqual({ kind: 'text', data: 'hello' });
   });
 
-  it('a scene mixing strokes + a table + text produces a payload with one image field and correctly-typed fragments for each structured object', () => {
+  it('a scene mixing strokes + a table + text produces a payload with one image field and correctly-typed fragments for each structured object', async () => {
     const stroke1 = { id: 's1', type: 'stroke', bounds: { minX: 0, minY: 0, maxX: 5, maxY: 5 } } as CanvasObject;
     const stroke2 = { id: 's2', type: 'stroke', bounds: { minX: 5, minY: 5, maxX: 10, maxY: 10 } } as CanvasObject;
     const imageObj = { id: 'img1', type: 'image', bounds: { minX: 0, minY: 0, maxX: 2, maxY: 2 } } as CanvasObject;
@@ -79,7 +79,7 @@ describe('composeMultimodalRequest', () => {
       expanded: false
     };
 
-    const { payload } = composeMultimodalRequest(result, allObjects);
+    const { payload } = await composeMultimodalRequest(result, allObjects);
 
     expect(payload.image).toBe('mock-data-url');
     expect(payload.fragments).toHaveLength(2);

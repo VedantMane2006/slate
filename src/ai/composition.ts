@@ -15,10 +15,10 @@ export interface CompositionMetadata {
   imageObjectCount: number;
 }
 
-export function composeMultimodalRequest(
+export async function composeMultimodalRequest(
   result: ExtractionResult,
   allObjects: CanvasObject[]
-): { payload: MultimodalRequestPayload; metadata: CompositionMetadata } {
+): Promise<{ payload: MultimodalRequestPayload; metadata: CompositionMetadata }> {
   const extractedObjects = allObjects.filter((obj) => result.objectIds.includes(obj.id));
   
   const imageObjects: CanvasObject[] = [];
@@ -31,6 +31,12 @@ export function composeMultimodalRequest(
       const serializableObj = obj as unknown as Serializable;
       if (typeof serializableObj.toAIPayload === 'function') {
         fragments.push(serializableObj.toAIPayload());
+      } else if (obj.type === 'text') {
+        fragments.push({ kind: 'text', data: (obj as any).text });
+      } else if (obj.type === 'equation') {
+        fragments.push({ kind: 'text', data: (obj as any).latex });
+      } else if (obj.type === 'table') {
+        fragments.push({ kind: 'json', data: { rows: (obj as any).rows } });
       }
     }
   }
@@ -38,12 +44,12 @@ export function composeMultimodalRequest(
   let image = '';
   let resolution = 1024;
   let inkDensity = 0;
-  if (imageObjects.length > 0 && result.bounds) {
+  if (extractedObjects.length > 0 && result.bounds) {
     inkDensity = computeInkDensity(imageObjects, result.bounds);
     resolution = FORCE_FIXED_RESOLUTION !== null
       ? FORCE_FIXED_RESOLUTION
-      : chooseResolution(imageObjects.length, inkDensity);
-    image = renderCrop(imageObjects, result.bounds, resolution);
+      : chooseResolution(extractedObjects.length, inkDensity);
+    image = await renderCrop(extractedObjects, result.bounds, resolution);
   }
   
   return {

@@ -55,12 +55,7 @@ The Gemini AI is prompted to return structured JSON matching a strict flat schem
 - The AI never generates images.
 - Rendering happens entirely locally via React components using `marked` and `dompurify` for sanitized Markdown, `katex` for LaTeX math, standard HTML tables, and a custom, lightweight SVG renderer for graphs.
 
-## 7. Metrics and Instrumentation Approach
-All performance metrics are derived strictly from the `RequestLifecycleManager`'s timestamp map (e.g., `endToEndLatency`, `ttfb`, `ttft`). No parallel stopwatches exist in the codebase.
-- **Token/Cost Estimation**: Since we implemented **true token streaming** via `generateContentStream` in Phase 7 (chunked iteratively), Time-To-First-Token (TTFT) metrics are exact. 
-- Overall token counts and USD costs are tagged with `estimated: boolean`. If exact `usageMetadata` is unavailable, we fall back to deterministic text length and adaptive-crop-resolution heuristics to estimate cost accurately.
-
-## 8. Gating and Deduplication Strategy
+## 7. Gating and Deduplication Strategy
 To save tokens on auto-triggered requests, a pure `evaluateGate` function acts as a firewall before reaching the network:
 - **Gating**: It checks that the working set has > 15 objects, the bounds area is > 100px, idle time > 2000ms, and the canvas is not empty. If triggered manually, these checks are immediately bypassed.
 - **Deduplication**: We implemented a `DedupCache` using SubtleCrypto SHA-256 for deterministic hashing of canonical request data (the JSON data strings, never the rendered pixel buffers). The cache uses an LRU-style max size cap and time-based TTL to instantly resolve *exact, identical duplicate requests* from memory. It is strictly scoped to exact canonical-data matching only; it does not perform fuzzy, semantic, or near-duplicate similarity matching (e.g., adding a single new dot correctly breaks the hash and triggers a fresh API call by design).

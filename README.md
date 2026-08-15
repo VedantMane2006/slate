@@ -34,3 +34,7 @@ This repo is governed by four documents in the project root — read them before
 - **Architecture.md** — technical architecture and folder ownership
 - **Rules.md** — constraints for AI coding tools and contributors
 - **Memory.md** — progress log and decisions ledger
+
+## Data Limitations
+
+Real trace count is N=15 (not 50), and benchmark canvas count is 2 (not 5). This is due to free-tier daily quota constraints during a one-week solo build.
