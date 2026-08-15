@@ -31,7 +31,20 @@ xychart-beta
     bar [2508, 30012, 0, 0]
 ```
 
-## 5. Two Optimisations (Before/After Deltas)
+## 5. Experiment: Adaptive vs. Fixed Resolution
+
+We compared the adaptive resolution arm (512px, 1024px, 1536px dynamic cropping) against the fixed-1024px baseline across two benchmark canvases (Sparse and Dense) to measure real latency and token costs. 
+
+| Benchmark | Configuration | Resolution | End-to-End Latency | Prompt Tokens | Total Tokens | Estimated Cost (USD) |
+|-----------|---------------|------------|-------------------|---------------|--------------|----------------------|
+| Sparse | Adaptive | 512px | 3936 ms | 1270 | 1298 | $0.000051825 |
+| Sparse | Fixed-1024 | 1024px | 1316 ms | 1270 | 1297 | $0.000051675 |
+| Dense | Adaptive | 1536px | 2007 ms | 1270 | 1297 | $0.000051675 |
+| Dense | Fixed-1024 | 1024px | 1141 ms | 1270 | 1303 | $0.000052575 |
+
+**Conclusion:** The adaptive resolution heuristic did not provide any latency or cost benefit in this test. Gemini 2.5 Flash charges a flat token rate (1270 prompt tokens) regardless of whether the image crop is 512px or 1536px, meaning cost savings from downsizing sparse scenes are non-existent. Furthermore, the fixed-1024px configuration performed significantly faster in both benchmarks (1316ms vs 3936ms for Sparse, and 1141ms vs 2007ms for Dense). The fixed-1024px arm is conclusively superior.
+
+## 6. Two Optimisations (Before/After Deltas)
 
 **Optimisation 1: Gating Heuristic**
 - **Before**: Every 2000ms idle trigger resulted in a network call, even for trivial scenes (e.g., 2 objects), costing 439 prompt tokens and ~10s latency per call.
@@ -43,7 +56,7 @@ xychart-beta
 - **After**: SHA-256 hash matching returns cached results in ~2ms.
 - **Delta**: 99.9% reduction in latency (from ~12s to 2ms) and 100% reduction in tokens for identical repeated requests.
 
-## 6. Recommendation and Trade-off
+## 7. Recommendation and Trade-off
 
 **Recommendation**: We recommend disabling the adaptive resolution heuristic and standardizing on the fixed 1024px pipeline. We also recommend keeping Gating and Dedup enabled.
 
