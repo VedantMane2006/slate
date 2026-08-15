@@ -56,7 +56,7 @@ describe('renderCrop', () => {
       return document.createElement(tagName);
     });
     
-    const dataUrl = await renderCrop([stroke], bounds);
+    const dataUrl = await renderCrop([stroke], bounds, 20);
     
     expect(typeof dataUrl).toBe('string');
     expect(dataUrl.startsWith('data:')).toBe(true);
@@ -127,7 +127,7 @@ describe('renderCrop', () => {
       return document.createElement(tagName);
     });
     
-    await renderCrop([strokeInside, strokeOutside], bounds);
+    await renderCrop([strokeInside, strokeOutside], bounds, 20);
     
     // strokeOutside should be skipped. 
     // Therefore renderStrokes should only process strokeInside.
@@ -138,5 +138,55 @@ describe('renderCrop', () => {
     expect(moveToSpy).toHaveBeenCalledWith(5, 5);
 
     createElementSpy.mockRestore();
+  });
+});
+
+import { renderDraftObjects } from '../../src/canvas/renderer.ts';
+import type { DraftObject } from '../../src/objects/draft-object.ts';
+
+describe('renderDraftObjects', () => {
+  it('renders table and latex placeholders if present in draft data', () => {
+    const draft: DraftObject = {
+      id: 'draft-1',
+      type: 'draft',
+      bounds: { minX: 0, minY: 0, maxX: 100, maxY: 200 },
+      data: {
+        explanation: 'Here is your data:',
+        table: [['A', 'B'], ['1', '2']],
+        latex: '\\frac{1}{2}'
+      },
+      toAIPayload: () => ({ kind: 'json', data: {} })
+    };
+
+    const mockCtx = {
+      beginPath: vi.fn(),
+      moveTo: vi.fn(),
+      lineTo: vi.fn(),
+      arcTo: vi.fn(),
+      closePath: vi.fn(),
+      stroke: vi.fn(),
+      strokeRect: vi.fn(),
+      fillRect: vi.fn(),
+      fillText: vi.fn(),
+      measureText: vi.fn().mockReturnValue({ width: 10 }),
+      save: vi.fn(),
+      restore: vi.fn(),
+      translate: vi.fn(),
+      arc: vi.fn(),
+      fill: vi.fn()
+    } as unknown as CanvasRenderingContext2D;
+
+    const viewport = { offsetX: 0, offsetY: 0, zoom: 1 };
+
+    renderDraftObjects(mockCtx, [draft], viewport);
+
+    // Verify it attempted to draw the table cells
+    expect(mockCtx.fillText).toHaveBeenCalledWith('A', expect.any(Number), expect.any(Number), expect.any(Number));
+    expect(mockCtx.fillText).toHaveBeenCalledWith('B', expect.any(Number), expect.any(Number), expect.any(Number));
+    expect(mockCtx.fillText).toHaveBeenCalledWith('1', expect.any(Number), expect.any(Number), expect.any(Number));
+    expect(mockCtx.fillText).toHaveBeenCalledWith('2', expect.any(Number), expect.any(Number), expect.any(Number));
+
+    // Verify it drew the latex placeholder (which takes 3 args: text, x, y)
+    expect(mockCtx.fillText).toHaveBeenCalledWith('LaTeX Formula', expect.any(Number), expect.any(Number));
   });
 });

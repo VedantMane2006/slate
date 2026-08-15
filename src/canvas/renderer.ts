@@ -97,6 +97,56 @@ export function renderDraftObjects(ctx: CanvasRenderingContext2D, drafts: DraftO
     }
     if (line && textY <= y + h - padding) {
       ctx.fillText(line, x + padding, textY);
+      textY += lineHeight;
+    } else if (line) {
+      // Just advance textY even if clipped
+      textY += lineHeight;
+    }
+    
+    // Draw table if present
+    if (draft.data.table && draft.data.table.length > 0 && textY <= y + h - padding) {
+      textY += 4; // spacing
+      const rows = draft.data.table.length;
+      const cols = draft.data.table[0].length || 1;
+      const cellW = Math.max((w - padding * 2) / cols, 20);
+      const cellH = 20;
+
+      ctx.strokeStyle = '#94a3b8';
+      ctx.lineWidth = 1;
+      
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const cx = x + padding + c * cellW;
+          const cy = textY + r * cellH;
+          if (cy + cellH > y + h - padding) break; // Don't overflow draft card
+          
+          ctx.strokeRect(cx, cy, cellW, cellH);
+          ctx.fillStyle = r === 0 ? '#f1f5f9' : '#ffffff';
+          ctx.fillRect(cx + 0.5, cy + 0.5, cellW - 1, cellH - 1);
+
+          ctx.fillStyle = '#333';
+          ctx.font = r === 0 ? 'bold 10px sans-serif' : '10px sans-serif';
+          ctx.textBaseline = 'middle';
+          const cellText = draft.data.table[r][c] || '';
+          ctx.fillText(cellText, cx + 4, cy + cellH / 2, cellW - 8);
+        }
+      }
+      textY += rows * cellH + 4;
+    }
+
+    // Draw latex placeholder if present (actual latex is complex to draw synchronously here)
+    if (draft.data.latex && textY <= y + h - padding) {
+      textY += 4;
+      ctx.fillStyle = '#f8f9fa';
+      ctx.fillRect(x + padding, textY, w - padding * 2, 24);
+      ctx.strokeStyle = '#dee2e6';
+      ctx.strokeRect(x + padding, textY, w - padding * 2, 24);
+      
+      ctx.fillStyle = '#1e293b';
+      ctx.font = 'italic 11px serif';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('LaTeX Formula', x + padding + 4, textY + 12);
+      textY += 28;
     }
   }
 }
